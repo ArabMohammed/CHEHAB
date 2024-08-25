@@ -23,6 +23,7 @@ Ciphertext c12298;
 evaluator.rotate_rows(c8198, 2048, galois_keys, c12298);
 evaluator.add(c8198, c12298, c8198);
 evaluator.rotate_rows(c8198, 1024, galois_keys, c12298);
+
 evaluator.add(c8198, c12298, c8198);
 evaluator.rotate_rows(c8198, 512, galois_keys, c12298);
 evaluator.add(c8198, c12298, c8198);

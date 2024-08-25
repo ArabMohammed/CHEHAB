@@ -6,7 +6,8 @@
 #include <stdexcept>
 #include <utility>
 #include <vector>
-
+# include <iostream>
+#include <iostream>
 using namespace std;
 
 namespace fheco
@@ -136,22 +137,31 @@ Ciphertext operator*(const Ciphertext &lhs, const Ciphertext &rhs)
 {
   if (lhs.idx().size() || rhs.idx().size())
     throw invalid_argument("subscript read must be performed on const variables");
-
+  
   Ciphertext dest{};
   Compiler::active_func()->operate_binary(ir::OpCode::mul, lhs, rhs, dest);
   return dest;
 }
-
+/********************************************************************/
 Ciphertext operator*(const Ciphertext &lhs, const Plaintext &rhs)
 {
   if (lhs.idx().size() || rhs.idx().size())
     throw invalid_argument("subscript read must be performed on const variables");
-
   Ciphertext dest{};
   Compiler::active_func()->operate_binary(ir::OpCode::mul, lhs, rhs, dest);
   return dest;
 }
+/*********************************/
+Ciphertext operator*(const Ciphertext* lhs, const Plaintext &rhs)
+{
+  if ((*lhs).idx().size() || rhs.idx().size())
+    throw invalid_argument("subscript read must be performed on const variables");
+  Ciphertext dest{};
+  Compiler::active_func()->operate_binary(ir::OpCode::mul, *lhs, rhs, dest);
+  return dest;
+}
 
+/********************************************************************/
 Ciphertext operator*(const Plaintext &lhs, const Ciphertext &rhs)
 {
   if (lhs.idx().size() || rhs.idx().size())
@@ -291,7 +301,23 @@ Plaintext &operator>>=(Plaintext &arg, int steps)
   arg = arg >> steps;
   return arg;
 }
-
+/***************************************************************************************/
+Ciphertext SumVec(const Ciphertext &arg, int size)
+{
+  if (arg.idx().size())
+    throw invalid_argument("subscript read must be performed on const variables");
+  auto signed_slot_count = static_cast<int64_t>(Compiler::active_func()->slot_count());
+  if (size > signed_slot_count || size < 0)
+  {
+    size %= signed_slot_count;
+    if (size < 0)
+      size += signed_slot_count;
+  }
+  Ciphertext dest{};
+  Compiler::active_func()->operate_unary(ir::OpCode::SumVec(size), arg, dest);
+  return dest;
+}
+/***************************************************************************************/
 // encryption
 Ciphertext encrypt(const Plaintext &arg)
 {

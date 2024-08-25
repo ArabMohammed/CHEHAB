@@ -9,6 +9,18 @@
 
 namespace fheco::ir
 {
+/*
+static std::size_t count_;
+std::size_t id_;
+OpCode op_code_;
+std::vector<Term *> operands_;
+Type type_;
+    enum class Type
+    {
+      cipher,
+      plain
+    };
+*/
 class Term
 {
 public:

@@ -17,6 +17,14 @@ class Func;
 
 namespace fheco::trs
 {
+/*
+  std::string name_;
+  TermMatcher lhs_;
+  std::function<TermMatcher(const Substitution &)> rhs_;
+  bool has_dynamic_rhs_;
+  std::function<bool(const Substitution &)> cond_;
+  bool has_cond_;
+*/
 class Rule
 {
 public:

@@ -15,7 +15,7 @@ using namespace fheco;
 void box_blur(size_t width)
 {
   vector<vector<integer>> kernel = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
-  Ciphertext img("img");
+  /*   Ciphertext img("img");
   Ciphertext top_row = img >> width;
   Ciphertext bottom_row = img << width;
   Ciphertext top_sum = kernel[0][0] * (top_row >> 1) + kernel[0][1] * top_row + kernel[0][2] * (top_row << 1);
@@ -23,7 +23,18 @@ void box_blur(size_t width)
   Ciphertext bottom_sum =
     kernel[2][0] * (bottom_row >> 1) + kernel[2][1] * bottom_row + kernel[2][2] * (bottom_row << 1);
   Ciphertext result = top_sum + curr_sum + bottom_sum;
+  result.set_output("result"); */
+  /**********************************************/
+  Ciphertext img("img",2);
+  Ciphertext result(2);
+  img.set_dimensions_sizes({64,64});
+  img.set_minimum_coordinates({0,0});
+  Var x,y ;
+  result(x,y)=img(x-1,y-1)*kernel[0][0]+img(x-1,y)*kernel[0][1]+img(x-1,y+1)*kernel[0][2]+
+              img(x,y-1)*kernel[1][0]+img(x,y)*kernel[1][1]+img(x,y+1)*kernel[1][2]+
+              img(x+1,y-1)*kernel[1][0]+img(x+1,y)*kernel[1][1]+img(x+1,y+1)*kernel[1][2] ;
   result.set_output("result");
+  
 }
 
 void print_bool_arg(bool arg, const string &name, ostream &os)
@@ -33,17 +44,17 @@ void print_bool_arg(bool arg, const string &name, ostream &os)
 
 int main(int argc, char **argv)
 {
-  bool call_quantifier = false;
+  auto axiomatic = false;
   if (argc > 1)
-    call_quantifier = stoi(argv[1]);
+    axiomatic = stoi(argv[1]) ? true : false;
 
-  auto ruleset = Compiler::Ruleset::ops_cost;
+  auto window = 0;
   if (argc > 2)
-    ruleset = static_cast<Compiler::Ruleset>(stoi(argv[2]));
+    window = stoi(argv[2]);
 
-  auto rewrite_heuristic = trs::RewriteHeuristic::bottom_up;
+  bool call_quantifier = false;
   if (argc > 3)
-    rewrite_heuristic = static_cast<trs::RewriteHeuristic>(stoi(argv[3]));
+    call_quantifier = stoi(argv[3]);
 
   bool cse = true;
   if (argc > 4)
@@ -54,10 +65,6 @@ int main(int argc, char **argv)
     const_folding = stoi(argv[5]);
 
   print_bool_arg(call_quantifier, "quantifier", clog);
-  clog << " ";
-  clog << ruleset << "_trs";
-  clog << " ";
-  clog << rewrite_heuristic;
   clog << " ";
   print_bool_arg(cse, "cse", clog);
   clog << " ";
@@ -86,9 +93,10 @@ int main(int argc, char **argv)
   string func_name = "box_blur";
   size_t width = 64;
   size_t height = 64;
+  /*************************************************************************************************/
+  /*************************************************************************************************/
   const auto &func = Compiler::create_func(func_name, width * height, 20, false, true);
   box_blur(width);
-
   string gen_name = "_gen_he_" + func_name;
   string gen_path = "he/" + gen_name;
   ofstream header_os(gen_path + ".hpp");
@@ -98,8 +106,7 @@ int main(int argc, char **argv)
   ofstream source_os(gen_path + ".cpp");
   if (!source_os)
     throw logic_error("failed to create source file");
-
-  Compiler::compile(func, ruleset, rewrite_heuristic, header_os, gen_name + ".hpp", source_os);
+  Compiler::compile(func, header_os, gen_name + ".hpp", source_os, axiomatic, window);
   elapsed = chrono::high_resolution_clock::now() - t;
   cout << elapsed.count() << " ms\n";
 

@@ -1,7 +1,7 @@
 add_executable(matrix_mul matrix_mul.cpp)
-target_link_libraries(matrix_mul PRIVATE fhecompiler)
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/benchmarks/matrix_mul/he)
+target_link_libraries(matrix_mul PRIVATE fheco)
 
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/benchmarks/matrix_mul/he)
 
 set(SOURCE_FILE_1 ${CMAKE_SOURCE_DIR}/benchmarks/matrix_mul/he/main.cpp)
 set(DESTINATION_FILE_1 ${CMAKE_SOURCE_DIR}/build/benchmarks/matrix_mul/he/main.cpp)

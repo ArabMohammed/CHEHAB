@@ -36,6 +36,8 @@ public:
 
   static Ruleset log2_reduct_opt_ruleset(std::shared_ptr<ir::Func> func);
 
+  static Ruleset SumVec_reduct_opt_ruleset(std::shared_ptr<ir::Func> func);
+
   static Ruleset customize_generic_rules(const Ruleset &ruleset);
 
   Ruleset(
@@ -67,9 +69,9 @@ public:
 private:
   static std::vector<Rule> get_log_reduct_rules(
     const TermMatcher &x, const TermOpCode &op_code, std::size_t slot_count);
-
   static Rule make_log_reduct_comp(const TermMatcher &x, const TermOpCode &op_code, std::size_t size);
-
+  ///////******************************************* *
+  static Rule make_SumVec_reduct_comp(const TermMatcher &x, TermOpCode op_code,size_t size);
   std::shared_ptr<ir::Func> func_;
 
   std::string name_;

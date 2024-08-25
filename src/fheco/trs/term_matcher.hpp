@@ -15,6 +15,15 @@ namespace fheco::trs
 {
 class Rule;
 
+/*
+  static std::size_t count_;
+  std::size_t id_;
+  TermOpCode op_code_;
+  std::vector<TermMatcher> operands_;
+  TermMatcherType type_;
+  std::optional<std::string> label_;
+  std::optional<PackedVal> val_;
+*/
 class TermMatcher
 {
 public:

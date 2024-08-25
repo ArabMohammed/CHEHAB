@@ -6,6 +6,9 @@
 #include "fheco/trs/fold_op_gen_matcher.hpp"
 #include "fheco/trs/term_matcher.hpp"
 #include "fheco/trs/trs.hpp"
+#include "fheco/passes/passes.hpp"
+#include "fheco/code_gen/gen_func.hpp"
+#include "fheco/util/expr_printer.hpp"
 #ifdef FHECO_LOGGING
 #include "fheco/util/expr_printer.hpp"
 #include <iostream>
@@ -14,6 +17,9 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <utility>
+#include <iostream>
+#include <utility>
+
 
 using namespace std;
 
@@ -30,23 +36,33 @@ bool TRS::run(RewriteHeuristic heuristic, int64_t max_iter, bool rewrite_created
 #endif
   int64_t iter = max_iter;
   bool did_rewrite = false;
+  cout<<" =====> Rewriting terms :" ;
+  util::ExprPrinter pr(func_);
+  pr.make_terms_str_expr(util::ExprPrinter::Mode::prefix);
   switch (heuristic)
   {
   case RewriteHeuristic::bottom_up:
-    for (auto id : func_->get_top_sorted_terms_ids())
+    for (auto id : func_->get_top_sorted_terms_ids()){
+      // print term based on it id 
+      //cout<<pr.terms_str_exprs().at(id)<<"\n" ;
       did_rewrite = rewrite_term(id, RewriteHeuristic::bottom_up, iter, rewrite_created_sub_terms, global_analysis);
-
+    }
     break;
-
+  /*******************************************************************************************/
+  /******************************************************************************************/
   case RewriteHeuristic::top_down:
   {
     const auto &sorted_terms_ids = func_->get_top_sorted_terms_ids();
-    for (auto id_it = sorted_terms_ids.crbegin(); id_it != sorted_terms_ids.crend(); ++id_it)
+  
+    for (auto id_it = sorted_terms_ids.crbegin(); id_it != sorted_terms_ids.crend(); ++id_it){
+      // print term based on it id 
+      //cout<<pr.terms_str_exprs().at(*id_it)<<"\n\n" ;
       did_rewrite = rewrite_term(*id_it, RewriteHeuristic::top_down, iter, rewrite_created_sub_terms, global_analysis);
+    }
 
     break;
   }
-
+  /*********************************************************************************************/
   default:
     throw logic_error("unhandled RewriteHeuristic");
   }
@@ -108,16 +124,20 @@ bool TRS::apply_rule(ir::Term *term, const Rule &rule)
     Compiler::enable_order_operands();
   return true;
 }
-
+/*********************************************************************************************************/
+/*********************************************************************************************************/
+//  bool rewrite_created_sub_terms = true, bool global_analysis = false);
 bool TRS::rewrite_term(
   size_t id, RewriteHeuristic heuristic, int64_t &max_iter, bool rewrite_created_sub_terms, bool global_analysis)
 {
-#ifdef FHECO_LOGGING
-  util::ExprPrinter expr_printer{func_};
-#endif
+  #ifdef FHECO_LOGGING
+    util::ExprPrinter expr_printer{func_};
+  #endif
   bool did_rewrite = false;
   stack<size_t> call_stack;
   call_stack.push(id);
+  /**********************************************/
+  int nb = 0 ;
   while (max_iter > 0 && !call_stack.empty())
   {
     auto top_term_id = call_stack.top();
@@ -132,14 +152,18 @@ bool TRS::rewrite_term(
 
     --max_iter;
 
-#ifdef FHECO_LOGGING
-    clog << "\nrewriting term \"" << expr_printer.expand_term_str_expr(top_term) << "\"\n";
-#endif
+    #ifdef FHECO_LOGGING
+        clog << "\nrewriting term \"" << expr_printer.expand_term_str_expr(top_term) << "\"\n";
+    #endif
+    /*******************************************************************/
+    /*****************************************************************/
+    // get rules cooresponding to the op code of this term
+    nb+=1 ;
     for (const auto &rule : ruleset_.pick_rules(top_term->op_code().type()))
     {
-#ifdef FHECO_LOGGING
-      clog << "trying rule \"" << util::ExprPrinter::make_rule_str_repr(rule) << "\", ";
-#endif
+      #ifdef FHECO_LOGGING
+            clog << "trying rule \"" << util::ExprPrinter::make_rule_str_repr(rule) << "\", ";
+      #endif
       Substitution subst;
       double rel_cost = 0;
       ir::Term::PtrSet to_delete;
@@ -147,40 +171,39 @@ bool TRS::rewrite_term(
 
       if (!matched)
       {
-#ifdef FHECO_LOGGING
-        clog << "matching failed\n";
-#endif
-        continue;
+          #ifdef FHECO_LOGGING
+                  clog << "matching failed\n";
+          #endif
+          continue;
       }
-#ifdef FHECO_LOGGING
-      clog << "unified with substitution:\n";
-      clog << "σ = ";
-      pprint_substitution(func_, subst, clog);
-      clog << '\n';
-#endif
+      #ifdef FHECO_LOGGING
+            clog << "unified with substitution:\n";
+            clog << "σ = ";
+            pprint_substitution(func_, subst, clog);
+            clog << '\n';
+      #endif
 
       if (!rule.check_cond(subst))
       {
-#ifdef FHECO_LOGGING
-        clog << "condition not satisfied\n";
-#endif
+        #ifdef FHECO_LOGGING
+                clog << "condition not satisfied\n";
+        #endif
         continue;
       }
-
+      
       vector<size_t> created_terms_ids;
-      auto equiv_term =
-        construct_term(rule.get_rhs(subst), subst, to_delete, global_analysis, rel_cost, created_terms_ids);
-
-#ifdef FHECO_LOGGING
-      if (global_analysis)
-        clog << "constructed rhs, rel_cost=" << rel_cost << '\n';
-#endif
+      //cout<<"rule is matched: "<<rule.name()<<" \n" ;
+      auto equiv_term = construct_term(rule.get_rhs(subst), subst, to_delete, global_analysis, rel_cost, created_terms_ids);
+      #ifdef FHECO_LOGGING
+            if (global_analysis)
+              clog << "constructed rhs, rel_cost=" << rel_cost << '\n';
+      #endif
 
       if (!global_analysis || rel_cost <= 0)
       {
-#ifdef FHECO_LOGGING
-        clog << "replace with \"" << expr_printer.expand_term_str_expr(equiv_term) << "\"\n";
-#endif
+        #ifdef FHECO_LOGGING
+                clog << "replace with \"" << expr_printer.expand_term_str_expr(equiv_term) << "\"\n";
+        #endif
         func_->replace_term_with(top_term, equiv_term);
         did_rewrite = true;
 
@@ -211,14 +234,17 @@ bool TRS::rewrite_term(
         break;
       }
       else if (func_->data_flow().can_delete(equiv_term))
-#ifdef FHECO_LOGGING
-        clog << "delete constructed equiv_term \"" << expr_printer.expand_term_str_expr(equiv_term) << "\"\n";
-#endif
+  #ifdef FHECO_LOGGING
+          clog << "delete constructed equiv_term \"" << expr_printer.expand_term_str_expr(equiv_term) << "\"\n";
+  #endif
       func_->delete_term_cascade(equiv_term);
     }
   }
+  //cout<<"iteration number : "<<nb<<"\n\n" ; 
   return did_rewrite;
 }
+/**************************************************************************************/
+/*************************************************************************************/
 
 bool TRS::match(
   const TermMatcher &term_matcher, ir::Term *term, Substitution &subst, bool global_analysis, double &rel_cost,
@@ -353,7 +379,8 @@ bool TRS::match(
   }
   return true;
 }
-
+/*************************************************************************************/
+/*************************************************************************************/
 ir::Term *TRS::construct_term(
   const TermMatcher &matcher, const Substitution &subst, const ir::Term::PtrSet &to_delete, bool global_analysis,
   double &rel_cost, vector<size_t> &created_terms_ids)

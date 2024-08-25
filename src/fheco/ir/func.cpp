@@ -5,8 +5,8 @@
 #include "fheco/util/common.hpp"
 #ifdef FHECO_LOGGING
 #include "fheco/util/expr_printer.hpp"
-#include <iostream>
 #endif
+#include <iostream>
 #include <stack>
 #include <stdexcept>
 #include <type_traits>
@@ -45,16 +45,15 @@ void Func::init_const(T &constant, PackedVal packed_val)
   constant.example_val_ = packed_val;
   constant.id_ = insert_const_term(move(packed_val))->id();
 }
-
+/*************************************************************************/
+/************************************************************************/
 template <typename TArg, typename TDest>
 void Func::operate_unary(OpCode op_code, const TArg &arg, TDest &dest)
 {
   auto arg_term = data_flow_.get_term(arg.id());
   if (!arg_term)
     throw invalid_argument("operand not defined");
-
   dest.shape_ = arg.shape();
-
   if (arg.example_val())
   {
     if constexpr (is_same<TArg, Plaintext>::value && is_same<TDest, Ciphertext>::value)
@@ -75,7 +74,8 @@ void Func::operate_unary(OpCode op_code, const TArg &arg, TDest &dest)
   vector<Term *> operands{arg_term};
   dest.id_ = insert_op_term(move(op_code), move(operands))->id();
 }
-
+/***********************************************************************************/
+/********************************************************************************** */
 template <typename TArg1, typename TArg2, typename TDest>
 void Func::operate_binary(OpCode op_code, const TArg1 &arg1, const TArg2 &arg2, TDest &dest)
 {
@@ -83,9 +83,8 @@ void Func::operate_binary(OpCode op_code, const TArg1 &arg1, const TArg2 &arg2, 
   auto arg2_term = data_flow_.get_term(arg2.id());
   if (!arg1_term || !arg2_term)
     throw invalid_argument("operand not defined");
-
   if (arg1.shape() != arg2.shape())
-    throw invalid_argument("operating with incompatible shapes");
+    throw invalid_argument("operating with incompatible shapes hhhhhhhhh");
 
   dest.shape_ = arg1.shape();
 
@@ -99,7 +98,8 @@ void Func::operate_binary(OpCode op_code, const TArg1 &arg1, const TArg2 &arg2, 
   vector<Term *> operands{arg1_term, arg2_term};
   dest.id_ = insert_op_term(move(op_code), move(operands))->id();
 }
-
+/*****************************************************************************************/
+/*****************************************************************************************/
 template <typename T>
 void Func::set_output(const T &output, string label)
 {

@@ -1,42 +1,63 @@
-#include "fhecompiler.hpp"
+#include "fheco/fheco.hpp"
+#include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
 using namespace std;
-using namespace fhecompiler;
+using namespace fheco;
 
-Ciphertext reduce_add_lin(const Ciphertext &x, int vector_size)
+/* Ciphertext reduce_add_lin(const Ciphertext &x, int vector_size)
 {
   Ciphertext result = x;
-  Ciphertext rotated_cipher = x;
-  for (int i = 1; i < vector_size; ++i)
+ /*  for (int i = vector_size -1 ; i > 0; --i)
   {
-    rotated_cipher <<= 1;
-    result += rotated_cipher;
+    result += x <<i;
+  } 
+  for (int i = 1 ; i < vector_size; ++i)
+  {
+    result += x <<i;
   }
   return result;
+} */
+
+void print_bool_arg(bool arg, const string &name, ostream &os)
+{
+  os << (arg ? name : "no_" + name);
 }
 
-void matrix_mul(int m_a, int n_b, int n_a_m_b, bool use_log_reduction)
+void matrix_mul(int m_a, int n_b, int n_a_m_b)
 {
   // declare inputs
   vector<Ciphertext> A_row_encrypted;
   vector<Ciphertext> B_column_encrypted;
-  // encrypt by line for matrix A
-  for (int i = 0; i < m_a; ++i)
+  Ciphertext img("img",2);
+  img.set_minimum_coordinates({0,0});
+  img.set_dimensions_sizes({4,4});
+  Ciphertext result(2);
+  result.set_minimum_coordinates({0,0});
+  result.set_dimensions_sizes({4,4});
+  Var x("x");
+  Var y("y");
+  result(x,y) = 2*img(x,y) - (img(x-1,y-1)+img(x-1,y)+img(x-1,y+1)+
+                              img(x,y-1)+img(x,y)*(-8)+img(x,y+1)+
+                              img(x+1,y-1)+img(x+1,y)+img(x+1,y+1));
+  result.set_output("img_out");
+  // encrypt by li*ne for matrix A
+  /*   for (int i = 0; i < m_a; ++i)
   {
-    Ciphertext line("A[" + to_string(i) + "][]", -10, 10);
+    //
+    Ciphertext line("A[" + to_string(i) + "][]");
     A_row_encrypted.push_back(line);
   }
   // encrypt by column for matrix B
   for (int i = 0; i < n_b; ++i)
   {
-    Ciphertext column("B[][" + to_string(i) + "]", -10, 10);
+    Ciphertext column("B[][" + to_string(i) + "]");
     B_column_encrypted.push_back(column);
   }
 
@@ -50,10 +71,10 @@ void matrix_mul(int m_a, int n_b, int n_a_m_b, bool use_log_reduction)
       vector<int64_t> mask(A_row_encrypted.size(), 0);
       mask[j] = 1;
       Ciphertext slot;
-      if (use_log_reduction)
-        slot = reduce_add(A_row_encrypted[i] * B_column_encrypted[j]);
-      else
-        slot = reduce_add_lin(A_row_encrypted[i] * B_column_encrypted[j], n_a_m_b);
+      ///************************************************ 
+      slot = SumVec(A_row_encrypted[i] * B_column_encrypted[j],n_b);
+      ///***********************************************************
+      cout<<"==> multplying slot*mask\n";
       if (j == 0)
         cline = slot * mask;
       else
@@ -61,60 +82,95 @@ void matrix_mul(int m_a, int n_b, int n_a_m_b, bool use_log_reduction)
     }
     cline.set_output("C[" + to_string(i) + "][]");
     C_row_encrypted.push_back(cline);
-  }
+  } */
 }
 
 int main(int argc, char **argv)
 {
-  int m_a = 16;
+
+  auto axiomatic = false;
   if (argc > 1)
-    m_a = stoi(argv[1]);
+    axiomatic = stoi(argv[1]) ? true : false;
 
-  int n_a_m_b = 16;
+  auto window = 0;
   if (argc > 2)
-    n_a_m_b = stoi(argv[2]);
+    window = stoi(argv[2]);
 
-  int n_b = 16;
+  bool call_quantifier = false;
   if (argc > 3)
-    n_b = stoi(argv[3]);
-
-  bool use_log_reduction = true;
+    call_quantifier = stoi(argv[3]);
+  bool cse = true;
   if (argc > 4)
+    cse = stoi(argv[4]);
+
+  bool const_folding = true;
+  if (argc > 5)
+    const_folding = stoi(argv[5]);
+
+  print_bool_arg(call_quantifier, "quantifier", clog);
+  clog << " ";
+  print_bool_arg(cse, "cse", clog);
+  clog << " ";
+  print_bool_arg(const_folding, "constant_folding", clog);
+  clog << '\n';
+
+  if (cse)
   {
-    std::stringstream ss(argv[4]);
-    if (!(ss >> boolalpha >> use_log_reduction))
-      throw invalid_argument("could not parse use_log_reduction to bools");
+    Compiler::enable_cse();
+    Compiler::enable_order_operands();
+  }
+  else
+  {
+    Compiler::disable_cse();
+    Compiler::disable_order_operands();
   }
 
-  int trs_passes = 1;
-  if (argc > 5)
-    trs_passes = stoi(argv[5]);
-
-  bool optimize = trs_passes > 0;
-
-  cout << "m_a: " << m_a << ", "
-       << "n_a_m_b: " << n_a_m_b << ", "
-       << "n_b: " << n_b << ", "
-       << "trs_passes: " << trs_passes << '\n';
-
-  string func_name = "matrix_mul";
-  Compiler::create_func(func_name, n_a_m_b, 16, true, Scheme::bfv);
-  matrix_mul(m_a, n_b, n_a_m_b, use_log_reduction);
-  ofstream init_ir_os(func_name + "_init_ir.dot");
-  Compiler::draw_ir(init_ir_os);
-  const auto &rand_inputs = Compiler::get_example_input_values();
-  ofstream gen_code_os("he/gen_he_" + func_name + ".hpp");
-  if (optimize)
-    Compiler::compile(gen_code_os, trs_passes);
+  if (const_folding)
+    Compiler::enable_const_folding();
   else
-    Compiler::compile_noopt(gen_code_os);
-  ofstream final_ir_os(func_name + "_final_ir.dot");
-  Compiler::draw_ir(final_ir_os);
-  auto outputs = Compiler::evaluate_on_clear(rand_inputs);
-  if (outputs != Compiler::get_example_output_values())
-    throw logic_error("compilation correctness-test failed");
+    Compiler::disable_const_folding();
 
-  ofstream rand_example_os(func_name + "_rand_example.txt");
-  Compiler::print_inputs_outputs(rand_example_os);
+  chrono::high_resolution_clock::time_point t;
+  chrono::duration<double, milli> elapsed;
+  t = chrono::high_resolution_clock::now();
+  string func_name = "matrix_mul" ;
+  /******************************/
+  size_t slot_count = 16;
+  int m_a = slot_count;
+  int n_a_m_b = slot_count;
+  int n_b = slot_count;
+  /*****************************/
+  Compiler::enable_scalar_vector_shape();
+  const auto &func = Compiler::create_func(func_name, slot_count, 20, true, true);
+  matrix_mul(m_a, n_b, n_a_m_b);
+  string gen_name = "_gen_he_" + func_name;
+  string gen_path = "he/" + gen_name;
+  ofstream header_os(gen_path + ".hpp");
+  if (!header_os)
+    throw logic_error("failed to create header file");
+
+  ofstream source_os(gen_path + ".cpp");
+  if (!source_os)                         
+    throw logic_error("failed to create source file");
+  /////////////////////
+  /*auto ruleset = Compiler::Ruleset::joined;
+  if (argc > 2)
+    ruleset = static_cast<Compiler::Ruleset>(stoi(argv[2]));
+  auto rewrite_heuristic = trs::RewriteHeuristic::bottom_up;
+  if (argc > 3)
+    rewrite_heuristic = static_cast<trs::RewriteHeuristic>(stoi(argv[3]));
+  Compiler::compile(func, ruleset, rewrite_heuristic, header_os, gen_name + ".hpp", source_os, true);*/
+  ///////////////////////////// 
+  //Compiler::compile(func, header_os, gen_name + ".hpp", source_os, axiomatic, window);
+  Compiler::gen_he_code(func, header_os, gen_name + ".hpp", source_os);
+  elapsed = chrono::high_resolution_clock::now() - t;
+  cout << elapsed.count() << " ms\n";
+
+  if (call_quantifier)
+  {
+    util::Quantifier quantifier{func};
+    quantifier.run_all_analysis();
+    quantifier.print_info(cout);
+  } 
   return 0;
 }

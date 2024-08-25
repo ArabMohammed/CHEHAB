@@ -117,6 +117,8 @@ OpGenMatcher &operator%=(OpGenMatcher &lhs, OpGenMatcher rhs)
 }
 
 // other
+/*****************************************************************************************/
+/*****************************************************************************************/
 
 TermMatcher balanced_op(const vector<TermMatcher> &args, const TermOpCode &op_code)
 {
@@ -125,7 +127,7 @@ TermMatcher balanced_op(const vector<TermMatcher> &args, const TermOpCode &op_co
 
   if (op_code.arity() != 2)
     throw invalid_argument("non-binary operation");
-
+  
   vector<TermMatcher> balanced_ops;
   for (size_t i = 0; i < args.size() - 1; i += 2)
     balanced_ops.push_back(TermMatcher{op_code, vector<TermMatcher>{args[i], args[i + 1]}});
@@ -139,6 +141,24 @@ TermMatcher balanced_op(const vector<TermMatcher> &args, const TermOpCode &op_co
   return balanced_ops.back();
 }
 
+/*************************************************************************************/
+
+TermMatcher non_balanced_op(const std::vector<TermMatcher> &args, const TermOpCode &op_code)
+{
+  if (args.empty())
+    throw invalid_argument("empty args vector");
+  if (op_code.arity() != 2)
+    throw invalid_argument("non-binary operation");
+  TermMatcher TermTemp{op_code, vector<TermMatcher>{args[0], args[1]}} ;
+  for (size_t i = 2; i < args.size() ; i += 1){
+     TermTemp= TermMatcher{op_code, vector<TermMatcher>{move(TermTemp), args[i]}} ;
+  }
+
+  return TermTemp;
+}
+
+
+/*************************************************************************************/
 TermMatcher relin(TermMatcher arg)
 {
   return TermMatcher{TermOpCode::relin, vector<TermMatcher>{move(arg)}};

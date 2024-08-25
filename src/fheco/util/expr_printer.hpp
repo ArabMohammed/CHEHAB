@@ -19,6 +19,20 @@ class Term;
 
 namespace fheco::util
 {
+/*
+unordered_map<ir::OpCode::Type, int> ops_precedence_;
+nordered_map<trs::OpGenOpCode::Type, int> op_gen_matcher_ops_precedence_;
+shared_ptr<ir::Func> func_;
+TermsStrExpr terms_str_exprs_{};
+Mode mode_: 
+  {
+    none,
+    prefix,
+    infix,
+    infix_expl_paren,
+    posfix
+  };
+*/
 class ExprPrinter
 {
 public:
@@ -30,7 +44,7 @@ public:
     infix_expl_paren,
     posfix
   };
-
+  /*  using TermsStrExpr = std::unordered_map<std::size_t, std::string>; */
   using TermsStrExpr = std::unordered_map<std::size_t, std::string>;
 
   static std::string make_rule_str_repr(
