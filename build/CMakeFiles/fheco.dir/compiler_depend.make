@@ -1539,8 +1539,6 @@ CMakeFiles/fheco.dir/src/fheco/dsl/expression.cpp.o: ../src/fheco/dsl/expression
   /usr/include/c++/11/bits/ostream.tcc \
   /usr/include/c++/11/istream \
   /usr/include/c++/11/bits/istream.tcc \
-  ../src/fheco/dsl/expression.hpp \
-  ../src/fheco/dsl/var.hpp \
   /usr/include/c++/11/unordered_set \
   /usr/include/c++/11/ext/aligned_buffer.h \
   /usr/include/c++/11/bits/hashtable.h \
@@ -1552,6 +1550,8 @@ CMakeFiles/fheco.dir/src/fheco/dsl/expression.cpp.o: ../src/fheco/dsl/expression
   /usr/include/c++/11/bits/node_handle.h \
   /usr/include/c++/11/bits/unordered_set.h \
   /usr/include/c++/11/bits/erase_if.h \
+  ../src/fheco/dsl/expression.hpp \
+  ../src/fheco/dsl/var.hpp \
   /usr/include/c++/11/unordered_map \
   /usr/include/c++/11/bits/unordered_map.h \
   ../src/fheco/dsl/ciphertext.hpp \

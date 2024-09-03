@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include<iostream>
+#include <unordered_set>
 #include "fheco/dsl/expression.hpp"
 using namespace std ;
 namespace fheco {
@@ -106,16 +107,18 @@ namespace fheco {
     // Function to check if at least M-1 Vars in one list are in the other
     bool atLeastMMinusOneCommon(const std::vector<Var>& list1, const std::vector<Var>& list2) {
         if (list1.size() != list2.size()) return false; // Ensure both lists are of the same size
-
+        std::unordered_set<int> pos_set = {};
         int M = list1.size();
         int commonCount = 0;
         // Check how many Vars from list1 are in list2
         for (const auto& var1 : list1) {
             //std::cout<<var1.name()<<"\n";
-            for (const auto& var2 : list2) {
+            for (int j=0;j<list2.size();j++) {
                     //std::cout<<"==> "<<var2.name()<<"\n";
-                    if (var1.same_as(var2)) {
+                    Var var2=list2[j];
+                    if (var1.same_as(var2)&&pos_set.find(j)==pos_set.end()) {
                         commonCount++;
+                        pos_set.insert(j);
                         break;
                     }
             }
@@ -260,6 +263,7 @@ namespace fheco {
                 bool res1 = lhs.get_args()[lhs.get_args().size()-1].same_as(rhs.get_args()[0]) ;
                 bool res2 = lhs.get_compute_args()[lhs.get_compute_args().size()-1].same_as(rhs.get_compute_args()[0]) ;
                 bool is_reduction = res1&&res2;
+                std::cout<<res1<<" "<<res2<<" \n";
                 if(is_reduction){
                     std::cout<<"We have a reduction multiplication "<<rhs.get_ciphertexts().size()<<" "<<lhs.get_ciphertexts().size()<<"\n";
                     std::vector<Var> compute_args = Var::unionOfLists(lhs.get_compute_args(),rhs.get_args());

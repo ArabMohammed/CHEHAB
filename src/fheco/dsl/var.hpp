@@ -32,7 +32,7 @@ namespace fheco
             const std::string &name() const;
             /** Test if two Vars are the same. This simply compares the names. */
             bool same_as(const Var &other) const {
-                return upper_bound() == other.upper_bound() && lower_bound()==other.lower_bound();
+                return name() == other.name();
             }
             // Move assignment operator 
             Var &operator=(Var &&other) noexcept;

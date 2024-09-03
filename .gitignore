@@ -1,1 +1,22 @@
-/build
+# Ignore build directory
+/build/
+
+# Ignore other common files
+*.o
+*.obj
+*.so
+*.exe
+*.out
+*.a
+*.lib
+*.dll
+
+# Ignore editor specific files
+*.swp
+*~
+.vscode/
+.idea/
+
+# Ignore OS specific files
+.DS_Store
+Thumbs.db
