@@ -32,21 +32,15 @@ void print_bool_arg(bool arg, const string &name, ostream &os)
 
 void matrix_mul(int m_a, int n_b, int n_a_m_b)
 {
-  // declare inputs
-  vector<Ciphertext> A_row_encrypted;
-  vector<Ciphertext> B_column_encrypted;
-  Ciphertext img("img",2);
-  img.set_minimum_coordinates({0,0});
-  img.set_dimensions_sizes({4,4});
-  Ciphertext result(2);
-  result.set_minimum_coordinates({0,0});
-  result.set_dimensions_sizes({4,4});
-  Var x("x");
-  Var y("y");
-  result(x,y) = 2*img(x,y) - (img(x-1,y-1)+img(x-1,y)+img(x-1,y+1)+
-                              img(x,y-1)+img(x,y)*(-8)+img(x,y+1)+
-                              img(x+1,y-1)+img(x+1,y)+img(x+1,y+1));
-  result.set_output("img_out");
+  Var i("i",0,m_a); 
+  Var j("j",0,m_a);
+  Var k("k",0,m_a);
+  Input A("A",{i,k},Type::vectorciphertxt);
+  Input B("B",{k,j},Type::vectorciphertxt);
+  Computation C("C", {i,j,k},Type::vectorciphertxt);
+  C.set_expression(C(i,j,k)+A(i,k)*B(k,j));
+  C.evaluate(true);
+ 
   // encrypt by li*ne for matrix A
   /*   for (int i = 0; i < m_a; ++i)
   {
@@ -60,7 +54,7 @@ void matrix_mul(int m_a, int n_b, int n_a_m_b)
     Ciphertext column("B[][" + to_string(i) + "]");
     B_column_encrypted.push_back(column);
   }
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
   // compute
   vector<Ciphertext> C_row_encrypted;
   for (size_t i = 0; i < A_row_encrypted.size(); ++i)
@@ -75,7 +69,7 @@ void matrix_mul(int m_a, int n_b, int n_a_m_b)
       slot = SumVec(A_row_encrypted[i] * B_column_encrypted[j],n_b);
       ///***********************************************************
       cout<<"==> multplying slot*mask\n";
-      if (j == 0)
+      if (j == 0)                                                               
         cline = slot * mask;
       else
         cline += slot * mask;
@@ -152,6 +146,7 @@ int main(int argc, char **argv)
   ofstream source_os(gen_path + ".cpp");
   if (!source_os)                         
     throw logic_error("failed to create source file");
+  Compiler::print_func_ir_file(func ,"../ir_matrix_mul.txt");
   /////////////////////
   /*auto ruleset = Compiler::Ruleset::joined;
   if (argc > 2)
@@ -161,8 +156,8 @@ int main(int argc, char **argv)
     rewrite_heuristic = static_cast<trs::RewriteHeuristic>(stoi(argv[3]));
   Compiler::compile(func, ruleset, rewrite_heuristic, header_os, gen_name + ".hpp", source_os, true);*/
   ///////////////////////////// 
-  //Compiler::compile(func, header_os, gen_name + ".hpp", source_os, axiomatic, window);
-  Compiler::gen_he_code(func, header_os, gen_name + ".hpp", source_os);
+  Compiler::compile(func, header_os, gen_name + ".hpp", source_os, axiomatic, window);
+  //Compiler::gen_he_code(func, header_os, gen_name + ".hpp", source_os);
   elapsed = chrono::high_resolution_clock::now() - t;
   cout << elapsed.count() << " ms\n";
 

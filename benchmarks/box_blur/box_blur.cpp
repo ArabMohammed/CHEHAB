@@ -23,18 +23,25 @@ void box_blur(size_t width)
   Ciphertext bottom_sum =
     kernel[2][0] * (bottom_row >> 1) + kernel[2][1] * bottom_row + kernel[2][2] * (bottom_row << 1);
   Ciphertext result = top_sum + curr_sum + bottom_sum;
-  result.set_output("result"); */
-  /**********************************************/
-  Ciphertext img("img",2);
-  Ciphertext result(2);
-  img.set_dimensions_sizes({64,64});
-  img.set_minimum_coordinates({0,0});
-  Var x,y ;
-  result(x,y)=img(x-1,y-1)*kernel[0][0]+img(x-1,y)*kernel[0][1]+img(x-1,y+1)*kernel[0][2]+
-              img(x,y-1)*kernel[1][0]+img(x,y)*kernel[1][1]+img(x,y+1)*kernel[1][2]+
-              img(x+1,y-1)*kernel[1][0]+img(x+1,y)*kernel[1][1]+img(x+1,y+1)*kernel[1][2] ;
-  result.set_output("result");
-  
+  result.set_output("result"); 
+
+  Var i("i",0,m_a); 
+  Var j("j",0,m_a);
+  Var k("j",0,m_a);
+  Input A("A",{i,j},Type::ciphertxt);
+  Input B("B",{i,j},Type::ciphertxt);
+  Computation C("C", {i,j}, A(i,j) + B(i,j));
+  C.evaluate(true);
+  Computation D("D", {i,j}, C(i,j) - B(i,j));
+  D.evaluate(true);
+  /********************************************/
+  Var x("x",0,64); 
+  Var y("y",0,64);
+  Input img("img",{x,y},Type::ciphertxt);
+  Computation C("result",{x,y},img(x-1,y-1)*kernel[0][0]+img(x-1,y)*kernel[0][1]+img(x-1,y+1)*kernel[0][2]
+                              +img(x,y-1)*kernel[1][0]+img(x,y)*kernel[1][1]+img(x,y+1)*kernel[1][2]+
+                              img(x+1,y-1)*kernel[1][0]+img(x+1,y)*kernel[1][1]+img(x+1,y+1)*kernel[1][2]);
+  C.evaluate(true);
 }
 
 void print_bool_arg(bool arg, const string &name, ostream &os)
@@ -106,7 +113,8 @@ int main(int argc, char **argv)
   ofstream source_os(gen_path + ".cpp");
   if (!source_os)
     throw logic_error("failed to create source file");
-  Compiler::compile(func, header_os, gen_name + ".hpp", source_os, axiomatic, window);
+  ///Compiler::compile(func, header_os, gen_name + ".hpp", source_os, axiomatic, window);
+  Compiler::gen_he_code(func, header_os, gen_name + ".hpp", source_os);
   elapsed = chrono::high_resolution_clock::now() - t;
   cout << elapsed.count() << " ms\n";
 

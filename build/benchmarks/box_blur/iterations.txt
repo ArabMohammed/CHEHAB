@@ -1,0 +1,30 @@
+[
+    Iteration {
+        egraph_nodes: 1,
+        egraph_classes: 1,
+        applied: {},
+        hook_time: 2e-7,
+        search_time: 8.7048e-5,
+        apply_time: 1.552e-6,
+        rebuild_time: 9.61e-7,
+        total_time: 9.0998e-5,
+        data: (),
+        n_rebuilds: 0,
+        stop_reason: None,
+    },
+    Iteration {
+        egraph_nodes: 1,
+        egraph_classes: 1,
+        applied: {},
+        hook_time: 0.0,
+        search_time: 0.0,
+        apply_time: 0.0,
+        rebuild_time: 0.0,
+        total_time: 0.0,
+        data: (),
+        n_rebuilds: 0,
+        stop_reason: Some(
+            Saturated,
+        ),
+    },
+]

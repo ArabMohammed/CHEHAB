@@ -168,6 +168,7 @@ void Compiler::gen_he_code(
 #ifdef FHECO_LOGGING
   clog << "\ncode_generation\n";
 #endif
+  std::cout<<"Generate function code in compiler.cpp :\n";
   code_gen::gen_func(func, rotation_steps_keys, header_os, header_name, source_os);
 }
 /*************************************************************************************************/

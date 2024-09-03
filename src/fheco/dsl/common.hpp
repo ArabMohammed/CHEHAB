@@ -10,6 +10,16 @@ using integer = std::int64_t;
 
 using PackedVal = std::vector<integer>;
 
+ enum class CiphertextType
+    {
+      ciphertxt,
+      vectorciphertxt,
+      plaintxt
+    };
+
+// Define an alias for the enum
+using Type = CiphertextType;
+
 enum class SecurityLevel
 {
   none,
@@ -20,6 +30,7 @@ enum class SecurityLevel
   tc256,
   tq256
 };
+
 
 void validate_shape(const std::vector<std::size_t> &shape);
 } // namespace fheco
