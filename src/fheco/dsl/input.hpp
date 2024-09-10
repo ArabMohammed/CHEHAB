@@ -9,11 +9,14 @@
 #include "fheco/dsl/expression.hpp"
 #include "fheco/dsl/var.hpp"
 #include "fheco/dsl/ciphertext.hpp"
+#include "fheco/dsl/tensor.hpp"
 namespace fheco
 {
     class Var ; 
     class Ciphertext ;
     class Expression ;
+    template <typename T>
+    class DynamicTensor ;
     class Input
     {
         public:
@@ -48,6 +51,7 @@ namespace fheco
             std::vector<Var> iterator_variables_ ;
             Expression expression_ ;
             Type type_ ; 
-            std::vector<Ciphertext> ciphertexts_ ;
+            DynamicTensor<Ciphertext> ciphertexts_ ;
+            DynamicTensor<Plaintext> plaintexts_ ;
     };
 }

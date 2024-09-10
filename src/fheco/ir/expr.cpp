@@ -269,8 +269,9 @@ void Expr::update_term_type_cascade(Term *term)
 
 void Expr::set_output(const Term *term, OutputTermInfo output_term_info)
 {
-  if (outputs_info_.insert_or_assign(term, move(output_term_info)).second)
+  if (outputs_info_.insert_or_assign(term, move(output_term_info)).second){
     valid_top_sort_ = false;
+  }
 }
 
 void Expr::unset_output(const Term *term)

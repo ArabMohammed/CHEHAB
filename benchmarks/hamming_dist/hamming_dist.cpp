@@ -13,13 +13,29 @@ using namespace fheco;
 
 void hamming_dist(size_t slot_count)
 {
-  Ciphertext c1("c1");
+  /*   Ciphertext c1("c1");
   Ciphertext c2("c2");
   Ciphertext slot_wise_xor = c1 + c2 - 2 * (c1 * c2);
   Ciphertext sum = encrypt(0);
   for (size_t i = 0; i < slot_count; ++i)
     sum += slot_wise_xor << i;
-  sum.set_output("result");
+  sum.set_output("result"); */
+  /**********************************************************/
+  /* Var i("i",0,1); 
+  Var j("j",0,slot_count);
+  Input C1("c1",{i,j},Type::ciphertxt);
+  Input C2("c2",{i,j},Type::ciphertxt);
+  Computation C( "C" ,{i,j}, (-2*C1(i,j)*C2(i,j) ) ); 
+  C.evaluate(false); 
+  Computation C3("result",{i,j},{j},C1(i,j)+C2(i,j)+C(i,j)); 
+  C3.evaluate(true);  */ 
+  /************************************************************/
+  Var i("i",0,1); 
+  Var j("j",0,slot_count);
+  Input C1("c1",{i,j},Type::ciphertxt);
+  Input C2("c2",{i,j},Type::ciphertxt);
+  Computation C3("result",{i,j},{j},C1(i,j)+C2(i,j)-2*C1(i,j)*C2(i,j)); 
+  C3.evaluate(true); 
 }
 
 void print_bool_arg(bool arg, const string &name, ostream &os)

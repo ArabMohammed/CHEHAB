@@ -13,13 +13,19 @@ using namespace fheco;
 
 void l2_distance(size_t slot_count)
 {
-  Ciphertext c1("c1");
+  Var i("i",0,1); 
+  Var j("j",0,slot_count);
+  Input C1("c1",{i,j},Type::ciphertxt);
+  Input C2("c2",{i,j},Type::ciphertxt);
+  Computation C("result",{i,j},{j},(C1(i,j)-C2(i,j))*(C1(i,j)-C2(i,j))); 
+  C.evaluate(true); 
+  /* Ciphertext c1("c1");
   Ciphertext c2("c2");
   Ciphertext slot_wise_diff = (c1 - c2) * (c1 - c2);
   Ciphertext sum = encrypt(0);
   for (size_t i = 0; i < slot_count; ++i)
     sum += slot_wise_diff << i;
-  sum.set_output("result");
+  sum.set_output("result"); */
 }
 
 void print_bool_arg(bool arg, const string &name, ostream &os)
@@ -76,7 +82,7 @@ int main(int argc, char **argv)
   chrono::duration<double, milli> elapsed;
   t = chrono::high_resolution_clock::now();
   string func_name = "l2_distance";
-  size_t slot_count = 16 ;
+  size_t slot_count = 4096 ;
   const auto &func = Compiler::create_func(func_name, slot_count, 20, true, true);
   l2_distance(slot_count);
 

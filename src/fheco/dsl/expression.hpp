@@ -6,12 +6,16 @@
 #include <vector>
 #include "fheco/dsl/var.hpp"
 #include "fheco/dsl/ciphertext.hpp"
+#include "fheco/dsl/plaintext.hpp"
+#include "fheco/dsl/tensor.hpp"
 
 namespace fheco
 {
     class Var; 
+    class Plaintext ;
     class Ciphertext;
-
+    template <typename T>
+    class DynamicTensor ;
     class Expression
     {
     public:
@@ -34,14 +38,15 @@ namespace fheco
         Expression(Op_t op, const Expression& expression0, const Expression& expression1, const std::vector<Var> args, const std::vector<Var> compute_args, Type type);
 
         /* Expressionession representing a dot product */
-        Expression(Op_t op, const Expression& expression0, const Expression& expression1, bool is_reduction, const std::vector<Var> args, const std::vector<Var> compute_args, Type type);
+        Expression(Op_t op, const Expression& expression0, const Expression& expression1, bool is_reduction,bool is_possible_reduction, const std::vector<Var> args, const std::vector<Var> compute_args, Type type);
 
         /* Construct an integer expressionession */
         Expression(integer value);
 
-        /* Construct an expressionession corresponding to a new input */
-        Expression(std::vector<Ciphertext> ciphertexts, std::vector<Var> iterator_variables, std::vector<Var> compute_args, Type type);
-
+        /* Construct an expressionession corresponding to a new cihertext input */
+        Expression(DynamicTensor<Ciphertext> ciphertexts, std::vector<Var> iterator_variables, std::vector<Var> compute_args, Type type);
+        /* Construct an expression correspoding to a nex plaintext input       */
+        Expression(DynamicTensor<Plaintext> plaintexts, std::vector<Var> iterator_variables, std::vector<Var> compute_args, Type type);
         // Copy constructor 
         Expression(const Expression &other);
 
@@ -78,10 +83,6 @@ namespace fheco
             return is_defined_;
         }
 
-        bool is_numeric() const {
-            return is_numeric_;
-        }
-
         bool is_evaluated() const {
             return is_evaluated_;
         }
@@ -93,13 +94,19 @@ namespace fheco
         bool is_reduction() const {
             return is_reduction_;
         }
-
-        void set_ciphertexts(const std::vector<Ciphertext>& ciphertexts) {
+        void set_is_reduction(bool res) {
+            is_reduction_ = res;
+        }
+        void set_ciphertexts(const DynamicTensor<Ciphertext>& ciphertexts) {
             ciphertexts_ = ciphertexts;
         }
 
-        std::vector<Ciphertext> get_ciphertexts() const {
+        DynamicTensor<Ciphertext> get_ciphertexts() const {
             return ciphertexts_;
+        }
+        
+        DynamicTensor<Plaintext> get_plaintexts() const {
+            return plaintexts_;
         }
 
         std::vector<Expression> get_operands() const {
@@ -123,13 +130,14 @@ namespace fheco
         Op_t operator_ = Op_t::o_none;
         bool is_defined_ = false;
         bool is_reduction_ = false;
-        bool is_numeric_ = false;
         integer value_ = 1;
         std::vector<Expression> operands_ = {};
         std::vector<Var> args_ = {};
         std::vector<Var> compute_args_ = {};
         bool is_evaluated_ = false;
-        std::vector<Ciphertext> ciphertexts_ = {};
+        DynamicTensor<Ciphertext> ciphertexts_ ;
+        DynamicTensor<Plaintext> plaintexts_ ;
+
     };
 
 }

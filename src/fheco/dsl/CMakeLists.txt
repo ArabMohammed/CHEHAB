@@ -21,6 +21,7 @@ install(
         ${CMAKE_CURRENT_LIST_DIR}/input.hpp
         ${CMAKE_CURRENT_LIST_DIR}/var.hpp
         ${CMAKE_CURRENT_LIST_DIR}/compute.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/tensor.hpp
 
     DESTINATION
         ${FHECO_INCLUDES_INSTALL_DIR}/dsl

@@ -175,10 +175,13 @@ CMakeFiles/fheco.dir/src/fheco/trs/fold_op_gen_matcher.cpp.o: \
  /home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/trs/common.hpp \
  /home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/ir/common.hpp \
  /home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/dsl/common.hpp \
+ /home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/dsl/var.hpp \
+ /usr/include/c++/11/unordered_set \
+ /usr/include/c++/11/bits/unordered_set.h /usr/include/c++/11/iostream \
+ /usr/include/c++/11/istream /usr/include/c++/11/bits/istream.tcc \
  /home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/ir/term.hpp \
  /home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/ir/op_code.hpp \
- /usr/include/c++/11/unordered_set \
- /usr/include/c++/11/bits/unordered_set.h /usr/include/c++/11/memory \
+ /usr/include/c++/11/memory \
  /usr/include/c++/11/bits/stl_raw_storage_iter.h \
  /usr/include/c++/11/bits/align.h /usr/include/c++/11/bit \
  /usr/include/c++/11/bits/unique_ptr.h \

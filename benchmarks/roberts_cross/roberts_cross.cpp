@@ -14,21 +14,34 @@ using namespace fheco;
 
 void roberts_cross(size_t width)
 {
-  Ciphertext img("img");
-  Ciphertext bottom_row = img << width;
-  // gx
   vector<vector<integer>> gx_kernel = {{1, 0}, {0, -1}};
+  vector<vector<integer>> gy_kernel = {{0, 1}, {-1, 0}};                                                          
+  Var i("i",0,width);
+  Var j("j",0,width);
+  Input img("img",{i,j},Type::ciphertxt);
+  Computation gx_result("R1",{i,j},gx_kernel[0][0]*img(i,j)+gx_kernel[0][1]*img(i,j+1)
+                              +gx_kernel[1][0]*img(i+1,j)+gx_kernel[1][1]*img(i+1,j+1));
+  gx_result.evaluate(false);
+  
+  Computation gy_result("R2",{i,j},gy_kernel[0][0]*img(i,j)+gy_kernel[0][1]*img(i,j+1)
+                               +gy_kernel[1][0]*img(i+1,j)+gy_kernel[1][1]*img(i+1,j+1));
+  gy_result.evaluate(false);
+  Computation result("result",{i,j},gx_result(i,j)*gx_result(i,j) + gy_result(i,j)*gy_result(i,j));
+  result.evaluate(true);
+  /******************************************** */
+ /*  Ciphertext img("img");
+  Ciphertext bottom_row = img << width; //img >> width; img(x-1,y)
+  // gx
   Ciphertext gx_curr_sum = gx_kernel[0][0] * img + gx_kernel[0][1] * (img << 1);
   Ciphertext gx_bottom_sum = gx_kernel[1][0] * bottom_row + gx_kernel[1][1] * (bottom_row << 1);
   Ciphertext gx_result = gx_curr_sum + gx_bottom_sum;
   // gy
-  vector<vector<integer>> gy_kernel = {{0, 1}, {-1, 0}};
   Ciphertext gy_curr_sum = gy_kernel[0][0] * img + gy_kernel[0][1] * (img << 1);
   Ciphertext gy_bottom_sum = gy_kernel[1][0] * bottom_row + gy_kernel[1][1] * (bottom_row << 1);
   Ciphertext gy_result = gy_curr_sum + gy_bottom_sum;
   // combine
   Ciphertext result = gx_result * gx_result + gy_result * gy_result;
-  result.set_output("result");
+  result.set_output("result"); */
 }
 
 void print_bool_arg(bool arg, const string &name, ostream &os)
@@ -89,7 +102,7 @@ int main(int argc, char **argv)
   size_t height = 64;
   const auto &func = Compiler::create_func(func_name, width * height, 20, true, true);
   roberts_cross(width);
-
+  /*********/   Compiler::print_func_ir_file(func ,"../ir_robert_cross.txt");
   string gen_name = "_gen_he_" + func_name;
   string gen_path = "he/" + gen_name;
   ofstream header_os(gen_path + ".hpp");
@@ -99,7 +112,16 @@ int main(int argc, char **argv)
   ofstream source_os(gen_path + ".cpp");
   if (!source_os)
     throw logic_error("failed to create source file");
+  /* auto ruleset = Compiler::Ruleset::joined;
+  if (argc > 2)
+    ruleset = static_cast<Compiler::Ruleset>(stoi(argv[2]));
+  auto rewrite_heuristic = trs::RewriteHeuristic::bottom_up;
+  if (argc > 3)
+    rewrite_heuristic = static_cast<trs::RewriteHeuristic>(stoi(argv[3]));
+  Compiler::compile(func, ruleset, rewrite_heuristic, header_os, gen_name + ".hpp", source_os, true);  */
+  ///////////////////////////// 
   Compiler::compile(func, header_os, gen_name + ".hpp", source_os, axiomatic, window);
+  //Compiler::gen_he_code(func, header_os, gen_name + ".hpp", source_os);
   elapsed = chrono::high_resolution_clock::now() - t;
   cout << elapsed.count() << " ms\n";
 

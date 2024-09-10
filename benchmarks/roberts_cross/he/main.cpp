@@ -60,14 +60,10 @@ int main(int argc, char **argv)
   chrono::high_resolution_clock::time_point t;
   chrono::duration<double, milli> elapsed;
   t = chrono::high_resolution_clock::now();
-  if (opt)
-    roberts_cross_opt(
+  roberts_cross(
       encrypted_inputs, encoded_inputs, encrypted_outputs, encoded_outputs, batch_encoder, encryptor, evaluator,
       relin_keys, galois_keys);
-  else
-    roberts_cross_noopt(
-      encrypted_inputs, encoded_inputs, encrypted_outputs, encoded_outputs, batch_encoder, encryptor, evaluator,
-      relin_keys, galois_keys);
+  
   elapsed = chrono::high_resolution_clock::now() - t;
 
   ClearArgsInfo obtained_clear_outputs;

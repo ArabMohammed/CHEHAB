@@ -32,26 +32,157 @@ void print_bool_arg(bool arg, const string &name, ostream &os)
 
 void matrix_mul(int m_a, int n_b, int n_a_m_b)
 {
+  /************************************************/
+  /* Var i("i",0,m_a); 
+  Var j("j",0,m_a);
+  Var k("k",0,m_a);
+  Var l("l",0,m_a);
+  Input A("A",{i,j,k,l},Type::vectorciphertxt);
+  Input B("B",{i,j,k,l},Type::vectorciphertxt);
+  Computation C("C", {i,j,k,l},A(i,j,k,l)+B(i,j,k,l)); 
+  C.evaluate(true);  */
+  /***********************************************/
+  /* Var i("i",0,m_a); 
+  Var j("j",0,m_a);
+  Var k("k",0,m_a);
+  Var l("l",0,m_a);
+  Input A("A",{i,j,k,l},Type::vectorciphertxt);
+  Input B("B",{i,j,k,l},Type::plaintxt);
+  Computation C("C", {i,j,k,l},A(i,j,k,l)+B(i,j,k,l)); 
+  C.evaluate(true); */
+  /**********************************************/
+  /* Var i("i",0,m_a);
+  Var j("j",0,m_a);  
+  Input A("A",{i,j},Type::ciphertxt);
+  Input B("B",{i,j},Type::ciphertxt);
+  Computation C("C", {i,j},A(i+1,j)+B(i,j+1)); 
+  C.evaluate(true);  */
+ /**************************************************/
+ /*  Var i("i",0,m_a); 
+  Var j("j",0,m_a);
+  Var k("k",0,m_a);
+  Input A("A",{i,k},Type::plaintxt);
+  Input B("B",{j,k},Type::vectorciphertxt);
+  Computation C("C", {i,j,k},{i,j},A(i,k)+B(j,k)); 
+  C.evaluate(true); */
+  /*****************************************/
+  /* Var i("i",0,m_a); 
+  Var j("j",0,m_a);
+  Var k("k",0,m_a);
+  Input A("A",{i,k},Type::vectorciphertxt);
+  Input B("B",{j,k},Type::vectorciphertxt);
+  Computation C("C", {i,j,k},{i,j},A(i,k)+B(j,k)); 
+  C.evaluate(true); */
+  /**************************************/
+  /* Var i("i",0,1); 
+  Var j("j",0,m_a);
+  Input A("A",{i,j},Type::ciphertxt);
+  Input B("B",{i,j},Type::plaintxt);
+  Computation C("C", {i,j},{j},A(i,j)+B(i,j)); 
+  C.evaluate(true); */
+  /************************************/
+  /* 
+  Var i("i",0,1); 
+  Var j("j",0,m_a);
+  Input A("A",{i,j},Type::ciphertxt);
+  Input B("B",{i,j},Type::ciphertxt);
+  Computation C("C", {i,j},{j},A(i,j)+B(i,j)); 
+  C.evaluate(true); 
+  */
+  /****************************************************************/
+  /*****************************Multiplication *******************/
+  /****************************************************************/
+  /*   
+  Var i("i",0,m_a); 
+  Var j("j",0,m_a);
+  Var k("k",0,m_a);
+  Var l("l",0,m_a);
+  Input A("A",{i,j,k,l},Type::vectorciphertxt);
+  Input B("B",{i,j,k,l},Type::plaintxt);
+  Computation C("C", {i,j,k,l},A(i,j,k,l)*B(i,j,k,l)); 
+  C.evaluate(true); 
+  */
+  /*********************************/
+  /*  C.evaluate(true);
+  Var i("i",0,m_a); 
+  Var j("j",0,m_a);
+  Var k("k",0,m_a);
+  Var l("l",0,m_a);
+  Input A("A",{i,j,k,l},Type::vectorciphertxt);
+  Input B("B",{i,j,k,l},Type::vectorciphertxt);
+  Computation C("C", {i,j,k,l},A(i,j,k,l)*B(i,j,k,l)); 
+  C.evaluate(true);   */
+  /*********************************/
+  /*  
+  Var i("i",0,m_a);
+  Var j("j",0,m_a);  
+  Input A("A",{i,j},Type::ciphertxt);
+  Input B("B",{i,j},Type::ciphertxt);
+  Computation C("C", {i,j},A(i+1,j)*B(i,j+1)); 
+  C.evaluate(true);  
+  */
+  /**************************************************************/
+  /* 
+  Var i("i",0,1);
+  Var j("j",0,m_a);  
+  Input A("A",{i,j},Type::ciphertxt);
+  Input B("B",{i,j},Type::plaintxt);
+  Computation C("C", {i,j},{j},A(i,j)*B(i,j)); 
+  C.evaluate(true);  
+  */
+  /**************************************************************/
+  /*  
+  Var i("i",0,1);
+  Var j("j",0,m_a);  
+  Input A("A",{i,j},Type::ciphertxt);
+  Input B("B",{i,j},Type::ciphertxt);
+  Computation C("C", {i,j},{j},A(i,j)*B(i,j)); 
+  C.evaluate(true); 
+  */
+  /**************************************************************/
+    
+  /*  Var i("i",0,m_a); 
+  Var j("j",0,m_a);
+  Var k("k",0,m_a);
+  Input A("A",{i,k},Type::plaintxt);
+  Input B("B",{j,k},Type::vectorciphertxt);
+  Computation C("C", {i,j,k},{i,j},A(i,k)*B(j,k)); 
+  C.evaluate(true);  */ 
+ 
+  /**************************************************************/
+  /*
   Var i("i",0,m_a); 
   Var j("j",0,m_a);
   Var k("k",0,m_a);
   Input A("A",{i,k},Type::vectorciphertxt);
-  Input B("B",{k,j},Type::vectorciphertxt);
-  Computation C("C", {i,j,k},Type::vectorciphertxt);
-  C.set_expression(C(i,j,k)+A(i,k)*B(k,j));
+  Input B("B",{j,k},Type::vectorciphertxt);
+  Computation C("C", {i,j,k},{i,j},A(i,k)*B(j,k)); 
+  C.evaluate(true);  
+  */
+  /***************************************************************/
+
+  // Type::ciphertext : the input is a packed ciphertext 
+  // Type::vectorciphertext : the input is a tensor of packed ciphertexts 
+  
+  /*   Input A("A",{i,j,},Type::vectorciphertxt);
+  Input B("B",{i,j,k,l},Type::vectorciphertxt);
+  Computation C("C", {i,j,k,l},A(i,j,k,l)*B(i,j,k,l));
   C.evaluate(true);
- 
+  */
+  
   // encrypt by li*ne for matrix A
-  /*   for (int i = 0; i < m_a; ++i)
+ /*  vector<Ciphertext> A_row_encrypted ;
+  vector<Ciphertext> B_column_encrypted ;
+  for (int i = 0; i < m_a; ++i)
   {
     //
-    Ciphertext line("A[" + to_string(i) + "][]");
+    Ciphertext line("A[" + to_string(i) + "]");
     A_row_encrypted.push_back(line);
   }
   // encrypt by column for matrix B
   for (int i = 0; i < n_b; ++i)
   {
-    Ciphertext column("B[][" + to_string(i) + "]");
+    Ciphertext column("B[" + to_string(i) + "]");
     B_column_encrypted.push_back(column);
   }
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
@@ -59,24 +190,31 @@ void matrix_mul(int m_a, int n_b, int n_a_m_b)
   vector<Ciphertext> C_row_encrypted;
   for (size_t i = 0; i < A_row_encrypted.size(); ++i)
   {
-    Ciphertext cline;
+    //Ciphertext cline;
     for (size_t j = 0; j < B_column_encrypted.size(); ++j)
     {
-      vector<int64_t> mask(A_row_encrypted.size(), 0);
-      mask[j] = 1;
-      Ciphertext slot;
+      //vector<int64_t> mask(A_row_encrypted.size(), 0);
+      //mask[j] = 1;
+      Ciphertext slot; 
       ///************************************************ 
       slot = SumVec(A_row_encrypted[i] * B_column_encrypted[j],n_b);
       ///***********************************************************
-      cout<<"==> multplying slot*mask\n";
-      if (j == 0)                                                               
-        cline = slot * mask;
-      else
-        cline += slot * mask;
-    }
-    cline.set_output("C[" + to_string(i) + "][]");
-    C_row_encrypted.push_back(cline);
-  } */
+      //if (j == 0)                                                               
+      //  cline = slot * mask;
+      //else
+      //  cline += slot * mask;
+      slot.set_output("C[" + to_string(i) + "]["+ to_string(j) +"]");
+    } 
+    //cline.set_output("C[" + to_string(i) + "][]");
+    //C_row_encrypted.push_back(cline);
+  }  */
+  Var i("i",0,m_a); 
+  Var j("j",0,m_a);
+  Var k("k",0,m_a);
+  Input A("A",{i,k},Type::vectorciphertxt);
+  Input B("B",{j,k},Type::vectorciphertxt);
+  Computation C("C", {i,j,k},{i,j},A(i,k)*B(j,k)); 
+  C.evaluate(true); 
 }
 
 int main(int argc, char **argv)
@@ -129,10 +267,10 @@ int main(int argc, char **argv)
   t = chrono::high_resolution_clock::now();
   string func_name = "matrix_mul" ;
   /******************************/
-  size_t slot_count = 16;
-  int m_a = slot_count;
-  int n_a_m_b = slot_count;
-  int n_b = slot_count;
+  size_t slot_count = 32;
+  int m_a = slot_count ;
+  int n_a_m_b = slot_count ;
+  int n_b = slot_count ;
   /*****************************/
   Compiler::enable_scalar_vector_shape();
   const auto &func = Compiler::create_func(func_name, slot_count, 20, true, true);

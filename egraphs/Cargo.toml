@@ -10,7 +10,8 @@ edition = "2021"
 name = "egraphslib"
 
 [dependencies]
-egg = { path = "../egg" }
+# egg = { path = "../egg" }
+egg = "0.6.0"
 assert_approx_eq = "1.1.0"
 itertools = "0.9.0"
 clap = "2.33.2"

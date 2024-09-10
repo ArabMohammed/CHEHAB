@@ -2,6 +2,7 @@
 #include "fheco/dsl/ops_overloads.hpp"
 #include <stdexcept>
 #include <utility>
+#include <iostream>
 
 using namespace std;
 
@@ -12,23 +13,32 @@ Ciphertext::Ciphertext(vector<size_t> shape) : id_{0}, shape_{move(shape)}, idx_
   validate_shape(shape_);
 }
 
+/*********************************************** */
+/*********************************************** */
 Ciphertext::Ciphertext(string label, vector<size_t> shape) : Ciphertext(move(shape))
 {
+  name_=label;
+  //std::cout<<label<<"\n";
   Compiler::active_func()->init_input(*this, move(label));
 }
+/*********************************************** */
+/*********************************************** */
 
 Ciphertext::Ciphertext(string label, PackedVal example_val, vector<size_t> shape) : Ciphertext(move(shape))
 {
   Compiler::active_func()->clear_data_evaluator().adjust_packed_val(example_val);
   example_val_ = move(example_val);
+  name_=label;
+  //std::cout<<label<<"\n";
   Compiler::active_func()->init_input(*this, move(label));
 }
 
 Ciphertext::Ciphertext(string label, integer example_val_slot_min, integer example_val_slot_max, vector<size_t> shape)
   : Ciphertext(move(shape))
 {
-  example_val_ =
-    Compiler::active_func()->clear_data_evaluator().make_rand_packed_val(example_val_slot_min, example_val_slot_max);
+  example_val_ =Compiler::active_func()->clear_data_evaluator().make_rand_packed_val(example_val_slot_min, example_val_slot_max);
+  name_=label;
+  //std::cout<<label<<"\n";
   Compiler::active_func()->init_input(*this, move(label));
 }
 
@@ -46,6 +56,7 @@ Ciphertext &Ciphertext::operator=(const Ciphertext &other)
     id_ = other.id_;
     shape_ = other.shape_;
     example_val_ = other.example_val_;
+    name_ = other.name_;
   }
   return *this;
 }
@@ -59,6 +70,7 @@ Ciphertext &Ciphertext::operator=(Ciphertext &&other)
     id_ = other.id_;
     shape_ = move(other.shape_);
     example_val_ = move(other.example_val_);
+    name_=std::move(other.name_);
   }
   return *this;
 }
@@ -92,6 +104,7 @@ Ciphertext &Ciphertext::operator[](size_t idx)
 
 const Ciphertext &Ciphertext::set_output(string label) const
 {
+  //std::cout<<"set output is called \n";
   Compiler::active_func()->set_output(*this, move(label));
   return *this;
 }

@@ -70,24 +70,28 @@ namespace fheco
             };
             /*******************************************************************/
             friend Var operator+(const Var &lhs, const int value);
-            friend Var operator+(const int value, const Var &rhs);
             friend Var operator-(const Var &lhs, const int value);
             /*******************************************************************/
             // Function to get the union of two lists of Var objects
             static std::vector<Var> unionOfLists(const std::vector<Var>& list1, const std::vector<Var>& list2) {
-                std::unordered_set<Var, VarHash, VarEqual> unionSet;
-
-                // Insert all elements from the first list
+                std::unordered_set<std::string> seenVars;  // Track seen variable names
+                std::vector<Var> result;
+                // Add elements from list1 in the same order
                 for (const auto& var : list1) {
-                    unionSet.insert(var);
+                    if (seenVars.find(var.name()) == seenVars.end()) {
+                        result.push_back(var);
+                        seenVars.insert(var.name());  // Mark variable as seen
+                    }
                 }
-                // Insert all elements from the second list
+
+                // Add elements from list2 that are not already in the result
                 for (const auto& var : list2) {
-                    unionSet.insert(var);
+                    if (seenVars.find(var.name()) == seenVars.end()) {
+                        result.push_back(var);
+                        seenVars.insert(var.name());
+                    }
                 }
-                // Convert the unordered_set to a vector
-                std::vector<Var> result(unionSet.begin(), unionSet.end());
-                return result;
+                return result;  // Preserves order from list1 first, then unique vars from list2
             }
             static std::unordered_set<std::string> declared_vars_ ;
         private : 

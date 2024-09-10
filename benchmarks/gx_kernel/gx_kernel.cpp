@@ -15,15 +15,22 @@ using namespace fheco;
 void gx_kernel(size_t width)
 {
   vector<vector<integer>> kernel = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
-  Ciphertext img("img");
+  /*Ciphertext img("img");
   Ciphertext top_row = img >> width;
   Ciphertext bottom_row = img << width;
   Ciphertext top_sum = kernel[0][0] * (top_row >> 1) + kernel[0][1] * top_row + kernel[0][2] * (top_row << 1);
   Ciphertext curr_sum = kernel[1][0] * (img >> 1) + kernel[1][1] * img + kernel[1][2] * (img << 1);
-  Ciphertext bottom_sum =
-    kernel[2][0] * (bottom_row >> 1) + kernel[2][1] * bottom_row + kernel[2][2] * (bottom_row << 1);
+  Ciphertext bottom_sum = kernel[2][0] * (bottom_row >> 1) + kernel[2][1] * bottom_row + kernel[2][2] * (bottom_row << 1);
   Ciphertext result = top_sum + curr_sum + bottom_sum;
-  result.set_output("result");
+  result.set_output("result"); */
+  
+  Var x("x",0,width); 
+  Var y("y",0,width);
+  Input img("img",{x,y},Type::ciphertxt);
+  Computation C("result",{x,y},img(x-1,y-1)*kernel[0][0]+img(x-1,y)*kernel[0][1]+img(x-1,y+1)*kernel[0][2]
+                              +img(x,y-1)*kernel[1][0]+img(x,y)*kernel[1][1]+img(x,y+1)*kernel[1][2]+
+                              img(x+1,y-1)*kernel[2][0]+img(x+1,y)*kernel[2][1]+img(x+1,y+1)*kernel[2][2]);
+  C.evaluate(true);
 }
 
 void print_bool_arg(bool arg, const string &name, ostream &os)
@@ -84,7 +91,7 @@ int main(int argc, char **argv)
   size_t height = 64;
   const auto &func = Compiler::create_func(func_name, width * height, 20, true, true);
   gx_kernel(width);
-
+  Compiler::print_func_ir_file(func ,"../gx_kernel.txt");
   string gen_name = "_gen_he_" + func_name;
   string gen_path = "he/" + gen_name;
   ofstream header_os(gen_path + ".hpp");
@@ -96,6 +103,7 @@ int main(int argc, char **argv)
     throw logic_error("failed to create source file");
 
   Compiler::compile(func, header_os, gen_name + ".hpp", source_os, axiomatic, window);
+  //Compiler::gen_he_code(func, header_os, gen_name + ".hpp", source_os);
   elapsed = chrono::high_resolution_clock::now() - t;
   cout << elapsed.count() << " ms\n";
 

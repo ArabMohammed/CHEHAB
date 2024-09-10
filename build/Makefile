@@ -240,6 +240,266 @@ copy_my_file_4box_blur/fast:
 .PHONY : copy_my_file_4box_blur/fast
 
 #=============================================================================
+# Target rules for targets named dot_product
+
+# Build rule for target.
+dot_product: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 dot_product
+.PHONY : dot_product
+
+# fast build rule for target.
+dot_product/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/dot_product/CMakeFiles/dot_product.dir/build.make benchmarks/dot_product/CMakeFiles/dot_product.dir/build
+.PHONY : dot_product/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_1dot_product
+
+# Build rule for target.
+copy_my_file_1dot_product: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_1dot_product
+.PHONY : copy_my_file_1dot_product
+
+# fast build rule for target.
+copy_my_file_1dot_product/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/dot_product/CMakeFiles/copy_my_file_1dot_product.dir/build.make benchmarks/dot_product/CMakeFiles/copy_my_file_1dot_product.dir/build
+.PHONY : copy_my_file_1dot_product/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_2dot_product
+
+# Build rule for target.
+copy_my_file_2dot_product: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_2dot_product
+.PHONY : copy_my_file_2dot_product
+
+# fast build rule for target.
+copy_my_file_2dot_product/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/dot_product/CMakeFiles/copy_my_file_2dot_product.dir/build.make benchmarks/dot_product/CMakeFiles/copy_my_file_2dot_product.dir/build
+.PHONY : copy_my_file_2dot_product/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_3dot_product
+
+# Build rule for target.
+copy_my_file_3dot_product: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_3dot_product
+.PHONY : copy_my_file_3dot_product
+
+# fast build rule for target.
+copy_my_file_3dot_product/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/dot_product/CMakeFiles/copy_my_file_3dot_product.dir/build.make benchmarks/dot_product/CMakeFiles/copy_my_file_3dot_product.dir/build
+.PHONY : copy_my_file_3dot_product/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_4dot_product
+
+# Build rule for target.
+copy_my_file_4dot_product: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_4dot_product
+.PHONY : copy_my_file_4dot_product
+
+# fast build rule for target.
+copy_my_file_4dot_product/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/dot_product/CMakeFiles/copy_my_file_4dot_product.dir/build.make benchmarks/dot_product/CMakeFiles/copy_my_file_4dot_product.dir/build
+.PHONY : copy_my_file_4dot_product/fast
+
+#=============================================================================
+# Target rules for targets named gx_kernel
+
+# Build rule for target.
+gx_kernel: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gx_kernel
+.PHONY : gx_kernel
+
+# fast build rule for target.
+gx_kernel/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/gx_kernel/CMakeFiles/gx_kernel.dir/build.make benchmarks/gx_kernel/CMakeFiles/gx_kernel.dir/build
+.PHONY : gx_kernel/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_1gx_kernel
+
+# Build rule for target.
+copy_my_file_1gx_kernel: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_1gx_kernel
+.PHONY : copy_my_file_1gx_kernel
+
+# fast build rule for target.
+copy_my_file_1gx_kernel/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/gx_kernel/CMakeFiles/copy_my_file_1gx_kernel.dir/build.make benchmarks/gx_kernel/CMakeFiles/copy_my_file_1gx_kernel.dir/build
+.PHONY : copy_my_file_1gx_kernel/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_2gx_kernel
+
+# Build rule for target.
+copy_my_file_2gx_kernel: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_2gx_kernel
+.PHONY : copy_my_file_2gx_kernel
+
+# fast build rule for target.
+copy_my_file_2gx_kernel/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/gx_kernel/CMakeFiles/copy_my_file_2gx_kernel.dir/build.make benchmarks/gx_kernel/CMakeFiles/copy_my_file_2gx_kernel.dir/build
+.PHONY : copy_my_file_2gx_kernel/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_3gx_kernel
+
+# Build rule for target.
+copy_my_file_3gx_kernel: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_3gx_kernel
+.PHONY : copy_my_file_3gx_kernel
+
+# fast build rule for target.
+copy_my_file_3gx_kernel/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/gx_kernel/CMakeFiles/copy_my_file_3gx_kernel.dir/build.make benchmarks/gx_kernel/CMakeFiles/copy_my_file_3gx_kernel.dir/build
+.PHONY : copy_my_file_3gx_kernel/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_4gx_kernel
+
+# Build rule for target.
+copy_my_file_4gx_kernel: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_4gx_kernel
+.PHONY : copy_my_file_4gx_kernel
+
+# fast build rule for target.
+copy_my_file_4gx_kernel/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/gx_kernel/CMakeFiles/copy_my_file_4gx_kernel.dir/build.make benchmarks/gx_kernel/CMakeFiles/copy_my_file_4gx_kernel.dir/build
+.PHONY : copy_my_file_4gx_kernel/fast
+
+#=============================================================================
+# Target rules for targets named gy_kernel
+
+# Build rule for target.
+gy_kernel: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gy_kernel
+.PHONY : gy_kernel
+
+# fast build rule for target.
+gy_kernel/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/gy_kernel/CMakeFiles/gy_kernel.dir/build.make benchmarks/gy_kernel/CMakeFiles/gy_kernel.dir/build
+.PHONY : gy_kernel/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_1gy_kernel
+
+# Build rule for target.
+copy_my_file_1gy_kernel: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_1gy_kernel
+.PHONY : copy_my_file_1gy_kernel
+
+# fast build rule for target.
+copy_my_file_1gy_kernel/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/gy_kernel/CMakeFiles/copy_my_file_1gy_kernel.dir/build.make benchmarks/gy_kernel/CMakeFiles/copy_my_file_1gy_kernel.dir/build
+.PHONY : copy_my_file_1gy_kernel/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_2gy_kernel
+
+# Build rule for target.
+copy_my_file_2gy_kernel: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_2gy_kernel
+.PHONY : copy_my_file_2gy_kernel
+
+# fast build rule for target.
+copy_my_file_2gy_kernel/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/gy_kernel/CMakeFiles/copy_my_file_2gy_kernel.dir/build.make benchmarks/gy_kernel/CMakeFiles/copy_my_file_2gy_kernel.dir/build
+.PHONY : copy_my_file_2gy_kernel/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_3gy_kernel
+
+# Build rule for target.
+copy_my_file_3gy_kernel: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_3gy_kernel
+.PHONY : copy_my_file_3gy_kernel
+
+# fast build rule for target.
+copy_my_file_3gy_kernel/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/gy_kernel/CMakeFiles/copy_my_file_3gy_kernel.dir/build.make benchmarks/gy_kernel/CMakeFiles/copy_my_file_3gy_kernel.dir/build
+.PHONY : copy_my_file_3gy_kernel/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_4gy_kernel
+
+# Build rule for target.
+copy_my_file_4gy_kernel: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_4gy_kernel
+.PHONY : copy_my_file_4gy_kernel
+
+# fast build rule for target.
+copy_my_file_4gy_kernel/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/gy_kernel/CMakeFiles/copy_my_file_4gy_kernel.dir/build.make benchmarks/gy_kernel/CMakeFiles/copy_my_file_4gy_kernel.dir/build
+.PHONY : copy_my_file_4gy_kernel/fast
+
+#=============================================================================
+# Target rules for targets named hamming_dist
+
+# Build rule for target.
+hamming_dist: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 hamming_dist
+.PHONY : hamming_dist
+
+# fast build rule for target.
+hamming_dist/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/hamming_dist/CMakeFiles/hamming_dist.dir/build.make benchmarks/hamming_dist/CMakeFiles/hamming_dist.dir/build
+.PHONY : hamming_dist/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_1hamming_dist
+
+# Build rule for target.
+copy_my_file_1hamming_dist: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_1hamming_dist
+.PHONY : copy_my_file_1hamming_dist
+
+# fast build rule for target.
+copy_my_file_1hamming_dist/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/hamming_dist/CMakeFiles/copy_my_file_1hamming_dist.dir/build.make benchmarks/hamming_dist/CMakeFiles/copy_my_file_1hamming_dist.dir/build
+.PHONY : copy_my_file_1hamming_dist/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_2hamming_dist
+
+# Build rule for target.
+copy_my_file_2hamming_dist: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_2hamming_dist
+.PHONY : copy_my_file_2hamming_dist
+
+# fast build rule for target.
+copy_my_file_2hamming_dist/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/hamming_dist/CMakeFiles/copy_my_file_2hamming_dist.dir/build.make benchmarks/hamming_dist/CMakeFiles/copy_my_file_2hamming_dist.dir/build
+.PHONY : copy_my_file_2hamming_dist/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_3hamming_dist
+
+# Build rule for target.
+copy_my_file_3hamming_dist: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_3hamming_dist
+.PHONY : copy_my_file_3hamming_dist
+
+# fast build rule for target.
+copy_my_file_3hamming_dist/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/hamming_dist/CMakeFiles/copy_my_file_3hamming_dist.dir/build.make benchmarks/hamming_dist/CMakeFiles/copy_my_file_3hamming_dist.dir/build
+.PHONY : copy_my_file_3hamming_dist/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_4hamming_dist
+
+# Build rule for target.
+copy_my_file_4hamming_dist: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_4hamming_dist
+.PHONY : copy_my_file_4hamming_dist
+
+# fast build rule for target.
+copy_my_file_4hamming_dist/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/hamming_dist/CMakeFiles/copy_my_file_4hamming_dist.dir/build.make benchmarks/hamming_dist/CMakeFiles/copy_my_file_4hamming_dist.dir/build
+.PHONY : copy_my_file_4hamming_dist/fast
+
+#=============================================================================
 # Target rules for targets named l2_distance
 
 # Build rule for target.
@@ -305,6 +565,71 @@ copy_my_file_4l2_distance/fast:
 .PHONY : copy_my_file_4l2_distance/fast
 
 #=============================================================================
+# Target rules for targets named linear_reg
+
+# Build rule for target.
+linear_reg: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 linear_reg
+.PHONY : linear_reg
+
+# fast build rule for target.
+linear_reg/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/linear_reg/CMakeFiles/linear_reg.dir/build.make benchmarks/linear_reg/CMakeFiles/linear_reg.dir/build
+.PHONY : linear_reg/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_1linear_reg
+
+# Build rule for target.
+copy_my_file_1linear_reg: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_1linear_reg
+.PHONY : copy_my_file_1linear_reg
+
+# fast build rule for target.
+copy_my_file_1linear_reg/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/linear_reg/CMakeFiles/copy_my_file_1linear_reg.dir/build.make benchmarks/linear_reg/CMakeFiles/copy_my_file_1linear_reg.dir/build
+.PHONY : copy_my_file_1linear_reg/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_2linear_reg
+
+# Build rule for target.
+copy_my_file_2linear_reg: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_2linear_reg
+.PHONY : copy_my_file_2linear_reg
+
+# fast build rule for target.
+copy_my_file_2linear_reg/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/linear_reg/CMakeFiles/copy_my_file_2linear_reg.dir/build.make benchmarks/linear_reg/CMakeFiles/copy_my_file_2linear_reg.dir/build
+.PHONY : copy_my_file_2linear_reg/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_3linear_reg
+
+# Build rule for target.
+copy_my_file_3linear_reg: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_3linear_reg
+.PHONY : copy_my_file_3linear_reg
+
+# fast build rule for target.
+copy_my_file_3linear_reg/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/linear_reg/CMakeFiles/copy_my_file_3linear_reg.dir/build.make benchmarks/linear_reg/CMakeFiles/copy_my_file_3linear_reg.dir/build
+.PHONY : copy_my_file_3linear_reg/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_4linear_reg
+
+# Build rule for target.
+copy_my_file_4linear_reg: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_4linear_reg
+.PHONY : copy_my_file_4linear_reg
+
+# fast build rule for target.
+copy_my_file_4linear_reg/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/linear_reg/CMakeFiles/copy_my_file_4linear_reg.dir/build.make benchmarks/linear_reg/CMakeFiles/copy_my_file_4linear_reg.dir/build
+.PHONY : copy_my_file_4linear_reg/fast
+
+#=============================================================================
 # Target rules for targets named matrix_mul
 
 # Build rule for target.
@@ -368,6 +693,201 @@ copy_my_file_4matrix_mul: cmake_check_build_system
 copy_my_file_4matrix_mul/fast:
 	$(MAKE) $(MAKESILENT) -f benchmarks/matrix_mul/CMakeFiles/copy_my_file_4matrix_mul.dir/build.make benchmarks/matrix_mul/CMakeFiles/copy_my_file_4matrix_mul.dir/build
 .PHONY : copy_my_file_4matrix_mul/fast
+
+#=============================================================================
+# Target rules for targets named poly_reg
+
+# Build rule for target.
+poly_reg: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 poly_reg
+.PHONY : poly_reg
+
+# fast build rule for target.
+poly_reg/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/poly_reg/CMakeFiles/poly_reg.dir/build.make benchmarks/poly_reg/CMakeFiles/poly_reg.dir/build
+.PHONY : poly_reg/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_1poly_reg
+
+# Build rule for target.
+copy_my_file_1poly_reg: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_1poly_reg
+.PHONY : copy_my_file_1poly_reg
+
+# fast build rule for target.
+copy_my_file_1poly_reg/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/poly_reg/CMakeFiles/copy_my_file_1poly_reg.dir/build.make benchmarks/poly_reg/CMakeFiles/copy_my_file_1poly_reg.dir/build
+.PHONY : copy_my_file_1poly_reg/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_2poly_reg
+
+# Build rule for target.
+copy_my_file_2poly_reg: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_2poly_reg
+.PHONY : copy_my_file_2poly_reg
+
+# fast build rule for target.
+copy_my_file_2poly_reg/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/poly_reg/CMakeFiles/copy_my_file_2poly_reg.dir/build.make benchmarks/poly_reg/CMakeFiles/copy_my_file_2poly_reg.dir/build
+.PHONY : copy_my_file_2poly_reg/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_3poly_reg
+
+# Build rule for target.
+copy_my_file_3poly_reg: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_3poly_reg
+.PHONY : copy_my_file_3poly_reg
+
+# fast build rule for target.
+copy_my_file_3poly_reg/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/poly_reg/CMakeFiles/copy_my_file_3poly_reg.dir/build.make benchmarks/poly_reg/CMakeFiles/copy_my_file_3poly_reg.dir/build
+.PHONY : copy_my_file_3poly_reg/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_4poly_reg
+
+# Build rule for target.
+copy_my_file_4poly_reg: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_4poly_reg
+.PHONY : copy_my_file_4poly_reg
+
+# fast build rule for target.
+copy_my_file_4poly_reg/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/poly_reg/CMakeFiles/copy_my_file_4poly_reg.dir/build.make benchmarks/poly_reg/CMakeFiles/copy_my_file_4poly_reg.dir/build
+.PHONY : copy_my_file_4poly_reg/fast
+
+#=============================================================================
+# Target rules for targets named roberts_cross
+
+# Build rule for target.
+roberts_cross: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 roberts_cross
+.PHONY : roberts_cross
+
+# fast build rule for target.
+roberts_cross/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/roberts_cross/CMakeFiles/roberts_cross.dir/build.make benchmarks/roberts_cross/CMakeFiles/roberts_cross.dir/build
+.PHONY : roberts_cross/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_1roberts_cross
+
+# Build rule for target.
+copy_my_file_1roberts_cross: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_1roberts_cross
+.PHONY : copy_my_file_1roberts_cross
+
+# fast build rule for target.
+copy_my_file_1roberts_cross/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/roberts_cross/CMakeFiles/copy_my_file_1roberts_cross.dir/build.make benchmarks/roberts_cross/CMakeFiles/copy_my_file_1roberts_cross.dir/build
+.PHONY : copy_my_file_1roberts_cross/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_2roberts_cross
+
+# Build rule for target.
+copy_my_file_2roberts_cross: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_2roberts_cross
+.PHONY : copy_my_file_2roberts_cross
+
+# fast build rule for target.
+copy_my_file_2roberts_cross/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/roberts_cross/CMakeFiles/copy_my_file_2roberts_cross.dir/build.make benchmarks/roberts_cross/CMakeFiles/copy_my_file_2roberts_cross.dir/build
+.PHONY : copy_my_file_2roberts_cross/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_3roberts_cross
+
+# Build rule for target.
+copy_my_file_3roberts_cross: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_3roberts_cross
+.PHONY : copy_my_file_3roberts_cross
+
+# fast build rule for target.
+copy_my_file_3roberts_cross/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/roberts_cross/CMakeFiles/copy_my_file_3roberts_cross.dir/build.make benchmarks/roberts_cross/CMakeFiles/copy_my_file_3roberts_cross.dir/build
+.PHONY : copy_my_file_3roberts_cross/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_4roberts_cross
+
+# Build rule for target.
+copy_my_file_4roberts_cross: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_4roberts_cross
+.PHONY : copy_my_file_4roberts_cross
+
+# fast build rule for target.
+copy_my_file_4roberts_cross/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/roberts_cross/CMakeFiles/copy_my_file_4roberts_cross.dir/build.make benchmarks/roberts_cross/CMakeFiles/copy_my_file_4roberts_cross.dir/build
+.PHONY : copy_my_file_4roberts_cross/fast
+
+#=============================================================================
+# Target rules for targets named sobel
+
+# Build rule for target.
+sobel: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 sobel
+.PHONY : sobel
+
+# fast build rule for target.
+sobel/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/sobel/CMakeFiles/sobel.dir/build.make benchmarks/sobel/CMakeFiles/sobel.dir/build
+.PHONY : sobel/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_1sobel
+
+# Build rule for target.
+copy_my_file_1sobel: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_1sobel
+.PHONY : copy_my_file_1sobel
+
+# fast build rule for target.
+copy_my_file_1sobel/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/sobel/CMakeFiles/copy_my_file_1sobel.dir/build.make benchmarks/sobel/CMakeFiles/copy_my_file_1sobel.dir/build
+.PHONY : copy_my_file_1sobel/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_2sobel
+
+# Build rule for target.
+copy_my_file_2sobel: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_2sobel
+.PHONY : copy_my_file_2sobel
+
+# fast build rule for target.
+copy_my_file_2sobel/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/sobel/CMakeFiles/copy_my_file_2sobel.dir/build.make benchmarks/sobel/CMakeFiles/copy_my_file_2sobel.dir/build
+.PHONY : copy_my_file_2sobel/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_3sobel
+
+# Build rule for target.
+copy_my_file_3sobel: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_3sobel
+.PHONY : copy_my_file_3sobel
+
+# fast build rule for target.
+copy_my_file_3sobel/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/sobel/CMakeFiles/copy_my_file_3sobel.dir/build.make benchmarks/sobel/CMakeFiles/copy_my_file_3sobel.dir/build
+.PHONY : copy_my_file_3sobel/fast
+
+#=============================================================================
+# Target rules for targets named copy_my_file_4sobel
+
+# Build rule for target.
+copy_my_file_4sobel: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 copy_my_file_4sobel
+.PHONY : copy_my_file_4sobel
+
+# fast build rule for target.
+copy_my_file_4sobel/fast:
+	$(MAKE) $(MAKESILENT) -f benchmarks/sobel/CMakeFiles/copy_my_file_4sobel.dir/build.make benchmarks/sobel/CMakeFiles/copy_my_file_4sobel.dir/build
+.PHONY : copy_my_file_4sobel/fast
 
 src/fheco/code_gen/gen_func.o: src/fheco/code_gen/gen_func.cpp.o
 .PHONY : src/fheco/code_gen/gen_func.o
@@ -1510,21 +2030,61 @@ help:
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... copy_my_file_1box_blur"
+	@echo "... copy_my_file_1dot_product"
+	@echo "... copy_my_file_1gx_kernel"
+	@echo "... copy_my_file_1gy_kernel"
+	@echo "... copy_my_file_1hamming_dist"
 	@echo "... copy_my_file_1l2_distance"
+	@echo "... copy_my_file_1linear_reg"
 	@echo "... copy_my_file_1matrix_mul"
+	@echo "... copy_my_file_1poly_reg"
+	@echo "... copy_my_file_1roberts_cross"
+	@echo "... copy_my_file_1sobel"
 	@echo "... copy_my_file_2box_blur"
+	@echo "... copy_my_file_2dot_product"
+	@echo "... copy_my_file_2gx_kernel"
+	@echo "... copy_my_file_2gy_kernel"
+	@echo "... copy_my_file_2hamming_dist"
 	@echo "... copy_my_file_2l2_distance"
+	@echo "... copy_my_file_2linear_reg"
 	@echo "... copy_my_file_2matrix_mul"
+	@echo "... copy_my_file_2poly_reg"
+	@echo "... copy_my_file_2roberts_cross"
+	@echo "... copy_my_file_2sobel"
 	@echo "... copy_my_file_3box_blur"
+	@echo "... copy_my_file_3dot_product"
+	@echo "... copy_my_file_3gx_kernel"
+	@echo "... copy_my_file_3gy_kernel"
+	@echo "... copy_my_file_3hamming_dist"
 	@echo "... copy_my_file_3l2_distance"
+	@echo "... copy_my_file_3linear_reg"
 	@echo "... copy_my_file_3matrix_mul"
+	@echo "... copy_my_file_3poly_reg"
+	@echo "... copy_my_file_3roberts_cross"
+	@echo "... copy_my_file_3sobel"
 	@echo "... copy_my_file_4box_blur"
+	@echo "... copy_my_file_4dot_product"
+	@echo "... copy_my_file_4gx_kernel"
+	@echo "... copy_my_file_4gy_kernel"
+	@echo "... copy_my_file_4hamming_dist"
 	@echo "... copy_my_file_4l2_distance"
+	@echo "... copy_my_file_4linear_reg"
 	@echo "... copy_my_file_4matrix_mul"
+	@echo "... copy_my_file_4poly_reg"
+	@echo "... copy_my_file_4roberts_cross"
+	@echo "... copy_my_file_4sobel"
 	@echo "... box_blur"
+	@echo "... dot_product"
 	@echo "... fheco"
+	@echo "... gx_kernel"
+	@echo "... gy_kernel"
+	@echo "... hamming_dist"
 	@echo "... l2_distance"
+	@echo "... linear_reg"
 	@echo "... matrix_mul"
+	@echo "... poly_reg"
+	@echo "... roberts_cross"
+	@echo "... sobel"
 	@echo "... src/fheco/code_gen/gen_func.o"
 	@echo "... src/fheco/code_gen/gen_func.i"
 	@echo "... src/fheco/code_gen/gen_func.s"

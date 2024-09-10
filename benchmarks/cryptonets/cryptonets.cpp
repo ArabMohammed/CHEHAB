@@ -52,11 +52,13 @@ void cryptonets(integer modulus)
   vector<vector<vector<vector<integer>>>> w1_vals;
   {
     auto w1_raw = load(w1_is, delim);
+    //w1_shape = {5, 5, 1, 5};
     w1_vals = reshape_4d(w1_raw, w1_shape);
   }
   vector<vector<vector<vector<integer>>>> w4_vals;
   {
     auto w4_raw = load(w4_is, delim);
+    //w4_shape = {5, 5, 5, 10};
     w4_vals = reshape_4d(w4_raw, w4_shape);
   }
   auto w8_vals = load(w8_is, delim);
@@ -100,6 +102,7 @@ void cryptonets(integer modulus)
     b8[i] = b8_vals[i];
 
   // declare inputs
+  //vector<size_t> x_shape = {28, 28, 1};
   vector<vector<vector<Ciphertext>>> x(
     x_shape[0], vector<vector<Ciphertext>>(x_shape[1], vector<Ciphertext>(x_shape[2])));
   for (size_t i = 0; i < x_shape[0]; ++i)
@@ -108,10 +111,14 @@ void cryptonets(integer modulus)
         x[i][j][k] = Ciphertext("x[" + to_string(i) + "][" + to_string(j) + "][" + to_string(k) + "]");
 
   // predict
+  /***************************************/
+  /***************************************/
   auto y = predict(x, w1, b1, w4, b4, w8, b8);
   // declare outputs
   for (size_t i = 0; i < y.size(); ++i)
     y[i].set_output("y[" + to_string(i) + "]");
+  /***************************************/
+  /***************************************/
 }
 
 void print_bool_arg(bool arg, const string &name, ostream &os)

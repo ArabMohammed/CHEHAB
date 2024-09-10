@@ -24,10 +24,15 @@ vector<Ciphertext> predict(
 }
 
 // HWC, zero padding, mapcount
+/*************************************************************************************/
+/*************************************************************************************/
 vector<vector<vector<Ciphertext>>> conv_2d(
   const vector<vector<vector<Ciphertext>>> &input, const vector<vector<vector<vector<Plaintext>>>> &kernels,
   const vector<size_t> &strides)
 {
+  // input   {28,28,1}
+  // kernel  {5, 5, 1, 5};
+  // strides {2,2}
   auto n_channels_in = input[0][0].size();
   auto n_channels_kernel = kernels[0][0].size();
   if (n_channels_in != n_channels_kernel)
@@ -43,7 +48,7 @@ vector<vector<vector<Ciphertext>>> conv_2d(
   auto padded_in = pad_2d(input, {n_rows_kernel, n_cols_kernel}, strides);
   auto n_rows_out = n_rows_in / row_stride + (n_rows_in % row_stride > 0 ? 1 : 0);
   auto n_cols_out = n_cols_in / col_stride + (n_cols_in % col_stride > 0 ? 1 : 0);
-  auto n_channels_out = kernels[0][0][0].size();
+  auto n_channels_out = kernels[0][0][0].size(); // 5
   vector<vector<vector<Ciphertext>>> output(
     n_rows_out, vector<vector<Ciphertext>>(n_cols_out, vector<Ciphertext>(n_channels_out, encrypt(0))));
   size_t row_offset = 0;
@@ -66,7 +71,8 @@ vector<vector<vector<Ciphertext>>> conv_2d(
   }
   return output;
 }
-
+/*************************************************************************************/
+/*************************************************************************************/
 // no padding, mapcount
 vector<vector<vector<Ciphertext>>> scaled_mean_pool_2d(
   const vector<vector<vector<Ciphertext>>> &input, const vector<size_t> &kernel_shape, const vector<size_t> &strides)
@@ -102,6 +108,8 @@ vector<vector<vector<Ciphertext>>> scaled_mean_pool_2d(
   }
   return output;
 }
+/*********************************************************************************************/
+/**********************************************************************************************/
 
 vector<vector<vector<Ciphertext>>> pad_2d(
   const vector<vector<vector<Ciphertext>>> &input, const vector<size_t> &kernel_shape, const vector<size_t> &strides)
@@ -135,6 +143,9 @@ vector<vector<vector<Ciphertext>>> pad_2d(
   return output;
 }
 
+/***********************************************************************************************/
+/***********************************************************************************************/
+
 vector<Ciphertext> add(const vector<Ciphertext> &input, const vector<Plaintext> &b)
 {
   if (input.size() != b.size())
@@ -146,6 +157,7 @@ vector<Ciphertext> add(const vector<Ciphertext> &input, const vector<Plaintext> 
 
   return output;
 }
+/**********************************************************************************************/
 
 vector<vector<vector<Ciphertext>>> add(const vector<vector<vector<Ciphertext>>> &input, const vector<Plaintext> &b)
 {
@@ -164,6 +176,8 @@ vector<vector<vector<Ciphertext>>> add(const vector<vector<vector<Ciphertext>>> 
   return output;
 }
 
+/******************************************************************************************/
+
 vector<vector<vector<Ciphertext>>> square(const vector<vector<vector<Ciphertext>>> &input)
 {
   auto n_rows = input.size();
@@ -178,6 +192,8 @@ vector<vector<vector<Ciphertext>>> square(const vector<vector<vector<Ciphertext>
   return output;
 }
 
+/*******************************************************************************************/
+
 vector<Ciphertext> square(const vector<Ciphertext> &input)
 {
   vector<Ciphertext> output(input.size());
@@ -187,8 +203,11 @@ vector<Ciphertext> square(const vector<Ciphertext> &input)
   return output;
 }
 
+
 // mapcount
 // w for weights
+/*******************************************************************************************/
+
 vector<Ciphertext> dot(const vector<Ciphertext> &input, const vector<vector<Plaintext>> &w)
 {
   if (input.size() != w.size())
@@ -201,6 +220,8 @@ vector<Ciphertext> dot(const vector<Ciphertext> &input, const vector<vector<Plai
 
   return output;
 }
+
+/********************************************************************************************/
 
 vector<Ciphertext> flatten(const vector<vector<vector<Ciphertext>>> &input)
 {
@@ -220,6 +241,9 @@ vector<Ciphertext> flatten(const vector<vector<vector<Ciphertext>>> &input)
   return output;
 }
 
+/*******************************************************************************************/
+/*******************************************************************************************/
+
 vector<integer> load(istream &is)
 {
   vector<integer> data;
@@ -228,6 +252,8 @@ vector<integer> load(istream &is)
     data.push_back(static_cast<integer>(stoull(line)));
   return data;
 }
+
+/*******************************************************************************************/
 
 vector<vector<integer>> load(istream &is, char delim)
 {
@@ -245,6 +271,8 @@ vector<vector<integer>> load(istream &is, char delim)
   return data;
 }
 
+/*******************************************************************************************/
+/********************************************************************************************/
 vector<string> split(const string &str, char delim)
 {
   vector<string> tokens;

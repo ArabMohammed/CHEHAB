@@ -103,10 +103,12 @@ void Func::operate_binary(OpCode op_code, const TArg1 &arg1, const TArg2 &arg2, 
 template <typename T>
 void Func::set_output(const T &output, string label)
 {
-  if (auto term = data_flow_.get_term(output.id()); term)
+  if (auto term = data_flow_.get_term(output.id()); term){
     data_flow_.set_output(term, OutputTermInfo{unordered_set<string>{move(label)}, output.example_val()});
-  else
+  }
+  else{
     throw invalid_argument("object not defined");
+  }
 }
 
 Term *Func::insert_op_term(OpCode op_code, vector<Term *> operands, bool &inserted)

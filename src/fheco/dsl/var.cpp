@@ -66,9 +66,7 @@ namespace fheco {
     Var operator+(const Var &lhs, const int value){
          return Var(lhs.name(),lhs.lower_bound(),lhs.upper_bound(),lhs.rotation_steps() + value);   
     }
-    Var operator+(const int value, const Var &rhs){
-        return Var(rhs.name(),rhs.lower_bound(),rhs.upper_bound(),rhs.rotation_steps() + value);   
-    }
+   
 
     // addition assignement
     /* Var &Var::operator+=(const Var &rhs){

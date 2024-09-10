@@ -53,6 +53,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
     "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/dsl/input.hpp"
     "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/dsl/var.hpp"
     "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/dsl/compute.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/dsl/tensor.hpp"
     )
 endif()
 

@@ -17,39 +17,29 @@ const RelinKeys &relin_keys,
 const GaloisKeys &galois_keys)
 {
 Ciphertext c1 = encrypted_inputs.at("img");
-size_t slot_count = encoder.slot_count();
-Plaintext p10;
-encoder.encode(vector<std::uint64_t>(slot_count, 1), p10);
 Ciphertext c9;
-evaluator.rotate_rows(c1, 4031, galois_keys, c9);
-evaluator.multiply_plain(c9, p10, c9);
-Ciphertext c8;
-evaluator.rotate_rows(c1, 4032, galois_keys, c8);
-evaluator.multiply_plain(c8, p10, c8);
-evaluator.add(c9, c8, c9);
-evaluator.rotate_rows(c1, 4033, galois_keys, c8);
-evaluator.multiply_plain(c8, p10, c8);
-evaluator.add(c9, c8, c9);
-evaluator.rotate_rows(c1, 4095, galois_keys, c8);
-evaluator.multiply_plain(c8, p10, c8);
-evaluator.add(c9, c8, c9);
-evaluator.multiply_plain(c1, p10, c8);
-evaluator.add(c9, c8, c9);
-evaluator.rotate_rows(c1, 1, galois_keys, c8);
-evaluator.multiply_plain(c8, p10, c8);
-evaluator.add(c9, c8, c9);
-evaluator.rotate_rows(c1, 63, galois_keys, c8);
-evaluator.multiply_plain(c8, p10, c8);
-evaluator.add(c9, c8, c9);
-evaluator.rotate_rows(c1, 64, galois_keys, c8);
-evaluator.multiply_plain(c8, p10, c8);
-evaluator.add(c9, c8, c9);
-evaluator.rotate_rows(c1, 65, galois_keys, c1);
-evaluator.multiply_plain(c1, p10, c1);
-evaluator.add(c9, c1, c9);
+evaluator.rotate_rows(c1, 4032, galois_keys, c9);
+Ciphertext c10;
+evaluator.rotate_rows(c1, 4031, galois_keys, c10);
+evaluator.add(c9, c10, c9);
+evaluator.rotate_rows(c1, 4033, galois_keys, c10);
+Ciphertext c7;
+evaluator.rotate_rows(c1, 4095, galois_keys, c7);
+evaluator.add(c1, c7, c7);
+evaluator.add(c10, c7, c10);
+evaluator.rotate_rows(c1, 63, galois_keys, c7);
+Ciphertext c6;
+evaluator.rotate_rows(c1, 1, galois_keys, c6);
+evaluator.add(c7, c6, c7);
+evaluator.rotate_rows(c1, 65, galois_keys, c6);
+evaluator.rotate_rows(c1, 64, galois_keys, c1);
+evaluator.add(c6, c1, c6);
+evaluator.add(c7, c6, c7);
+evaluator.add(c10, c7, c10);
+evaluator.add(c9, c10, c9);
 encrypted_outputs.emplace("result", move(c9));
 }
 
 vector<int> get_rotation_steps_box_blur(){
-return vector<int>{4031, 1, 4032, 4033, 4095, 65, 63, 64};
+return vector<int>{4032, 4031, 1, 4033, 4095, 65, 63, 64};
 }

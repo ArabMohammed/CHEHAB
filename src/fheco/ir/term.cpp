@@ -16,12 +16,29 @@ Term::Term(OpCode op_code, vector<Term *> operands)
 
 size_t Term::HashPtr::operator()(const Term *p) const
 {
-  return hash<Term>()(*p);
+   // Ensure p is not null before dereferencing
+    if (p == nullptr) {
+        return 0;
+    }
+    
+    // Combine hashes of relevant members of Term
+    // Assuming Term has some members like id_, name_, etc.
+    std::size_t hash = std::hash<int>()(p->id());  // Example of hashing an integer member
+    // You can combine hashes of other members as well to make it more unique
+    // hash ^= std::hash<std::string>()(p->name()) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+    return hash;
 }
 
 bool Term::EqualPtr::operator()(const Term *lhs, const Term *rhs) const
 {
-  return *lhs == *rhs;
+   // Handle case where either pointer is null
+    if (lhs == rhs) return true;  // Same pointer or both null
+    if (lhs == nullptr || rhs == nullptr) return false;
+
+    // Compare the relevant members of Term
+    return lhs->id() == rhs->id();
+    // You can add more conditions if Term has more relevant fields
+    // return lhs->id() == rhs->id() && lhs->name() == rhs->name();
 }
 
 bool Term::ComparePtr::operator()(const Term *lhs, const Term *rhs) const

@@ -10,14 +10,16 @@
 using namespace std;
 using namespace fheco;
 
-void linear_reg()
+void linear_reg(int slot_count)
 {
-  Ciphertext c0("c0");
-  Ciphertext c1("c1");
-  Ciphertext c2("c2");
-  Ciphertext c3("c3");
-  Ciphertext c_result = c1 - (c2 * c0) - c3;
-  c_result.set_output("c_result");
+  Var i("i",0,1);
+  Var j("j",0,slot_count);
+  Input c0("c0",{i,j},Type::ciphertxt);
+  Input c1("c1",{i,j},Type::ciphertxt);
+  Input c2("c2",{i,j},Type::ciphertxt);
+  Input c3("c3",{i,j},Type::ciphertxt);
+  Computation C("c_result",{i,j},c1(i,j) - (c2(i,j) * c0(i,j)) - c3(i,j));
+  C.evaluate(true);
 }
 
 void print_bool_arg(bool arg, const string &name, ostream &os)
@@ -74,8 +76,9 @@ int main(int argc, char **argv)
   chrono::duration<double, milli> elapsed;
   t = chrono::high_resolution_clock::now();
   string func_name = "linear_reg";
-  const auto &func = Compiler::create_func(func_name, 1024, 20, true, false);
-  linear_reg();
+  size_t slot_count = 1024;
+  const auto &func = Compiler::create_func(func_name, slot_count, 20, true, true);
+  linear_reg(slot_count);
 
   string gen_name = "_gen_he_" + func_name;
   string gen_path = "he/" + gen_name;

@@ -58,8 +58,16 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/build/src/fheco/cmake_install.cmake")
   include("/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/build/benchmarks/box_blur/cmake_install.cmake")
+  include("/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/build/benchmarks/dot_product/cmake_install.cmake")
+  include("/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/build/benchmarks/gx_kernel/cmake_install.cmake")
+  include("/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/build/benchmarks/gy_kernel/cmake_install.cmake")
+  include("/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/build/benchmarks/hamming_dist/cmake_install.cmake")
   include("/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/build/benchmarks/l2_distance/cmake_install.cmake")
+  include("/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/build/benchmarks/linear_reg/cmake_install.cmake")
   include("/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/build/benchmarks/matrix_mul/cmake_install.cmake")
+  include("/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/build/benchmarks/poly_reg/cmake_install.cmake")
+  include("/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/build/benchmarks/roberts_cross/cmake_install.cmake")
+  include("/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/build/benchmarks/sobel/cmake_install.cmake")
 
 endif()
 

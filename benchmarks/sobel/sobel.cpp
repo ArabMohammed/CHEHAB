@@ -14,19 +14,34 @@ using namespace fheco;
 
 void sobel(size_t width)
 {
+  vector<vector<integer>> gx_kernel = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+  vector<vector<integer>> gy_kernel = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
+  /**/
+  Var x("x",0,64); 
+  Var y("y",0,64);
+  Input img("img",{x,y},Type::ciphertxt);
+  Computation gx_result("gx_result",{x,y},img(x-1,y-1)*gx_kernel[0][0]+img(x-1,y)*gx_kernel[0][1]+img(x-1,y+1)*gx_kernel[0][2]
+                              +img(x,y-1)*gx_kernel[1][0]+img(x,y)*gx_kernel[1][1]+img(x,y+1)*gx_kernel[1][2]+
+                              img(x+1,y-1)*gx_kernel[2][0]+img(x+1,y)*gx_kernel[2][1]+img(x+1,y+1)*gx_kernel[2][2]);
+  gx_result.evaluate(false);
+  Computation gy_result("gy_result",{x,y},img(x-1,y-1)*gy_kernel[0][0]+img(x-1,y)*gy_kernel[0][1]+img(x-1,y+1)*gy_kernel[0][2]
+                              +img(x,y-1)*gy_kernel[1][0]+img(x,y)*gy_kernel[1][1]+img(x,y+1)*gy_kernel[1][2]+
+                              img(x+1,y-1)*gy_kernel[2][0]+img(x+1,y)*gy_kernel[2][1]+img(x+1,y+1)*gy_kernel[2][2]);
+  gy_result.evaluate(false);
+  Computation result("result",{x,y},gx_result(x,y)*gx_result(x,y) + gy_result(x,y)*gy_result(x,y) );
+  result.evaluate(true);
+  /**********************************************
   Ciphertext img("img");
   Ciphertext top_row = img >> width;
   Ciphertext bottom_row = img << width;
-  // gx
-  vector<vector<integer>> gx_kernel = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+  ////////////////////
   Ciphertext gx_top_sum =
     gx_kernel[0][0] * (top_row >> 1) + gx_kernel[0][1] * top_row + gx_kernel[0][2] * (top_row << 1);
   Ciphertext gx_curr_sum = gx_kernel[1][0] * (img >> 1) + gx_kernel[1][1] * img + gx_kernel[1][2] * (img << 1);
   Ciphertext gx_bottom_sum =
     gx_kernel[2][0] * (bottom_row >> 1) + gx_kernel[2][1] * bottom_row + gx_kernel[2][2] * (bottom_row << 1);
   Ciphertext gx_result = gx_top_sum + gx_curr_sum + gx_bottom_sum;
-  // gy
-  vector<vector<integer>> gy_kernel = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
+  ///////////////////
   Ciphertext gy_top_sum =
     gy_kernel[0][0] * (top_row >> 1) + gy_kernel[0][1] * top_row + gy_kernel[0][2] * (top_row << 1);
   Ciphertext gy_curr_sum = gy_kernel[1][0] * (img >> 1) + gy_kernel[1][1] * img + gy_kernel[1][2] * (img << 1);
@@ -36,6 +51,7 @@ void sobel(size_t width)
   // combine
   Ciphertext result = gx_result * gx_result + gy_result * gy_result;
   result.set_output("result");
+  /***************************************************/
 }
 
 void print_bool_arg(bool arg, const string &name, ostream &os)

@@ -16,7 +16,7 @@ void box_blur(size_t width)
 {
   vector<vector<integer>> kernel = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
   /*   Ciphertext img("img");
-  Ciphertext top_row = img >> width;
+  Ciphertext top_row = img >> width; img(x-1,y)
   Ciphertext bottom_row = img << width;
   Ciphertext top_sum = kernel[0][0] * (top_row >> 1) + kernel[0][1] * top_row + kernel[0][2] * (top_row << 1);
   Ciphertext curr_sum = kernel[1][0] * (img >> 1) + kernel[1][1] * img + kernel[1][2] * (img << 1);
@@ -40,10 +40,9 @@ void box_blur(size_t width)
   Input img("img",{x,y},Type::ciphertxt);
   Computation C("result",{x,y},img(x-1,y-1)*kernel[0][0]+img(x-1,y)*kernel[0][1]+img(x-1,y+1)*kernel[0][2]
                               +img(x,y-1)*kernel[1][0]+img(x,y)*kernel[1][1]+img(x,y+1)*kernel[1][2]+
-                              img(x+1,y-1)*kernel[1][0]+img(x+1,y)*kernel[1][1]+img(x+1,y+1)*kernel[1][2]);
+                              img(x+1,y-1)*kernel[2][0]+img(x+1,y)*kernel[2][1]+img(x+1,y+1)*kernel[2][2]);
   C.evaluate(true);
 }
-
 void print_bool_arg(bool arg, const string &name, ostream &os)
 {
   os << (arg ? name : "no_" + name);
@@ -113,8 +112,8 @@ int main(int argc, char **argv)
   ofstream source_os(gen_path + ".cpp");
   if (!source_os)
     throw logic_error("failed to create source file");
-  ///Compiler::compile(func, header_os, gen_name + ".hpp", source_os, axiomatic, window);
-  Compiler::gen_he_code(func, header_os, gen_name + ".hpp", source_os);
+  Compiler::compile(func, header_os, gen_name + ".hpp", source_os, axiomatic, window);
+  //Compiler::gen_he_code(func, header_os, gen_name + ".hpp", source_os);
   elapsed = chrono::high_resolution_clock::now() - t;
   cout << elapsed.count() << " ms\n";
 

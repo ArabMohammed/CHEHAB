@@ -1,3 +1,4 @@
+#![allow(warnings)]
 use egg::*;
 extern crate clap;
 use clap::{App, Arg};

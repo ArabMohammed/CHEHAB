@@ -134,6 +134,7 @@ void Compiler::compile(
   else
     equality_saturation_optimizer(func, axiomatic);
   /*************************************/
+  print_func_ir_file(func ,"../gx_kernel_after_eq_sat.txt");
   cout<<"\n Applying SumVec reduction \n" ;
   trs::TRS SumVec_reduct_trs{trs::Ruleset::SumVec_reduct_opt_ruleset(func)};
   SumVec_reduct_trs.run(trs::RewriteHeuristic::top_down);

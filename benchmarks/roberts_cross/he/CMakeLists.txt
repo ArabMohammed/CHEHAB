@@ -4,7 +4,7 @@ project(HEBoxBlur VERSION 1.0 LANGUAGES CXX)
 find_package(SEAL 4.1 REQUIRED)
 
 
-add_library(gen_he_robert_cross STATIC _gen_he_robert_cross.cpp)
+add_library(gen_he_robert_cross STATIC _gen_he_roberts_cross.cpp)
 target_compile_features(gen_he_robert_cross PUBLIC cxx_std_17)
 set_target_properties(gen_he_robert_cross PROPERTIES CXX_EXTENSIONS OFF)
 target_link_libraries(gen_he_robert_cross SEAL::seal)

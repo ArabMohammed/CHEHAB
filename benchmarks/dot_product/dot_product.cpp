@@ -13,14 +13,15 @@ using namespace fheco;
 
 void dot_product(size_t slot_count)
 {
-  Ciphertext c0("c0");
-  Plaintext v1("v1");
-  Ciphertext slot_wise_mul = c0 * v1;
-  Ciphertext sum = encrypt(0);
-  for (size_t i = 0; i < slot_count; ++i)
-    sum += slot_wise_mul << i;
-  sum.set_output("result");
+
+  Var i("i",0,1);
+  Var j("j",0,slot_count);
+  Input c0("c0",{i,j},Type::ciphertxt);
+  Input v1("v1",{i,j},Type::ciphertxt);
+  Computation C("result",{i,j},{j},c0(i,j)*v1(i,j));
+  C.evaluate(true); 
 }
+
 
 void print_bool_arg(bool arg, const string &name, ostream &os)
 {
@@ -88,6 +89,7 @@ int main(int argc, char **argv)
   ofstream source_os(gen_path + ".cpp");
   if (!source_os)                         
     throw logic_error("failed to create source file");
+  Compiler::print_func_ir_file(func ,"../ir_dot_product.txt");
   /*******************
   auto ruleset = Compiler::Ruleset::joined;
   if (argc > 2)
