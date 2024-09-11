@@ -179,7 +179,7 @@ namespace fheco {
                         case Expression::Op_t::mul:
                                //std::cout<<"\n Realising a multipication \n" ;
                                 if(expression.is_reduction()){
-                                    std::cout<<"\nRealised operation is a reduction multiplication\n";
+                                    //std::cout<<"\nRealised operation is a reduction multiplication\n";
                                     /***************** 
                                     if(!expression.get_operands()[0].is_evaluated()){
                                        expression.get_operands()[0].set_is_reduction(true); 
@@ -214,7 +214,7 @@ namespace fheco {
                                             DynamicTensor<Ciphertext> ciphertexts0=evaluate_expression(lhs) ; 
                                             DynamicTensor<Ciphertext> ciphertexts1=evaluate_expression(rhs);
                                             result = DynamicTensor<Ciphertext>({1});
-                                            std::cout<<"size of reduction in cipher*cipher add :"<<reduction_size<<"\n";
+                                            //std::cout<<"size of reduction in cipher*cipher add :"<<reduction_size<<"\n";
                                             result({0})=SumVec(ciphertexts0({0})*ciphertexts1({0}),reduction_size); 
                                     }
                                     /**********************************************************************/
@@ -657,7 +657,7 @@ namespace fheco {
                                 }
                             break;
                         case Expression::Op_t::add:
-                                std::cout<<"\n Realising an Addition \n" ;
+                                //std::cout<<"\n Realising an Addition \n" ;
                                 if(expression.is_reduction()){
                                     std::cout<<"\nRealised operation is a reduction Addition\n";
                                     if(lhs.type()==Type::plaintxt&&rhs.type()==Type::ciphertxt||lhs.type()==Type::ciphertxt&&rhs.type()==Type::plaintxt){
@@ -905,7 +905,7 @@ namespace fheco {
                                     }
                                 }else{
                                     if(lhs.type()==Type::plaintxt&&rhs.type()==Type::ciphertxt||lhs.type()==Type::ciphertxt&&rhs.type()==Type::plaintxt){
-                                            std::cout<<"welcome in plain cipher add \n";
+                                            //std::cout<<"welcome in plain cipher add \n";
                                             DynamicTensor<Ciphertext> ciphertexts ; DynamicTensor<Plaintext>  plaintexts;
                                             if(lhs.type()==Type::plaintxt){
                                                 plaintexts = lhs.get_plaintexts() ;
@@ -920,9 +920,9 @@ namespace fheco {
                                     /***************************************************************/
                                     else if(lhs.type()==Type::ciphertxt&&rhs.type()==Type::ciphertxt){
                                             result = DynamicTensor<Ciphertext>({1});
-                                            std::cout<<"calculate first operand  \n";
+                                            //std::cout<<"calculate first operand  \n";
                                             DynamicTensor<Ciphertext> ciphertexts0=evaluate_expression(lhs) ; 
-                                            std::cout<<"calculate second operand  \n";
+                                            //std::cout<<"calculate second operand  \n";
                                             DynamicTensor<Ciphertext> ciphertexts1=evaluate_expression(rhs);
                                             result({0})= ciphertexts0({0})+ciphertexts1({0}); 
                                     }
@@ -1125,7 +1125,7 @@ namespace fheco {
                             break;
                         /*********************************************************************/
                         case Expression::Op_t::sub:
-                            std::cout<<"\n Realising a Susbstraction \n" ;
+                            //std::cout<<"\n Realising a Susbstraction \n" ;
                                if(expression.is_reduction()){
                                     //std::cout<<"\nRealised operation is a reduction Addition\n";
                                     if(lhs.type()==Type::plaintxt&&rhs.type()==Type::ciphertxt||lhs.type()==Type::ciphertxt&&rhs.type()==Type::plaintxt){
@@ -1661,9 +1661,9 @@ namespace fheco {
         }
         if(have_same_variables){
             Expression input_expression = expression_ ;
-            std::cout<<"\n start expression evaluation  \n";
+            //std::cout<<"\n start expression evaluation  \n";
             DynamicTensor<Ciphertext> ciphertexts = evaluate_expression(input_expression);
-            std::cout<<"\n Return from expression evaluation \n";
+            //std::cout<<"\n Return from expression evaluation \n";
             expression_.set_is_evaluated(true);
             if(is_output){
                     if (expression_.type()==Type::ciphertxt) {

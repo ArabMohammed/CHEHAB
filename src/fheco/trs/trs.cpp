@@ -36,7 +36,6 @@ bool TRS::run(RewriteHeuristic heuristic, int64_t max_iter, bool rewrite_created
 #endif
   int64_t iter = max_iter;
   bool did_rewrite = false;
-  cout<<" =====> Rewriting terms :" ;
   util::ExprPrinter pr(func_);
   pr.make_terms_str_expr(util::ExprPrinter::Mode::prefix);
   switch (heuristic)

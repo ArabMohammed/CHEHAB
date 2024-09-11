@@ -15,7 +15,7 @@ using namespace fheco;
 void gx_kernel(size_t width)
 {
   vector<vector<integer>> kernel = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
-  /*Ciphertext img("img");
+  /*   Ciphertext img("img");
   Ciphertext top_row = img >> width;
   Ciphertext bottom_row = img << width;
   Ciphertext top_sum = kernel[0][0] * (top_row >> 1) + kernel[0][1] * top_row + kernel[0][2] * (top_row << 1);
@@ -29,7 +29,7 @@ void gx_kernel(size_t width)
   Input img("img",{x,y},Type::ciphertxt);
   Computation C("result",{x,y},img(x-1,y-1)*kernel[0][0]+img(x-1,y)*kernel[0][1]+img(x-1,y+1)*kernel[0][2]
                               +img(x,y-1)*kernel[1][0]+img(x,y)*kernel[1][1]+img(x,y+1)*kernel[1][2]+
-                              img(x+1,y-1)*kernel[2][0]+img(x+1,y)*kernel[2][1]+img(x+1,y+1)*kernel[2][2]);
+                              img(x+1,y-1)*kernel[2][0]+img(x+1,y)*kernel[2][1]+img(x+1,y+1)*kernel[2][2]); 
   C.evaluate(true);
 }
 

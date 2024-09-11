@@ -130,7 +130,7 @@ namespace fheco {
     /*****************************************************************************/
     // addition arg1_tuple
     Expression operator+(const Expression &lhs, const Expression &rhs){
-       std::cout<<"Welcome in addition operation \n";
+       //std::cout<<"Welcome in addition operation \n";
        if(!(lhs.type()==Type::vectorciphertxt&&rhs.type()==Type::plaintxt||
             lhs.type()==Type::plaintxt&&rhs.type()==Type::vectorciphertxt||
             lhs.type()==Type::ciphertxt&&rhs.type()==Type::plaintxt||
@@ -189,7 +189,7 @@ namespace fheco {
     /************************************************************************************/
     // subtraction
     Expression operator-(const Expression &lhs, const Expression &rhs){
-        std::cout<<"Welcome in substraction operation \n";
+        //std::cout<<"Welcome in substraction operation \n";
         if(!(lhs.type()==Type::vectorciphertxt&&rhs.type()==Type::plaintxt||
             lhs.type()==Type::plaintxt&&rhs.type()==Type::vectorciphertxt||
             lhs.type()==Type::ciphertxt&&rhs.type()==Type::plaintxt||
@@ -249,7 +249,7 @@ namespace fheco {
     // multiplication
     Expression operator*(const Expression &lhs, const Expression &rhs){
         // exx : A(i,j) * 4
-        std::cout<<"\nExpr operator ** \n";
+        //std::cout<<"\nExpr operator ** \n";
         if(!(lhs.type()==Type::vectorciphertxt&&rhs.type()==Type::plaintxt||
             lhs.type()==Type::plaintxt&&rhs.type()==Type::vectorciphertxt||
             lhs.type()==Type::ciphertxt&&rhs.type()==Type::plaintxt||

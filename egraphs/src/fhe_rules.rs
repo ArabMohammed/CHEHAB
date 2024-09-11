@@ -41,6 +41,7 @@ pub fn specific_rules(slot_count: usize) -> Vec<Rewrite<FheLang, ConstantFold>> 
         rw!("sub_self"; "(- ?x ?x)" => "0"),
         rw!("mul_0-1"; "(* 0 ?x)" => "0"),
         rw!("mul_0-2"; "(* ?x 0)" => "0"),
+        
         rw!("simplify-add-negate-1-1"; "(+ ?x (- ?y))" => "(- ?x ?y)"),
         rw!("simplify-add-negate-1-2"; "(+ (- ?y) ?x)" => "(- ?x ?y)"),
         rw!("simplify-add-sub-1-1"; "(+ (- ?x ?y) ?y)" => "?x"),
@@ -265,7 +266,9 @@ pub fn specific_rules(slot_count: usize) -> Vec<Rewrite<FheLang, ConstantFold>> 
         rw!("part-fold-assoc-mul"; "(* (* ?x ?c0) ?c1)" => "(* ?x (* ?c0 ?c1))"),
         rw!("assoc-balan-mul-square-1"; "(* (* (* ?x ?y) ?x) ?z)" => "(* (square ?x) (* ?y ?z))"),
         rw!("mul_m1-1"; "(* ?x -1)" => "(- ?x)"),
+        /*************Criminal rule**********/
         //rw!("mul_m1-2"; "(* -1 ?x)" => "(- ?x)"),
+        /*************************************/
         rw!("mul-to-square"; "(* ?x ?x)" => "(square ?x)"),
         rw!("part-fold-dist-add-1-4"; "(* (+ (* ?ct_x ?c0) ?c1) (+ (* ?ct_x ?c2) ?c3))" => "(+ (* ?ct_x (+ (* ?ct_x (* ?c0 ?c2)) (+ (* ?c0 ?c3) (* ?c1 ?c2)))) (* ?c1 ?c3))"),
         rw!("part-fold-dist-add-2"; "(* (+ ?ct_x ?c0) ?c1)" => "(+ (* ?ct_x ?c1) (* ?c0 ?c1))"),

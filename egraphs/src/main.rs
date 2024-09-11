@@ -67,7 +67,7 @@ fn main() {
     let mut file = File::create(path);
     let mut info : String = String::from("");
     for (cost,prog) in solutions {
-        println!("cost of the solution : {}",cost);
+        println!("cost : {}",cost);
         let binding = prog.to_string();
         let best_str: &str = binding.as_ref();
         let processed_best = best_str.replace("(", "( ").replace(")", " )");
