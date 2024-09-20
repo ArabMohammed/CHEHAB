@@ -49,23 +49,29 @@ void cryptonets(integer modulus)
     throw invalid_argument("failed to open b8 file");
 
   char delim = ' ';
+  /*******************************************************/
+  /*******************************************************/
   vector<vector<vector<vector<integer>>>> w1_vals;
   {
     auto w1_raw = load(w1_is, delim);
     //w1_shape = {5, 5, 1, 5};
     w1_vals = reshape_4d(w1_raw, w1_shape);
   }
+  /*******************************************************/
   vector<vector<vector<vector<integer>>>> w4_vals;
   {
     auto w4_raw = load(w4_is, delim);
     //w4_shape = {5, 5, 5, 10};
     w4_vals = reshape_4d(w4_raw, w4_shape);
   }
+  
+
   auto w8_vals = load(w8_is, delim);
   auto b1_vals = load(b1_is);
   auto b4_vals = load(b4_is);
   auto b8_vals = load(b8_is);
   // declare constants
+  //vector<size_t> w1_shape = {5, 5, 1, 5};
   vector<vector<vector<vector<Plaintext>>>> w1(
     w1_shape[0], vector<vector<vector<Plaintext>>>(
                    w1_shape[1], vector<vector<Plaintext>>(w1_shape[2], vector<Plaintext>(w1_shape[3]))));
@@ -74,7 +80,7 @@ void cryptonets(integer modulus)
       for (size_t k = 0; k < w1_shape[2]; ++k)
         for (size_t l = 0; l < w1_shape[3]; ++l)
           w1[i][j][k][l] = w1_vals[i][j][k][l];
-
+// w4_shape = {5, 5, 5, 10}
   vector<vector<vector<vector<Plaintext>>>> w4(
     w4_shape[0], vector<vector<vector<Plaintext>>>(
                    w4_shape[1], vector<vector<Plaintext>>(w4_shape[2], vector<Plaintext>(w4_shape[3]))));
@@ -83,7 +89,7 @@ void cryptonets(integer modulus)
       for (size_t k = 0; k < w4_shape[2]; ++k)
         for (size_t l = 0; l < w4_shape[3]; ++l)
           w4[i][j][k][l] = w4_vals[i][j][k][l];
-
+// w8_shape = {40, 10}
   vector<vector<Plaintext>> w8(w8_shape[0], vector<Plaintext>(w8_shape[1]));
   for (size_t i = 0; i < w8_shape[0]; ++i)
     for (size_t j = 0; j < w8_shape[1]; ++j)

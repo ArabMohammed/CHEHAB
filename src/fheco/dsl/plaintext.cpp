@@ -2,7 +2,7 @@
 #include "fheco/dsl/plaintext.hpp"
 #include <stdexcept>
 #include <utility>
-
+#include <iostream>
 using namespace std;
 
 namespace fheco
@@ -12,17 +12,23 @@ Plaintext::Plaintext(vector<size_t> shape) : id_{0}, shape_{move(shape)}, idx_{}
   validate_shape(shape_);
 }
 
+/**********************************************************************************/
+
 Plaintext::Plaintext(string label, vector<size_t> shape) : Plaintext(move(shape))
 {
   Compiler::active_func()->init_input(*this, move(label));
 }
 
+/**********************************************************************************/
+
 Plaintext::Plaintext(string label, PackedVal example_val, vector<size_t> shape) : Plaintext(move(shape))
 {
   Compiler::active_func()->clear_data_evaluator().adjust_packed_val(example_val);
-  example_val_ = move(example_val);
+  example_val_ = example_val;
   Compiler::active_func()->init_input(*this, move(label));
 }
+
+/**********************************************************************************/
 
 Plaintext::Plaintext(string label, integer example_val_slot_min, integer example_val_slot_max, vector<size_t> shape)
   : Plaintext(move(shape))
@@ -32,10 +38,15 @@ Plaintext::Plaintext(string label, integer example_val_slot_min, integer example
   Compiler::active_func()->init_input(*this, move(label));
 }
 
+/****************************************************************************************/
+
 Plaintext::Plaintext(PackedVal packed_val, vector<size_t> shape) : Plaintext(move(shape))
 {
+  example_val_ = packed_val;
   Compiler::active_func()->init_const(*this, move(packed_val));
 }
+
+/******************************************************************************************/
 
 Plaintext::Plaintext(integer scalar_val)
   : Plaintext(
@@ -47,12 +58,15 @@ Plaintext::Plaintext(integer scalar_val)
   Compiler::active_func()->init_const(*this, move(packed_val));
 }
 
+/**********************************************************************************/
+
 Plaintext &Plaintext::operator=(const Plaintext &other)
 {
   if (idx_.size())
     emulate_subscripted_write(*this, other);
   else
   {
+    //std::cout<<"assign plaintext1 \n";
     id_ = other.id_;
     shape_ = other.shape_;
     example_val_ = other.example_val_;

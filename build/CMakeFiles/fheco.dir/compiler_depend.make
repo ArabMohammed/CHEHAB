@@ -1361,7 +1361,31 @@ CMakeFiles/fheco.dir/src/fheco/dsl/compute.cpp.o: ../src/fheco/dsl/compute.cpp \
   ../src/fheco/dsl/plaintext.hpp \
   ../src/fheco/dsl/expression.hpp \
   ../src/fheco/dsl/tensor.hpp \
-  ../src/fheco/dsl/ops_overloads.hpp
+  ../src/fheco/dsl/ops_overloads.hpp \
+  /usr/include/c++/11/cmath \
+  /usr/include/math.h \
+  /usr/include/x86_64-linux-gnu/bits/math-vector.h \
+  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
+  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
+  /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
+  /usr/include/x86_64-linux-gnu/bits/fp-fast.h \
+  /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
+  /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
+  /usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h \
+  /usr/include/x86_64-linux-gnu/bits/iscanonical.h \
+  /usr/include/c++/11/bits/specfun.h \
+  /usr/include/c++/11/tr1/gamma.tcc \
+  /usr/include/c++/11/tr1/special_function_util.h \
+  /usr/include/c++/11/tr1/bessel_function.tcc \
+  /usr/include/c++/11/tr1/beta_function.tcc \
+  /usr/include/c++/11/tr1/ell_integral.tcc \
+  /usr/include/c++/11/tr1/exp_integral.tcc \
+  /usr/include/c++/11/tr1/hypergeometric.tcc \
+  /usr/include/c++/11/tr1/legendre_function.tcc \
+  /usr/include/c++/11/tr1/modified_bessel_func.tcc \
+  /usr/include/c++/11/tr1/poly_hermite.tcc \
+  /usr/include/c++/11/tr1/poly_laguerre.tcc \
+  /usr/include/c++/11/tr1/riemann_zeta.tcc
 
 CMakeFiles/fheco.dir/src/fheco/dsl/expression.cpp.o: ../src/fheco/dsl/expression.cpp \
   /usr/include/stdc-predef.h \
@@ -1873,7 +1897,31 @@ CMakeFiles/fheco.dir/src/fheco/dsl/input.cpp.o: ../src/fheco/dsl/input.cpp \
   /usr/include/c++/11/bits/stl_queue.h \
   ../src/fheco/dsl/plaintext.hpp \
   ../src/fheco/dsl/tensor.hpp \
-  ../src/fheco/dsl/ops_overloads.hpp
+  ../src/fheco/dsl/ops_overloads.hpp \
+  /usr/include/c++/11/cmath \
+  /usr/include/math.h \
+  /usr/include/x86_64-linux-gnu/bits/math-vector.h \
+  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
+  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
+  /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
+  /usr/include/x86_64-linux-gnu/bits/fp-fast.h \
+  /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
+  /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
+  /usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h \
+  /usr/include/x86_64-linux-gnu/bits/iscanonical.h \
+  /usr/include/c++/11/bits/specfun.h \
+  /usr/include/c++/11/tr1/gamma.tcc \
+  /usr/include/c++/11/tr1/special_function_util.h \
+  /usr/include/c++/11/tr1/bessel_function.tcc \
+  /usr/include/c++/11/tr1/beta_function.tcc \
+  /usr/include/c++/11/tr1/ell_integral.tcc \
+  /usr/include/c++/11/tr1/exp_integral.tcc \
+  /usr/include/c++/11/tr1/hypergeometric.tcc \
+  /usr/include/c++/11/tr1/legendre_function.tcc \
+  /usr/include/c++/11/tr1/modified_bessel_func.tcc \
+  /usr/include/c++/11/tr1/poly_hermite.tcc \
+  /usr/include/c++/11/tr1/poly_laguerre.tcc \
+  /usr/include/c++/11/tr1/riemann_zeta.tcc
 
 CMakeFiles/fheco.dir/src/fheco/dsl/ops_overloads.cpp.o: ../src/fheco/dsl/ops_overloads.cpp \
   /usr/include/stdc-predef.h \
@@ -3912,7 +3960,10 @@ CMakeFiles/fheco.dir/src/fheco/ir/term.cpp.o: ../src/fheco/ir/term.cpp \
   /usr/include/c++/11/bits/unordered_map.h \
   /usr/include/c++/11/pstl/execution_defs.h \
   /usr/include/c++/11/iterator \
-  /usr/include/c++/11/bits/stream_iterator.h
+  /usr/include/c++/11/bits/stream_iterator.h \
+  /usr/include/c++/11/iostream \
+  /usr/include/c++/11/istream \
+  /usr/include/c++/11/bits/istream.tcc
 
 CMakeFiles/fheco.dir/src/fheco/param_select/enc_params.cpp.o: ../src/fheco/param_select/enc_params.cpp \
   /usr/include/stdc-predef.h \

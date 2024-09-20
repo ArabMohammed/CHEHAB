@@ -56,6 +56,15 @@ void Func::operate_unary(OpCode op_code, const TArg &arg, TDest &dest)
   dest.shape_ = arg.shape();
   if (arg.example_val())
   {
+    /* if (op_code.type() == OpCode::Type::rotate){
+        //std::cout<<"===> this plaintext has an example_val ";
+        std::vector<integer> old_content = {};
+        PackedVal example_val = {0};
+        old_content = arg.example_val().value_or(example_val);
+        //for(auto val : old_content)
+        //    std::cout<<val<<" ";
+
+    } */
     if constexpr (is_same<TArg, Plaintext>::value && is_same<TDest, Ciphertext>::value)
     {
       if (op_code.type() != OpCode::Type::encrypt)
@@ -72,7 +81,9 @@ void Func::operate_unary(OpCode op_code, const TArg &arg, TDest &dest)
   }
 
   vector<Term *> operands{arg_term};
-  dest.id_ = insert_op_term(move(op_code), move(operands))->id();
+  size_t id = insert_op_term(move(op_code), move(operands))->id() ;
+  //std::cout<<"id of new inserted unary term : "<<id<<"\n";
+  dest.id_ = id;
 }
 /***********************************************************************************/
 /********************************************************************************** */
@@ -96,7 +107,9 @@ void Func::operate_binary(OpCode op_code, const TArg1 &arg1, const TArg2 &arg2, 
   }
 
   vector<Term *> operands{arg1_term, arg2_term};
-  dest.id_ = insert_op_term(move(op_code), move(operands))->id();
+  size_t id = insert_op_term(move(op_code), move(operands))->id();
+  //std::cout<<"id of new inserted binary term : "<<id<<"\n";
+  dest.id_ = id ;
 }
 /*****************************************************************************************/
 /*****************************************************************************************/
@@ -136,6 +149,7 @@ Term *Func::insert_op_term(OpCode op_code, vector<Term *> operands, bool &insert
       return insert_const_term(dest_val, inserted);
     }
   }
+  //std::cout<<"maybe insert a new rotation \n";
   return data_flow_.insert_op(move(op_code), move(operands), inserted);
 }
 

@@ -265,7 +265,7 @@ pub fn specific_rules(slot_count: usize) -> Vec<Rewrite<FheLang, ConstantFold>> 
         rw!("part-fold-dist-zero_m-2"; "(* ?x (- ?y))" => "(* (- ?x) ?y)"),
         rw!("part-fold-assoc-mul"; "(* (* ?x ?c0) ?c1)" => "(* ?x (* ?c0 ?c1))"),
         rw!("assoc-balan-mul-square-1"; "(* (* (* ?x ?y) ?x) ?z)" => "(* (square ?x) (* ?y ?z))"),
-        rw!("mul_m1-1"; "(* ?x -1)" => "(- ?x)"),
+        //rw!("mul_m1-1"; "(* ?x -1)" => "(- ?x)"),
         /*************Criminal rule**********/
         //rw!("mul_m1-2"; "(* -1 ?x)" => "(- ?x)"),
         /*************************************/

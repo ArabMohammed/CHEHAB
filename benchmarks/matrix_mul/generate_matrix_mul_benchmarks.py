@@ -19,7 +19,7 @@ def multiply_matrixes(A : Matrix,B : Matrix):
     result = [[sum(A.value[i][k] * B.value[k][j] for k in range(A.nb_cols)) for j in range(B.nb_cols)] for i in range(A.nb_rows)]
     C.value = result
     return C
-function_slot_count= 32
+function_slot_count= 16
 is_cipher = 1 
 is_signed = 1
 matrix_A = Matrix(nb_rows=function_slot_count,nb_cols=function_slot_count)

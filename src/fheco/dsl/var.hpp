@@ -12,12 +12,22 @@ namespace fheco
     class Var 
     {
         public:
+            enum class Op_var {
+                add,
+                sub,
+                mul,
+                o_none
+            };
             /*Construct a new variable with a name and a specific upper 
             and lower bound value, If a variable with the same name 
             already exists this costructor will fail*/
             explicit Var(const std::string& n , const int lower_bound, const int upper_bound);
+            /* define an iterator variable with an increment step */
+            explicit Var(const std::string& n , const int lower_bound, const int upper_bound, const int increment_step);
             
-            Var(const std::string& n , const int lower_bound, const int upper_bound,const int rotation_steps);
+            Var(const Op_var type,const std::vector<Var> operands);
+
+            Var(const Op_var type,const std::vector<Var> operands,const int rotation_steps);
             /****** define an integer var ******/
             Var(const int n);
             // construct a new variable without specifying name 
@@ -55,7 +65,18 @@ namespace fheco
             std::string name(){
                 return name_; 
             }
-            /****************************************************************************/
+            std::vector<Var> operands(){
+                return operands_;
+            }
+            Op_var op(){
+                return op_ ;
+            }
+            bool is_const(){
+                return is_const_ ;
+            }
+            int increment_step()const{
+                return increment_step_ ;
+            }
             /****************************************************************************/
             struct VarHash {
                 std::size_t operator()(const Var &var) const {
@@ -69,8 +90,13 @@ namespace fheco
                 }
             };
             /*******************************************************************/
+            /*******************************************************************/
             friend Var operator+(const Var &lhs, const int value);
+            friend Var operator+(const int value, const Var &rhs);
+            friend Var operator+(const Var &lhs, const Var rhs);
             friend Var operator-(const Var &lhs, const int value);
+            friend Var operator-(const Var &lhs, const Var rhs);
+            friend Var operator*(const Var &lhs, const Var rhs);
             /*******************************************************************/
             // Function to get the union of two lists of Var objects
             static std::vector<Var> unionOfLists(const std::vector<Var>& list1, const std::vector<Var>& list2) {
@@ -93,11 +119,19 @@ namespace fheco
                 }
                 return result;  // Preserves order from list1 first, then unique vars from list2
             }
+            /*********************************************************/
+            size_t evalute(std::vector<std::tuple<std::string , size_t >>  bindings);
+            /*********************************************************/
             static std::unordered_set<std::string> declared_vars_ ;
+            /*********************************************************/
         private : 
             int lower_bound_ ;
             int upper_bound_ ;
             int rotation_steps_ = 0 ;
+            int increment_step_ = 1 ;
+            bool is_const_ = false ;
+            Op_var op_ ;
+            std::vector<Var> operands_ = {};
             std::string name_ ; 
-        };
+    };
 }

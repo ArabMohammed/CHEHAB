@@ -16,29 +16,47 @@ namespace fheco
     if (slot_count > Compiler::active_func()->slot_count())
       throw invalid_argument("shape too large, total number of elements must be <= function slot count");
   }
-  /***************************************************************************************************************************/
-  void generateNestedLoops(const std::vector<std::pair<int, int>>& ranges, std::function<void(const std::vector<int>&)> body) {
+  /**********************************************************************************************************************/
+    std::vector<size_t> calculateCurrentPos(std::vector<Var> iterator_vars,std::vector<Var> compute_args, std::vector<size_t> coordinates){
+        std::vector<std::tuple<std::string , size_t >>  bindings = {} ; 
+        for(int i =0;i<iterator_vars.size();i++){
+            bindings.push_back({iterator_vars[i].name(),coordinates[i]});
+        }
+        //std::cout<<"start calculateCurrentPos : \n";
+        std::vector<size_t> actual_pos ={};
+        size_t value = 1;
+        for(int j=0;j<compute_args.size();j++){
+            value=compute_args[j].evalute(bindings) ;
+            actual_pos.push_back(compute_args[j].evalute(bindings));
+        }
+        //std::cout<<"\n end calculateCurrentPos \n";
+        return actual_pos ;                 
+    } 
+
+    /***************************************************************************************************************************/
+    void generateNestedLoops(const std::vector<std::vector<int>>& ranges, std::function<bool(const std::vector<int>&)> body) {
     std::vector<int> iterators(ranges.size(), 0);
         // Initialize iterators with the start values
         for (std::size_t i = 0; i < ranges.size(); ++i) {
-            iterators[i] = ranges[i].first;
+            iterators[i] = ranges[i][0];
         }
-
         while (true) {
             // Call the body function with the current iterators
-            body(iterators);
+            if (!body(iterators)) {
+                return;
+            }
 
             // Increment the iterators
             int level = ranges.size() - 1;
             while (level >= 0) {
-                iterators[level] += 1;
-                if (iterators[level] < ranges[level].second) {
+                iterators[level] += ranges[level][2];
+                if (iterators[level] < ranges[level][1]) {
                     break;  // No need to carry over to the next level
                 } else {
                     if (level == 0) {
                         return;  // Finished all iterations
                     }
-                    iterators[level] = ranges[level].first;  // Reset current level and move to the previous level
+                    iterators[level] = ranges[level][0];  // Reset current level and move to the previous level
                     level -= 1;
                 }
             }

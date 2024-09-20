@@ -24,6 +24,8 @@ namespace fheco
             whether it ciphertext or ciphertext[] , and also the iterator_variables to loop 
             over it*/
             explicit Input(const std::string &name , const std::vector<Var> iterator_variables, const Type type);
+            /*construct a new plaintext starting from a vector of intgers*/
+            explicit Input(const std::vector<Var> iterator_variables, const Type type, std::vector<integer> initializing_inputs);
             // Implicit conversion operator to Expr
            /*  operator Expression() {
                 return expression_;
@@ -34,7 +36,9 @@ namespace fheco
             Input(Input &&other) noexcept;
             // desctructor 
             ~Input()= default ;
-        
+            
+            void resize(std::vector<Var> new_dimensions_vars) ;
+            
             const std::string &name() const {return name_ ; }     
             /*****************************************************/       
             template<typename... Args>
@@ -43,11 +47,10 @@ namespace fheco
                 std::vector<Var> arg_list = {std::forward<Args>(args)...};
                 return this->apply_operator(arg_list);
             }
-            /*****************************************************/
-            
+            /*****************************************************/    
         private : 
             Expression& apply_operator(const std::vector<Var> &compute_args) const;
-            std::string name_ ; 
+            std::string name_ = "" ; 
             std::vector<Var> iterator_variables_ ;
             Expression expression_ ;
             Type type_ ; 

@@ -18,16 +18,16 @@ namespace fheco
     class Computation 
     {
         public:
-            /* Construct a new computation */
+            /* Construct a new computation thaat support only ciphertext type */
             explicit Computation(const std::string &name, const std::vector<Var> iterator_variables,const Expression &expression);
-
-            explicit Computation(const std::string &name, const std::vector<Var> iterator_variables,const std::vector<Var> reduction_variables ,
-                                    const Expression &expression);
+            
+            /* Construct a new coputation that support vectorciphertext type*/
+            explicit Computation(const std::string &name, const std::vector<Var> iterator_variables,const std::vector<Var> output_dim_variables ,const Expression &expression);
 
             /* Overloaded constructor with Type parameter */
-            explicit Computation(const std::string &name, const std::vector<Var> iterator_variables, Type type);
+            //explicit Computation(const std::string &name, const std::vector<Var> iterator_variables, Type type);
 
-            explicit Computation(const std::string &name, const std::vector<Var> iterator_variables, std::vector<Var> reduction_variables, Type type);
+            //explicit Computation(const std::string &name, const std::vector<Var> iterator_variables, std::vector<Var> output_dim_variables, Type type);
 
             /** Cast a computation to an expression **/
             Expression expression() const {
@@ -73,7 +73,9 @@ namespace fheco
             bool is_reduction(){
                 return is_reduction_ ;
             }
-
+            
+            void resize(std::vector<Var> new_dimensions_vars);
+        
         private:
             Expression& apply_operator(const std::vector<Var> &compute_args) const;
             /*****************************************************************/
@@ -84,7 +86,7 @@ namespace fheco
             bool is_reduction_ = false;
             // Variables used to evaluate the expression  
             std::vector<Var> iterator_variables_;
-            std::vector<Var> reduction_variables_ ;
+            std::vector<Var> output_dim_variables_;
             // Expression that will be evaluated by this computation 
             Expression expression_;
     };

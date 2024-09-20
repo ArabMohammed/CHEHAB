@@ -49,7 +49,16 @@ public:
 
         return sub_tensor;
     }
-
+    /******************************* Resize the data of the tensor ************************/
+    void resize(const std::vector<size_t>& new_dimensions) {
+        dimensions_ = new_dimensions; // Update dimensions
+        size_ = 1;
+        for (size_t dim : dimensions_) {
+            size_ *= dim; // Recalculate the total size
+        }
+        data_.resize(size_); // Resize the underlying data vector
+    }
+    /**************************************************************************************/
     // Assignment operator between subtensors
     void assign_subtensor(const std::vector<size_t>& indices, const DynamicTensor<T>& source) {
         std::vector<size_t> sub_dims(dimensions_.begin() + indices.size(), dimensions_.end());

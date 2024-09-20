@@ -8,21 +8,23 @@ using namespace std;
 
 namespace fheco
 {
+/*****************************************************************************************************/
+
 Ciphertext::Ciphertext(vector<size_t> shape) : id_{0}, shape_{move(shape)}, idx_{}, example_val_{}
 {
   validate_shape(shape_);
 }
 
-/*********************************************** */
-/*********************************************** */
+/******************************************************************************************************/
+
 Ciphertext::Ciphertext(string label, vector<size_t> shape) : Ciphertext(move(shape))
 {
   name_=label;
   //std::cout<<label<<"\n";
   Compiler::active_func()->init_input(*this, move(label));
 }
-/*********************************************** */
-/*********************************************** */
+
+/********************************************************************************************************/
 
 Ciphertext::Ciphertext(string label, PackedVal example_val, vector<size_t> shape) : Ciphertext(move(shape))
 {
@@ -33,6 +35,8 @@ Ciphertext::Ciphertext(string label, PackedVal example_val, vector<size_t> shape
   Compiler::active_func()->init_input(*this, move(label));
 }
 
+/*******************************************************************************************************/
+
 Ciphertext::Ciphertext(string label, integer example_val_slot_min, integer example_val_slot_max, vector<size_t> shape)
   : Ciphertext(move(shape))
 {
@@ -42,11 +46,15 @@ Ciphertext::Ciphertext(string label, integer example_val_slot_min, integer examp
   Compiler::active_func()->init_input(*this, move(label));
 }
 
+/********************************************************************************************************/
+
 Ciphertext::Ciphertext(const Plaintext &plain)
 {
   *this = encrypt(plain);
 }
 
+/********************************************************************************************************/
+/*******************************************************************************************************/
 Ciphertext &Ciphertext::operator=(const Ciphertext &other)
 {
   if (idx_.size())

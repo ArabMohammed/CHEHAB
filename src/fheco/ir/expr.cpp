@@ -90,6 +90,8 @@ Term *Expr::insert_op(OpCode op_code, vector<Term *> operands, bool &inserted)
       return term;
     }
   }
+  //std::cout<<"welcome if the constructor of a new term \n";
+  /*********************************************/
   inserted = true;
   Term *term = new Term(move(op_code), move(operands));
   for (auto operand : term->operands())
@@ -103,7 +105,7 @@ Term *Expr::insert_op(OpCode op_code, vector<Term *> operands, bool &inserted)
 Term *Expr::insert_input(Term::Type type, InputTermInfo input_term_info)
 {
   Term *term = new Term(move(type));
-  inputs_info_.emplace(term, move(input_term_info));
+  auto [info1 , inserted] =inputs_info_.emplace(term, move(input_term_info));
   terms_.insert(term);
   return term;
 }
@@ -271,6 +273,7 @@ void Expr::set_output(const Term *term, OutputTermInfo output_term_info)
 {
   if (outputs_info_.insert_or_assign(term, move(output_term_info)).second){
     valid_top_sort_ = false;
+    //std::cout<<"term is inserted succefully \n";
   }
 }
 

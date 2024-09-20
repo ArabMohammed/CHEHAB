@@ -8,13 +8,21 @@ vector<Ciphertext> predict(
   const vector<vector<vector<Ciphertext>>> &x, const vector<vector<vector<vector<Plaintext>>>> &w1,
   const vector<Plaintext> &b1, const vector<vector<vector<vector<Plaintext>>>> &w4, const vector<Plaintext> &b4,
   const vector<vector<Plaintext>> &w8, const vector<Plaintext> &b8)
-{
+{ 
+  /*
+    vector<size_t> b1_shape = {5};
+    vector<size_t> b4_shape = {10};
+    vector<size_t> b8_shape = {10};
+  */
   vector<size_t> conv_strides = {2, 2};
   vector<size_t> mean_pool_kernel_shape = {2, 2};
-
+  // w1_shape = {5, 5, 1, 5};
+  // x_shape = {28, 28, 1};
   auto h1 = add(conv_2d(x, w1, conv_strides), b1);
   auto h2 = square(h1);
+  // h2 {14,14,5}
   auto h3 = scaled_mean_pool_2d(h2, mean_pool_kernel_shape, mean_pool_kernel_shape);
+  // w4_shape = {5, 5, 5, 10};
   auto h4 = add(conv_2d(h3, w4, conv_strides), b4);
   auto h5 = scaled_mean_pool_2d(h4, mean_pool_kernel_shape, mean_pool_kernel_shape);
   auto h6 = flatten(h5);
@@ -32,23 +40,24 @@ vector<vector<vector<Ciphertext>>> conv_2d(
 {
   // input   {28,28,1}
   // kernel  {5, 5, 1, 5};
-  // strides {2,2}
+  // strides = {2,2}
   auto n_channels_in = input[0][0].size();
   auto n_channels_kernel = kernels[0][0].size();
   if (n_channels_in != n_channels_kernel)
     throw invalid_argument("incompatible number of channels");
 
-  auto n_rows_in = input.size();
-  auto n_cols_in = input[0].size();
-  auto n_rows_kernel = kernels.size();
-  auto n_cols_kernel = kernels[0].size();
-  auto row_stride = strides[0];
-  auto col_stride = strides[1];
+  auto n_rows_in = input.size(); // 28
+  auto n_cols_in = input[0].size(); // 28
+  auto n_rows_kernel = kernels.size(); // 5
+  auto n_cols_kernel = kernels[0].size(); //5 
+  auto row_stride = strides[0]; // =2
+  auto col_stride = strides[1]; // =2
 
   auto padded_in = pad_2d(input, {n_rows_kernel, n_cols_kernel}, strides);
-  auto n_rows_out = n_rows_in / row_stride + (n_rows_in % row_stride > 0 ? 1 : 0);
-  auto n_cols_out = n_cols_in / col_stride + (n_cols_in % col_stride > 0 ? 1 : 0);
+  auto n_rows_out = n_rows_in / row_stride + (n_rows_in % row_stride > 0 ? 1 : 0); // 14
+  auto n_cols_out = n_cols_in / col_stride + (n_cols_in % col_stride > 0 ? 1 : 0); // 14
   auto n_channels_out = kernels[0][0][0].size(); // 5
+  // n_channels_in == n_channels_kernel = 1 
   vector<vector<vector<Ciphertext>>> output(
     n_rows_out, vector<vector<Ciphertext>>(n_cols_out, vector<Ciphertext>(n_channels_out, encrypt(0))));
   size_t row_offset = 0;
@@ -62,14 +71,19 @@ vector<vector<vector<Ciphertext>>> conv_2d(
         for (size_t i_kernels = 0; i_kernels < n_rows_kernel; ++i_kernels)
           for (size_t j_kernels = 0; j_kernels < n_cols_kernel; ++j_kernels)
             for (size_t k_kernels = 0; k_kernels < n_channels_kernel; ++k_kernels)
-              output[i_out][j_out][k_out] += padded_in[i_kernels + row_offset][j_kernels + col_offset][k_kernels] *
-                                             kernels[i_kernels][j_kernels][k_kernels][k_out];
+              output[i_out][j_out][k_out] += padded_in[i_kernels + row_offset][j_kernels + col_offset][k_kernels]*kernels[i_kernels][j_kernels][k_kernels][k_out];
+              //Computation res("res",{i_out,j_out,k_out,i_kernels,k_kernels,j_kernels},{i_out,j_out,k_out},padded_in(i_kernels + i_out*row_stride , j_kernels + j_out*col_stride , k_kernels)*
+              //kernels(i_kernels , j_kernels , k_kernels , k_out));
+
       }
-      col_offset += col_stride;
+      col_offset += col_stride;  
     }
-    row_offset += row_stride;
+    row_offset += row_stride;    
   }
   return output;
+  
+  
+ 
 }
 /*************************************************************************************/
 /*************************************************************************************/
@@ -77,7 +91,10 @@ vector<vector<vector<Ciphertext>>> conv_2d(
 vector<vector<vector<Ciphertext>>> scaled_mean_pool_2d(
   const vector<vector<vector<Ciphertext>>> &input, const vector<size_t> &kernel_shape, const vector<size_t> &strides)
 {
-  auto n_rows_in = input.size();
+  // input {14,14,5}
+  // kernel_shape = {2,2} 
+  // strides = {2,2}
+  auto n_rows_in = input.size(); 
   auto n_cols_in = input[0].size();
   auto n_channels_in = input[0][0].size();
   auto n_rows_kernel = kernel_shape[0];
@@ -101,7 +118,7 @@ vector<vector<vector<Ciphertext>>> scaled_mean_pool_2d(
         for (size_t i_kernel = 0; i_kernel < n_rows_kernel; ++i_kernel)
           for (size_t j_kernel = 0; j_kernel < n_cols_kernel; ++j_kernel)
             output[i_output][j_output][k_output] += input[i_kernel + row_offset][j_kernel + col_offset][k_output];
-      }
+      }        
       col_offset += col_stride;
     }
     row_offset += row_stride;
@@ -114,33 +131,51 @@ vector<vector<vector<Ciphertext>>> scaled_mean_pool_2d(
 vector<vector<vector<Ciphertext>>> pad_2d(
   const vector<vector<vector<Ciphertext>>> &input, const vector<size_t> &kernel_shape, const vector<size_t> &strides)
 {
-  auto n_rows_in = input.size();
-  auto n_cols_in = input[0].size();
+  // input   {28,28,1}
+  // kernel  {5, 5};
+  // strides []={2,2}
+  auto n_rows_in = input.size(); // 28
+  auto n_cols_in = input[0].size(); // 28
   auto n_channels_in = input[0][0].size();
-  auto n_rows_kernel = kernel_shape[0];
-  auto n_cols_kernel = kernel_shape[1];
+  auto n_rows_kernel = kernel_shape[0]; // 5
+  auto n_cols_kernel = kernel_shape[1]; // 5
   auto row_stride = strides[0];
   auto col_stride = strides[1];
 
-  auto n_rows_out = (n_rows_in + 1) / row_stride;
-  auto n_cols_out = (n_cols_in + 1) / col_stride;
-  auto pad_rows = max((n_rows_out - 1) * row_stride + n_rows_kernel - n_rows_in, 0UL);
-  auto pad_cols = max((n_cols_out - 1) * col_stride + n_cols_kernel - n_cols_in, 0UL);
+  auto n_rows_out = (n_rows_in + 1) / row_stride; // 14
+  auto n_cols_out = (n_cols_in + 1) / col_stride; // 14
+                       // 13*2  +5 -28                                                        
+  auto pad_rows = max((n_rows_out - 1) * row_stride + n_rows_kernel - n_rows_in, 0UL); // 3 
+  auto pad_cols = max((n_cols_out - 1) * col_stride + n_cols_kernel - n_cols_in, 0UL);  // 3
+  // pad_rows = pad_cols = 3
   auto pad_top = pad_rows / 2;
   auto pad_bottom = pad_rows - pad_top;
   auto pad_left = pad_cols / 2;
   auto pad_right = pad_cols - pad_left;
-  n_rows_out = n_rows_in + pad_rows;
-  n_cols_out = n_cols_in + pad_cols;
+  n_rows_out = n_rows_in + pad_rows; // 31
+  n_cols_out = n_cols_in + pad_cols; // 31 
 
-  vector<vector<vector<Ciphertext>>> output(
+  vector<vector<vector<Ciphertext>>> output(                                                      
     n_rows_out, vector<vector<Ciphertext>>(n_cols_out, vector<Ciphertext>(n_channels_in, encrypt(0))));
   for (size_t i = 0; i < n_rows_in; ++i)
   {
-    for (size_t j = 0; j < n_cols_in; ++j)
+    for (size_t j = 0; j < n_cols_in; ++j){
+                                                                                                                     
       output[i + pad_top][j + pad_left] = input[i][j];
+    }
   }
   return output;
+  /*
+  // received input parameter is a computation 
+  Var i("i",0,28) ;
+  Var j("j",0,28) ;
+  Var k("k", 0, 31) ;
+  Var l("l", 0,31) ;
+  Computation C1("C1",{i,j},{k,l},C(i,j));
+  C1.evaluate(false);
+  Computation C2("C2",{k,l},C1(k-pad_top,l-pad_left));
+  C2.evaluate(false);
+  */
 }
 
 /***********************************************************************************************/
@@ -150,7 +185,11 @@ vector<Ciphertext> add(const vector<Ciphertext> &input, const vector<Plaintext> 
 {
   if (input.size() != b.size())
     throw invalid_argument("incompatible sizes");
-
+  // Var i("i",0,1);
+  // Var j("j",0,64);
+  // Input input("input",{i,j},Type::vectorciphertxt);
+  // Input b("b",{i,j},Type::plaintxt);
+  // Computation C("C",{i,j},input(i,j)+b(i,j));
   vector<Ciphertext> output(input.size());
   for (size_t i = 0; i < output.size(); ++i)
     output[i] = input[i] + b[i];

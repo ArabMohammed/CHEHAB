@@ -32,9 +32,11 @@ enum class SecurityLevel
   tc256,
   tq256
 };
-void generateNestedLoops(const std::vector<std::pair<int, int>>& ranges, std::function<void(const std::vector<int>&)> body) ;
+void generateNestedLoops(const std::vector<std::vector<int>>& ranges, std::function<bool(const std::vector<int>&)> body);
 
 void validate_shape(const std::vector<std::size_t> &shape);
+
+std::vector<size_t> calculateCurrentPos(std::vector<Var> iterator_vars,std::vector<Var> compute_args, std::vector<size_t> coordinates);
 
 std::tuple<std::vector<size_t>, std::vector<size_t>, std::vector<size_t>> match_positions(
     const std::vector<Var>& iterator_variables_,

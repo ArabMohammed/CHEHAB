@@ -42,6 +42,7 @@ void box_blur(size_t width)
                               +img(x,y-1)*kernel[1][0]+img(x,y)*kernel[1][1]+img(x,y+1)*kernel[1][2]+
                               img(x+1,y-1)*kernel[2][0]+img(x+1,y)*kernel[2][1]+img(x+1,y+1)*kernel[2][2]);
   C.evaluate(true);
+  /********************************************/
 }
 void print_bool_arg(bool arg, const string &name, ostream &os)
 {

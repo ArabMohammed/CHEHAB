@@ -13,7 +13,13 @@ using namespace fheco;
 
 void dot_product(size_t slot_count)
 {
-
+ /*  Ciphertext c0("c0");
+  Plaintext v1("v1");
+  Ciphertext slot_wise_mul = c0 * v1;
+  Ciphertext sum = encrypt(0);
+  for (size_t i = 0; i < slot_count; ++i)
+    sum += slot_wise_mul << i;
+  sum.set_output("result"); */
   Var i("i",0,1);
   Var j("j",0,slot_count);
   Input c0("c0",{i,j},Type::ciphertxt);

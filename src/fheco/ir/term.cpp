@@ -3,7 +3,7 @@
 #include <iterator>
 #include <stdexcept>
 #include <utility>
-
+#include <iostream>
 using namespace std;
 
 namespace fheco::ir
@@ -12,11 +12,13 @@ size_t Term::count_ = 0;
 
 Term::Term(OpCode op_code, vector<Term *> operands)
   : id_{++count_}, op_code_{move(op_code)}, operands_{move(operands)}, type_{deduce_result_type(op_code_, operands_)}
-{}
+{
+   //std::cout<<"creating a new term with id :"<<id_<<"\n";
+}
 
 size_t Term::HashPtr::operator()(const Term *p) const
 {
-   // Ensure p is not null before dereferencing
+   /* // Ensure p is not null before dereferencing
     if (p == nullptr) {
         return 0;
     }
@@ -26,19 +28,21 @@ size_t Term::HashPtr::operator()(const Term *p) const
     std::size_t hash = std::hash<int>()(p->id());  // Example of hashing an integer member
     // You can combine hashes of other members as well to make it more unique
     // hash ^= std::hash<std::string>()(p->name()) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-    return hash;
+    return hash; */
+    return hash<Term>()(*p);
 }
 
 bool Term::EqualPtr::operator()(const Term *lhs, const Term *rhs) const
 {
    // Handle case where either pointer is null
-    if (lhs == rhs) return true;  // Same pointer or both null
+/*     if (lhs == rhs) return true;  // Same pointer or both null
     if (lhs == nullptr || rhs == nullptr) return false;
 
     // Compare the relevant members of Term
-    return lhs->id() == rhs->id();
+    return lhs->id() == rhs->id(); */
     // You can add more conditions if Term has more relevant fields
     // return lhs->id() == rhs->id() && lhs->name() == rhs->name();
+    return *lhs == *rhs;
 }
 
 bool Term::ComparePtr::operator()(const Term *lhs, const Term *rhs) const

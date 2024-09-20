@@ -8,7 +8,6 @@
 #include "fheco/dsl/ciphertext.hpp"
 #include "fheco/dsl/plaintext.hpp"
 #include "fheco/dsl/tensor.hpp"
-
 namespace fheco
 {
     class Var; 
@@ -97,6 +96,7 @@ namespace fheco
         void set_is_reduction(bool res) {
             is_reduction_ = res;
         }
+        /***************************************************/
         void set_ciphertexts(const DynamicTensor<Ciphertext>& ciphertexts) {
             ciphertexts_ = ciphertexts;
         }
@@ -104,11 +104,14 @@ namespace fheco
         DynamicTensor<Ciphertext> get_ciphertexts() const {
             return ciphertexts_;
         }
-        
+        /***************************************************/
         DynamicTensor<Plaintext> get_plaintexts() const {
             return plaintexts_;
         }
-
+        void set_plaintexts(DynamicTensor<Plaintext> plaintexts){
+            plaintexts_=plaintexts ;
+        }
+        /**********************************************************/
         std::vector<Expression> get_operands() const {
             return operands_;
         }
@@ -124,7 +127,8 @@ namespace fheco
         std::vector<Var> get_compute_args() const {
             return compute_args_;
         }
-
+        
+        /***************************************************/
     private:
         Type type_;
         Op_t operator_ = Op_t::o_none;
@@ -137,7 +141,6 @@ namespace fheco
         bool is_evaluated_ = false;
         DynamicTensor<Ciphertext> ciphertexts_ ;
         DynamicTensor<Plaintext> plaintexts_ ;
-
     };
 
 }
