@@ -4,12 +4,18 @@
 #include <vector>
 #include "fheco/dsl/input.hpp"
 #include "fheco/dsl/ops_overloads.hpp"
+#include "fheco/dsl/plaintext.hpp"
+#include "fheco/dsl/expression.hpp"
 #include "fheco/dsl/tensor.hpp"
 #include <iostream>
 #include <cmath>  // For std::ceil()
 using namespace std ;
 namespace fheco {
-    
+    class Plaintext ;
+    class Ciphertext;
+    template <typename T>
+    class DynamicTensor ;
+    /****************************** */
     Input::Input(const std::string &name , const std::vector<Var> iterator_variables, const Type type){
         name_=name;
         iterator_variables_ = iterator_variables ;
@@ -17,15 +23,16 @@ namespace fheco {
         std::vector<size_t> dimensions;
         
         if(type_==Type::vectorciphertxt){
-                std::cout<<"Create a new vectorciphertext \n";
+                std::cout<<"Create a new vectorciphertext Input\n";
                 std::vector<Var> sub_iterator_variables(iterator_variables.begin(), iterator_variables.end() - 1);
                 // case when input vectorciphertext is a packedciphertext .
                 if(sub_iterator_variables.size()==0){
-                    std::cout<<"add new input here \n";
-                    ciphertexts_ = DynamicTensor<Ciphertext>({1});
+                    std::cout<<"This input is a vector \n";
+                    ciphertexts_ = DynamicTensor<Ciphertext>({0});
                     Ciphertext info(name_);
                     ciphertexts_({0})= info;
                 }else{
+                    std::cout<<"input vectorciphertxt has multiple dimensions\n";
                     std::vector<std::vector<int>> ranges = {};
                     std::vector<int> range ={} ;
                     for (const auto& var : sub_iterator_variables){
@@ -44,6 +51,7 @@ namespace fheco {
                             comp+=1;
                         }
                         Ciphertext info(name);
+                        //std::cout<<"start iteration : "<<name<<" \n";
                         ciphertexts_(iterator_tuple)= info;
                         return true;
                     });
@@ -58,11 +66,12 @@ namespace fheco {
                 std::vector<Var> sub_iterator_variables(iterator_variables.begin(), iterator_variables.end() - 1);
                 // case when input plaintext is a packedplaintext .
                 if(sub_iterator_variables.size()==0){
-                    std::cout<<"add new input here \n";
+                    std::cout<<"input palintext is a vector \n";
                     plaintexts_ = DynamicTensor<Plaintext>({1});
                     Plaintext info(name_);
                     plaintexts_({0}) = info;
                 }else{
+                    std::cout<<"input plainphertxt has multiple dimensions\n";
                     std::vector<std::vector<int>> ranges = {};
                     std::vector<int> range ={} ;
                     for (const auto& var : sub_iterator_variables){
@@ -173,6 +182,30 @@ namespace fheco {
         plaintexts_(std::move(other.plaintexts_)) {
 
         }    
+    // Copy assignment operator
+    Input &Input::operator=(const Input &other) {
+        if (this != &other) {
+            name_ = other.name_;
+            iterator_variables_=other.iterator_variables_;
+            expression_ = other.expression_;
+            type_ =other.type_;
+            ciphertexts_=other.ciphertexts_;
+            plaintexts_ = other.plaintexts_ ;
+        }
+        return *this;
+    }
+    // Move assignment operator
+    Input &Input::operator=(Input &&other) noexcept {
+        if (this != &other) {
+            name_ =std::move(other.name_);
+            iterator_variables_= std::move(other.iterator_variables_);
+            expression_ = std::move(other.expression_);
+            type_ = other.type_;
+            ciphertexts_ = std::move(other.ciphertexts_);
+            plaintexts_ = std::move(other.plaintexts_);
+        }
+        return *this;
+    }
     /**************************************************************************************/
     void Input::resize(std::vector<Var> new_dimensions_vars){
         int old_total_length = 1 ;
@@ -338,7 +371,7 @@ namespace fheco {
             }
         }
         if (has_non_zero) {
-            //std::cout<<"there is rotation in input ciphertext \n";
+            std::cout<<"there is rotation in input ciphertext \n";
             if (type_ == Type::ciphertxt ){
                 int rotation_step = compute_args[0].rotation_steps();
                 int total_dim = iterator_variables_[0].upper_bound()-iterator_variables_[0].lower_bound() ;
@@ -404,7 +437,7 @@ namespace fheco {
                                 comp+=1;
                             }
                             if(i!=compute_args.size()-1){
-                                std::cout<<"rotation to be done :"<<iterator_tuple[0]<<":"<<iterator_tuple[1]<<" , "<<rotated_iterator_tuple[0]<<":"<<rotated_iterator_tuple[1]<<"\n";
+                                //std::cout<<"rotation to be done :"<<iterator_tuple[0]<<":"<<iterator_tuple[1]<<" , "<<rotated_iterator_tuple[0]<<":"<<rotated_iterator_tuple[1]<<"\n";
                                 updated_ciphertexts.assign_subtensor(iterator_tuple,ciphertexts_.subtensor(rotated_iterator_tuple));
                             }else{
                                 updated_ciphertexts(iterator_tuple)=ciphertexts_(iterator_tuple) << (rotation_step%slot_count) ;
@@ -413,6 +446,7 @@ namespace fheco {
                         });
                     }
                 }
+                std::cout<<"return rotated input expression\n";
                 Expression* new_instance = new Expression(updated_ciphertexts,iterator_variables_,compute_args,type_);
                 return *new_instance ;
             }

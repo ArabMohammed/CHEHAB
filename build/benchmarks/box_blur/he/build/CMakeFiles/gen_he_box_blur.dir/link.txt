@@ -1,2 +1,0 @@
-/usr/bin/ar qc libgen_he_box_blur.a CMakeFiles/gen_he_box_blur.dir/_gen_he_box_blur.cpp.o
-/usr/bin/ranlib libgen_he_box_blur.a

@@ -3,6 +3,9 @@ target_link_libraries(matrix_mul PRIVATE fheco)
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/benchmarks/matrix_mul/he)
 
+# Disable automatic loop parallelization (for GCC/Clang)
+target_compile_options(matrix_mul PRIVATE -fno-tree-vectorize)
+
 set(SOURCE_FILE_1 ${CMAKE_SOURCE_DIR}/benchmarks/matrix_mul/he/main.cpp)
 set(DESTINATION_FILE_1 ${CMAKE_SOURCE_DIR}/build/benchmarks/matrix_mul/he/main.cpp)
 set(SOURCE_FILE_2 ${CMAKE_SOURCE_DIR}/benchmarks/matrix_mul/he/utils.cpp)

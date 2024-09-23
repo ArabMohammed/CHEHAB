@@ -6,14 +6,19 @@
 #include <iostream>
 #include "fheco/dsl/compute.hpp"
 #include "fheco/dsl/ops_overloads.hpp"
-#include "fheco/dsl/tensor.hpp"
 #include "fheco/dsl/compiler.hpp"
+#include "fheco/dsl/plaintext.hpp"
+#include "fheco/dsl/expression.hpp"
+#include "fheco/dsl/tensor.hpp"
 #include <cmath>
 using namespace std ;
 namespace fheco {
-
+    class Plaintext ;
+    class Ciphertext;
+    template <typename T>
+    class DynamicTensor ;
     /*************************************************************************************************************/
-    Computation::Computation(const std::string &name , const std::vector<Var> iterator_variables, const Expression& expression): 
+    Computation::Computation(const std::string &name , const std::vector<Var>& iterator_variables, const Expression& expression): 
         name_(name), iterator_variables_(iterator_variables){
             if(expression.type()!=Type::ciphertxt){
                 throw invalid_argument("this constructot support only expressions of type ciphertext");
@@ -21,15 +26,22 @@ namespace fheco {
             expression_= expression ;
 
         }
-    Computation::Computation(const std::string &name, const std::vector<Var> iterator_variables,
-                            const std::vector<Var> output_dim_variables ,const Expression &expression):
+    Computation::Computation(const std::string &name, const std::vector<Var>& iterator_variables,
+                            const std::vector<Var>& output_dim_variables ,const Expression &expression):
                             name_(name), iterator_variables_(iterator_variables),
-                            output_dim_variables_(output_dim_variables)
+                            output_dim_variables_(output_dim_variables),expression_(expression)
         {
-            expression_ = expression ;
+           /*  std::cout<<"construct a new computation \n";
+            if(expression_.op()==Expression::Op_t::add){
+                std::cout<<"Welcome in addition operation \n";
+                DynamicTensor<Ciphertext> tensor = expression_.get_operands()[0].get_ciphertexts();
+                std::cout<<"ciphertetx_0_0_id : "<<tensor({0,0}).id()<<"\n";
+            }
+            //expression_ = expression ;
+            std::cout<<"finish ==>\n"; */
             if(iterator_variables.size()>output_dim_variables.size()){
                 is_reduction_=true;
-                expression_.set_is_reduction(true);                        
+                //expression_.set_is_reduction(true);                        
             }else if(iterator_variables.size() < output_dim_variables.size()){
                 throw invalid_argument("there are invalid variables in the output_dim_variables");
             }
@@ -60,12 +72,14 @@ namespace fheco {
     // Copy constructor 
     Computation::Computation(const Computation &other) : 
         name_(other.name_), iterator_variables_(other.iterator_variables_),
-        expression_(other.expression_),output_dim_variables_(other.output_dim_variables_)
+        expression_(other.expression_),output_dim_variables_(other.output_dim_variables_),
+        is_reduction_(other.is_reduction_)
         {}
     // Move constructor
     Computation::Computation(Computation &&other) noexcept:  
         name_(std::move(other.name_)), iterator_variables_(std::move(other.iterator_variables_)),
-        output_dim_variables_(std::move(other.output_dim_variables_)),expression_(std::move(other.expression_))
+        output_dim_variables_(std::move(other.output_dim_variables_)),expression_(std::move(other.expression_)),
+        is_reduction_(other.is_reduction_)
         {}
     // Move assignment operator 
     Computation &Computation::operator=(Computation &&other) noexcept {
@@ -74,6 +88,7 @@ namespace fheco {
             iterator_variables_ = std::move(other.iterator_variables_);
             output_dim_variables_ = std::move(other.output_dim_variables_);
             expression_ = std::move(other.expression_);
+            is_reduction_ = other.is_reduction_ ;
         }
         return *this;
     }
@@ -154,18 +169,22 @@ namespace fheco {
     /*************************************************************************************/
     Expression& Computation::apply_operator(const std::vector<Var> &compute_args) const{
         //std::cout<<compute_args.size()<<" "<<iterator_variables_.size()<<" \n";
-        if (compute_args.size() != iterator_variables_.size()) {
+        if(!expression_.is_evaluated()){
+            throw invalid_argument("this computation is still not evaluated");
+        }
+        if (compute_args.size() != expression_.get_args().size()) {
             throw std::invalid_argument("number of args different from required_dimensions");
         }
-        bool has_non_zero = false ; 
-        for(int i = 0 ; i< compute_args.size();i++){
-            if (compute_args[i].rotation_steps()!=0){
-                has_non_zero = true;
+        bool has_non_zero_rotation = false;
+        for (const auto& arg : compute_args) {
+            if (arg.rotation_steps() != 0) {
+                has_non_zero_rotation = true;
                 break;
             }
         }
-        if (has_non_zero) {
-            std::vector<Var> expresssion_args = expression_.get_args();
+        if (has_non_zero_rotation) {
+            std::cout<<"Computation "<<name_<<"has rotations\n";
+            const std::vector<Var>& expresssion_args = expression_.get_args();
             if (expression_.type() == Type::ciphertxt ){
                 int rotation_step = compute_args[0].rotation_steps();
                 int total_dim = expresssion_args[0].upper_bound()-expresssion_args[0].lower_bound() ;
@@ -176,9 +195,8 @@ namespace fheco {
                 Ciphertext info = expression_.get_ciphertexts()({0});
                 info = info << (rotation_step%total_dim) ;
                 DynamicTensor<Ciphertext> ciphertexts({1});
-                ciphertexts({0}) = {info} ; 
-                Expression* new_instance = new Expression(ciphertexts,iterator_variables_,compute_args,expression_.type());
-                return *new_instance ;
+                ciphertexts({0}) = {info} ;
+                return *(new Expression(ciphertexts, expression_.get_args(), compute_args, expression_.type()));
             }
             else if (expression_.type() == Type::vectorciphertxt){
                 std::vector<size_t> dimensions ={};
@@ -208,6 +226,7 @@ namespace fheco {
                             vector_size = dim ;
                         }
                         /************Update ciphertexts on one dimension**********/
+                        //std::cout<<"==> "<<vector_size<<" \n" ;
                         generateNestedLoops(ranges,[&,this](const std::vector<int>& iterators) {
                             std::vector<std::size_t> iterator_tuple ;  
                             std::vector<std::size_t> rotated_iterator_tuple ; 
@@ -222,6 +241,14 @@ namespace fheco {
                                 }
                                 comp+=1;
                             }
+                            /*  std::cout<<"update position ";
+                            for (auto val : iterator_tuple)
+                                std::cout<<val<<" ";
+                            std::cout<<" , ";
+                            for (auto val : rotated_iterator_tuple)
+                                std::cout<<val<<" ";
+                            std::cout<<"\n"; */
+                            /******************************************************/
                             if( i != compute_args.size()-1 ){
                                 updated_ciphertexts.assign_subtensor(iterator_tuple,ciphertexts.subtensor(rotated_iterator_tuple));
                             }else{
@@ -232,151 +259,20 @@ namespace fheco {
                     }
 
                 }
-                Expression* new_instance = new Expression(updated_ciphertexts,iterator_variables_,compute_args,Type::vectorciphertxt);
-                return *new_instance ;
+                return *(new Expression(updated_ciphertexts, expression_.get_args(), compute_args, Type::vectorciphertxt));
             }
         }
-        if(expression_.type()==Type::ciphertxt||expression_.type()==Type::vectorciphertxt){
-            Expression* new_instance = new Expression(expression_.get_ciphertexts(),iterator_variables_,compute_args,expression_.type());
-            return *new_instance ;  // Cast away const-ness to return a non-const reference
-        }else{
-            Expression* new_instance = new Expression(expression_.get_plaintexts(),iterator_variables_,compute_args,expression_.type());
-            return *new_instance ;  // Cast away const-ness to return a non-const reference
-        }
+        //std::cout<<"parsed computation has no rotations";
+        DynamicTensor<Ciphertext> tensor = expression_.get_ciphertexts();
+        //std::cout<<"ciphertetx_0_0_id : "<<tensor({0,0}).id()<<"\n";
+        return *(new Expression(tensor, expression_.get_args(), compute_args, expression_.type()));
     }    
     /**************************************************************************************/
-    void print_location(std::vector<size_t> list1,std::vector<size_t>list2,std::vector<size_t> list3){
-        std::cout<<"reduction_op :";
-        for(auto elem : list1){
-            std::cout<<elem<<" ";
-        }
-        std::cout<<" ,operand0 :";
-        for(auto elem : list2){
-            std::cout<<elem<<" ";
-        }
-        std::cout<<" ,operand1 :";
-        for(auto elem : list3){
-            std::cout<<elem<<" ";
-        }
-        std::cout<<"\n";
-    }
     DynamicTensor<Ciphertext> Computation::evaluate_expression(Expression& expression ){
             if (expression.is_defined()){
                 if (expression.is_evaluated()) {
-                    /*****assignment with reduction *****/
-                    if(expression.is_reduction()){
-                        std::vector<Var> vars0 = expression.get_compute_args();
-                        DynamicTensor<Ciphertext> ciphertexts0 = expression.get_ciphertexts();
-                        /**********************************************/
-                        int ref_sum = 0;
-                        std::vector<std::vector<int>> ranges = {};
-                        std::vector<size_t> iterator_tuple ={};
-                        for (int i=0; i<iterator_variables_.size(); i++) {
-                                int dim = iterator_variables_[i].upper_bound() - iterator_variables_[i].lower_bound();
-                                std::vector<int> tup = {0,dim,iterator_variables_[i].increment_step()};
-                                ranges.push_back(tup);
-                                iterator_tuple.push_back(iterator_variables_[i].lower_bound());
-                                ref_sum+=iterator_variables_[i].lower_bound();
-                        }
-                        /********************************************/
-                        std::vector<size_t> dimensions ;
-                        for(int i=0; i<output_dim_variables_.size()-1 ; i++){
-                            dimensions.push_back(output_dim_variables_[i].upper_bound() - output_dim_variables_[i].lower_bound());
-                        }
-                        /*********/DynamicTensor<Ciphertext> result = DynamicTensor<Ciphertext>(dimensions); 
-                        /*********************************************/
-                        int mask_size = output_dim_variables_[output_dim_variables_.size()-1].upper_bound()-output_dim_variables_[output_dim_variables_.size()-1].lower_bound();
-                        vector<integer> mask ;
-                        bool is_vectorization_possible = false ; 
-                        int reduction_size = Compiler::active_func()->slot_count();
-                        if(reduction_size>1){
-                            is_vectorization_possible = true ;
-                        }    
-                        /*******************************************/    
-                        std::vector<std::size_t> arg0_tuple={}, sub_arg0_tuple ={} , sub_ref_arg0_tuple={};
-                        Ciphertext temp_res = Ciphertext(PackedVal(1,0));
-                        Ciphertext temp_res_red = Ciphertext(PackedVal(1,0));
-                        Ciphertext vectorized_row = Ciphertext(PackedVal(1,0));
-                        bool is_arg0_vectorizble = true ;
-                        /**************************************************************************/
-                        std::vector<size_t> ref_reduction_tuple ={} ,sub_ref_reduction_tuple ={};
-                        generateNestedLoops(ranges,[&](const std::vector<int>& iterators) {                                                                                                                                                 
-                            std::vector<std::size_t> reduction_tuple ;
-                            iterator_tuple ={},arg0_tuple={};
-                            int comp =0 ;
-                            for (int val : iterators) {
-                                iterator_tuple.push_back(val);
-                                comp+=val;
-                            } 
-                            /****************************************************************************/
-                            arg0_tuple = calculateCurrentPos(iterator_variables_,vars0, iterator_tuple);
-                            reduction_tuple = calculateCurrentPos(iterator_variables_,output_dim_variables_, iterator_tuple);
-                            int rotation0 = arg0_tuple[arg0_tuple.size()-1];
-                            if(arg0_tuple.size() > 1){
-                                sub_arg0_tuple = std::vector<size_t>(arg0_tuple.begin(), arg0_tuple.end() - 1);
-                            }else{ sub_arg0_tuple={0};}
-                            /******************************************************************************/
-                            if(comp==ref_sum){
-                                sub_ref_arg0_tuple = sub_arg0_tuple ;
-                                ref_reduction_tuple = reduction_tuple ;
-                                temp_res_red = (ciphertexts0(sub_arg0_tuple)<<rotation0);
-                            }else{                                    
-                                bool update = false;
-                                bool row_updated = false ;
-                                for(int i =0;i<reduction_tuple.size();i++){
-                                    if(reduction_tuple[i]!=ref_reduction_tuple[i]){
-                                        update=true ;
-                                        if(i<reduction_tuple.size()-1){
-                                            row_updated = true;
-                                        }
-                                        break;
-                                    }
-                                }
-                                if(update){    
-                                    mask = vector<integer>(mask_size,0); 
-                                    mask[ref_reduction_tuple[ref_reduction_tuple.size()-1]]=1;
-                                    vectorized_row += temp_res*mask ;
-                                    if(row_updated==true){
-                                        std::cout<<"row updated \n";
-                                        sub_ref_reduction_tuple = std::vector<size_t>(ref_reduction_tuple.begin(), ref_reduction_tuple.end() - 1);
-                                        result(sub_ref_reduction_tuple)=vectorized_row;
-                                        vectorized_row = Ciphertext(PackedVal(1,0));
-                                    }
-                                    ref_reduction_tuple=reduction_tuple;
-                                    temp_res = Ciphertext(PackedVal(1,0));
-                                }
-                                /****************************************************/
-                                if(iterator_tuple[iterator_tuple.size()-1]==iterator_variables_[iterator_variables_.size()-1].lower_bound()){
-                                    sub_ref_arg0_tuple = sub_arg0_tuple ;
-                                    temp_res_red = (ciphertexts0(sub_arg0_tuple)<<rotation0);
-                                }else{
-                                    is_arg0_vectorizble=is_arg0_vectorizble&&(sub_ref_arg0_tuple==sub_arg0_tuple);
-                                    temp_res_red+=(ciphertexts0(sub_arg0_tuple)<<rotation0);    
-                                }
-                            }
-                            /***************************************************/
-                            if(iterator_tuple[iterator_tuple.size()-1]==iterator_variables_[iterator_variables_.size()-1].upper_bound()-1){
-                                if(is_arg0_vectorizble&&is_vectorization_possible){
-                                    temp_res += SumVec(ciphertexts0(sub_arg0_tuple),reduction_size);
-                                }else{
-                                    temp_res+=temp_res_red;
-                                }   
-                                is_arg0_vectorizble = true ;
-                            }
-                            
-                            return true ;
-                        });
-                        mask = vector<integer>(mask_size,0); 
-                        mask[mask_size-1]=1;
-                        vectorized_row += temp_res*mask ;
-                        sub_ref_reduction_tuple = std::vector<size_t>(ref_reduction_tuple.begin(), ref_reduction_tuple.end() - 1);                
-                        result(sub_ref_reduction_tuple) = vectorized_row; 
-                        return result ;
-                    }
-                    /*********************************************************************/
-                    else{
-                        return expression.get_ciphertexts();
-                    }
+                    std::cout<<"welcomeeee \n";
+                    return expression.get_ciphertexts();
                 }
                 if (expression.op()!=Expression::Op_t::o_none) {
                     DynamicTensor<Ciphertext> result ;
@@ -438,11 +334,11 @@ namespace fheco {
                                             int ref_sum = 0;
                                             std::vector<std::vector<int>> ranges = {};
                                             std::vector<size_t> iterator_tuple ={};
+                                            std::cout<<"iterations ranges :";
                                             for (int i=0; i<iterator_variables_.size(); i++) {
                                                     int dim = iterator_variables_[i].upper_bound() - iterator_variables_[i].lower_bound();
-                                                    std::vector<int> tup = {0,dim,iterator_variables_[i].increment_step()};
-                                                    ranges.push_back(tup);
-                                                    iterator_tuple.push_back(iterator_variables_[i].lower_bound());
+                                                    std::cout<<0<<" "<<dim<<" "<<iterator_variables_[i].increment_step()<<" \n";
+                                                    ranges.push_back({0,dim,iterator_variables_[i].increment_step()});
                                                     ref_sum+=iterator_variables_[i].lower_bound();
                                             }
                                             /********************************************/
@@ -458,7 +354,7 @@ namespace fheco {
                                             int reduction_size = Compiler::active_func()->slot_count();
                                             if(vars0[vars0.size()-1].same_as(vars1[vars1.size()-1])&&(reduction_size>1)){
                                                 is_vectorization_possible = true ;
-                                            }    
+                                            }   
                                             /*******************************************/    
                                             std::vector<std::size_t> arg0_tuple, arg1_tuple = {} , sub_arg0_tuple ={}, sub_arg1_tuple={};
                                             Ciphertext temp_res = Ciphertext(PackedVal(1,0));
@@ -468,19 +364,23 @@ namespace fheco {
                                             bool is_arg0_vectorizble = true , is_arg1_vectorizble = true ;
                                             /******************************************************************/
                                             if(expression.is_reduction()){
-                                                std::vector<size_t> ref_reduction_tuple ={} ,sub_ref_reduction_tuple ={};
+                                                std::vector<size_t> ref_reduction_tuple ={} ,sub_ref_reduction_tuple ={} ;
                                                 generateNestedLoops(ranges,[&](const std::vector<int>& iterators) {                                                                                                                                                 
-                                                    std::vector<std::size_t> reduction_tuple ;
+                                                    //std::cout<<"It->Bg ";
+                                                    std::vector<size_t> reduction_tuple ={} ;
                                                     iterator_tuple ={},arg1_tuple={},arg0_tuple={};
                                                     int comp =0 ;
                                                     for (int val : iterators) {
+                                                       // std::cout<<val<<" ";
                                                         iterator_tuple.push_back(val);
                                                         comp+=val;
                                                     } 
+                                                    //std::cout<<"\n";
                                                     /****************************************************************************/
                                                     arg0_tuple = calculateCurrentPos(iterator_variables_,vars0, iterator_tuple);
                                                     arg1_tuple = calculateCurrentPos(iterator_variables_,vars1, iterator_tuple);
                                                     reduction_tuple = calculateCurrentPos(iterator_variables_,output_dim_variables_, iterator_tuple);
+                                                    //std::cout<<" ---- \n";
                                                     int rotation0 = arg0_tuple[arg0_tuple.size()-1];
                                                     int rotation1 = arg1_tuple[arg1_tuple.size()-1];
                                                     if(arg0_tuple.size() > 1){
@@ -495,7 +395,8 @@ namespace fheco {
                                                         sub_ref_arg1_tuple = sub_arg1_tuple;
                                                         ref_reduction_tuple = reduction_tuple ;
                                                         temp_res_red = (ciphertexts(sub_arg0_tuple)<<rotation0)*(plaintexts(sub_arg1_tuple)<<rotation1) ;
-                                                    }else{                                    
+                                                    }else{     
+                                                        //std::cout<<"verify possible reduction ";                               
                                                         bool update = false;
                                                         bool row_updated = false ;
                                                         for(int i =0;i<reduction_tuple.size();i++){
@@ -508,22 +409,33 @@ namespace fheco {
                                                             }
                                                         }
                                                         if(update){    
+                                                            //std::cout<<"reduction updated ";
                                                             mask = vector<integer>(mask_size,0); 
                                                             mask[ref_reduction_tuple[ref_reduction_tuple.size()-1]]=1;
                                                             vectorized_row += temp_res*mask ;
                                                             if(row_updated==true){
-                                                                std::cout<<"row updated \n";
                                                                 sub_ref_reduction_tuple = std::vector<size_t>(ref_reduction_tuple.begin(), ref_reduction_tuple.end() - 1);
+                                                                /* std::cout<<"row updated :";
+                                                                for(auto val : sub_ref_reduction_tuple){
+                                                                    std::cout<<val<<" ";
+                                                                }    */                                                            
                                                                 result(sub_ref_reduction_tuple)=vectorized_row;
                                                                 vectorized_row = Ciphertext(PackedVal(1,0));
                                                             }
                                                             ref_reduction_tuple=reduction_tuple;
                                                             temp_res = Ciphertext(PackedVal(1,0));
+                                                            //std::cout<<" , Next :\n";
                                                         }
                                                         /****************************************************/
                                                         if(iterator_tuple[iterator_tuple.size()-1]==iterator_variables_[iterator_variables_.size()-1].lower_bound()){
+                                                            //std::cout<<" here1 ";
                                                             sub_ref_arg0_tuple = sub_arg0_tuple ;
                                                             sub_ref_arg1_tuple = sub_arg1_tuple;
+                                                           /*  for(auto val : sub_arg0_tuple)
+                                                                std::cout<<val<<" ";
+                                                            std::cout<<" , ";
+                                                            for(auto val : sub_arg1_tuple)
+                                                                std::cout<<val<<" "; */
                                                             temp_res_red = (ciphertexts(sub_arg0_tuple)<<rotation0)*(plaintexts(sub_arg1_tuple)<<rotation1);
                                                         }else{
                                                             is_arg0_vectorizble=is_arg0_vectorizble&&(sub_ref_arg0_tuple==sub_arg0_tuple);
@@ -534,16 +446,19 @@ namespace fheco {
                                                     /***************************************************/
                                                     if(iterator_tuple[iterator_tuple.size()-1]==iterator_variables_[iterator_variables_.size()-1].upper_bound()-1){
                                                         if(is_arg0_vectorizble&&is_arg1_vectorizble&&is_vectorization_possible){
+                                                            //std::cout<<"-- vec ";
                                                             temp_res += SumVec(ciphertexts(sub_arg0_tuple)*plaintexts(sub_arg1_tuple),reduction_size);
                                                         }else{
+                                                            //std::cout<<"-- no vec ";
                                                             temp_res+=temp_res_red;
                                                         }   
                                                         is_arg0_vectorizble = true ;
                                                         is_arg1_vectorizble = true ; 
                                                     }
-                                                    
+                                                    //std::cout<<"end \n";
                                                     return true ;
                                                 });
+                                                //std::cout<<"end==>";
                                                 mask = vector<integer>(mask_size,0); 
                                                 mask[mask_size-1]=1;
                                                 vectorized_row += temp_res*mask ;
@@ -864,8 +779,9 @@ namespace fheco {
                                     }
                                     /************************************************************************************************/
                                     else if(lhs.type()==Type::plaintxt&&rhs.type()==Type::vectorciphertxt||lhs.type()==Type::vectorciphertxt&&rhs.type()==Type::plaintxt){
-                                            std::cout<<"welcome in plaintext + vectorciphertext multiplication \n";
-                                            DynamicTensor<Ciphertext> ciphertexts ; DynamicTensor<Plaintext>  plaintexts;
+                                            std::cout<<"welcome in plaintext + vectorciphertext  \n";
+                                            DynamicTensor<Ciphertext> ciphertexts = DynamicTensor<Ciphertext>() ;
+                                            DynamicTensor<Plaintext>  plaintexts = DynamicTensor<Plaintext>() ;
                                             std::vector<Var> vars0, vars1 ;
                                             if(lhs.type()==Type::plaintxt){
                                                 vars1 = lhs.get_compute_args();
@@ -876,8 +792,9 @@ namespace fheco {
                                                 vars1 = rhs.get_compute_args();
                                                 plaintexts = rhs.get_plaintexts() ;
                                                 vars0 = lhs.get_compute_args();
-                                                ciphertexts = evaluate_expression(lhs) ;
+                                                ciphertexts = evaluate_expression(lhs) ;                                                
                                             }
+                                            //std::cout<<"ciphertetx_0_0_id : "<<ciphertexts({0,0}).id()<<"\n";
                                             /**********************************************/
                                             int ref_sum = 0;
                                             std::vector<std::vector<int>> ranges = {};
@@ -894,7 +811,7 @@ namespace fheco {
                                             for(int i=0; i<output_dim_variables_.size() ; i++){
                                                 dimensions.push_back(output_dim_variables_[i].upper_bound() - output_dim_variables_[i].lower_bound());
                                             }
-                                            result = DynamicTensor<Ciphertext>(dimensions); 
+                                            result = DynamicTensor<Ciphertext>(dimensions);
                                             /**********************************************/
                                             int mask_size = output_dim_variables_[output_dim_variables_.size()-1].upper_bound()-output_dim_variables_[output_dim_variables_.size()-1].lower_bound();
                                             vector<integer> mask ;
@@ -997,8 +914,11 @@ namespace fheco {
                                             /***************************************************************/
                                             /***************************************************************/
                                             else{
+                                                std::cout<<"operation is not a reduction \n";
+                                                Ciphertext cipherinfo = Ciphertext() ;
+                                                Plaintext plaininfo = Plaintext();
                                                 std::vector<std::size_t> result_tuple = {} ,sub_ref_result_tuple={} , ref_result_tuple = {};
-                                                generateNestedLoops(ranges,[&](const std::vector<int>& iterators) {                                                                                                                                                 
+                                                generateNestedLoops(ranges,[&](const std::vector<int>& iterators) {                                                                                                                                                
                                                     iterator_tuple ={};
                                                     int comp =0 ;
                                                     for (int val : iterators) {
@@ -1008,6 +928,19 @@ namespace fheco {
                                                     /****************************************************************************/
                                                     arg0_tuple = calculateCurrentPos(iterator_variables_,vars0, iterator_tuple);
                                                     arg1_tuple = calculateCurrentPos(iterator_variables_,vars1, iterator_tuple);
+                                                    std::cout<<"evaluate positions,  iterator_tuple : ";
+                                                    for(auto val : iterator_tuple){
+                                                        std::cout<<val<<" , ";
+                                                    }
+                                                    std::cout<<"--- arg0_tuple : ";
+                                                    for(auto val : arg0_tuple){
+                                                        std::cout<<val<<" , ";
+                                                    }
+                                                    std::cout<<"-- arg1_tuple :";
+                                                    for(auto val : arg1_tuple){
+                                                        std::cout<<val<<" , ";
+                                                    }
+                                                    std::cout<<"\n";
                                                     result_tuple = calculateCurrentPos(iterator_variables_,output_dim_variables_, iterator_tuple);
                                                     int rotation0 = arg0_tuple[arg0_tuple.size()-1];
                                                     int rotation1 = arg1_tuple[arg1_tuple.size()-1];
@@ -1017,15 +950,38 @@ namespace fheco {
                                                     if(arg1_tuple.size()>1){
                                                         sub_arg1_tuple = std::vector<size_t>(arg1_tuple.begin(), arg1_tuple.end() - 1);
                                                     }else{ sub_arg1_tuple={0};} 
+                                                    /*************************/
+                                                    const vector<size_t> &temp0 = sub_arg0_tuple;
+                                                    const vector<size_t> &temp1 = sub_arg1_tuple;
+                                                     /*  for(auto val : sub_arg0_tuple){
+                                                        temp0.push_back(val);
+                                                        std::cout<<val<<" ";
+                                                    }std::cout<<" , ";
+                                                    vector<size_t> temp1 = {};
+                                                    for(auto val : sub_arg1_tuple){
+                                                        temp1.push_back(val);
+                                                        std::cout<<val<<" ";
+                                                    } */
                                                     /*****************************************************************************/
                                                     mask = vector<integer>(mask_size,0); 
                                                     mask[result_tuple[ref_result_tuple.size()-1]]=1;
                                                     /************************************************/
                                                     if(comp==ref_sum){
+                                                        std::cout<<"start \n";
+                                                             for(auto val : sub_arg0_tuple){
+                                                                std::cout<<val<<" ";
+                                                            }
+                                                            std::cout<<" , ";
+                                                            for(auto val : sub_arg1_tuple){
+                                                                std::cout<<val<<" ";
+                                                            }
+                                                            std::cout<<"\n";
+                                                        cipherinfo = ciphertexts.get_value(temp0);
+                                                        plaininfo = plaintexts.get_value(temp1);
                                                         sub_ref_arg0_tuple = sub_arg0_tuple ;
                                                         sub_ref_arg1_tuple = sub_arg1_tuple;
                                                         ref_result_tuple = result_tuple ;
-                                                        temp_res = ((ciphertexts(sub_arg0_tuple)<<rotation0)+(plaintexts(sub_arg1_tuple)<<rotation1))*mask ;
+                                                        temp_res = ((cipherinfo<<rotation0)+(plaininfo<<rotation1))*mask ;
                                                     }else{                                    
                                                         bool row_updated = false ;
                                                         for(int i =0;i<result_tuple.size();i++){
@@ -1036,7 +992,8 @@ namespace fheco {
                                                                 break;
                                                             }
                                                         }
-                                                        if(row_updated){    
+                                                        if(row_updated){   
+                                                            std::cout<<"row updated \n"; 
                                                             sub_ref_result_tuple = std::vector<size_t>(ref_result_tuple.begin(), ref_result_tuple.end() - 1);
                                                             result(sub_ref_result_tuple)=temp_res ;
                                                             ref_result_tuple=result_tuple;
@@ -1046,25 +1003,39 @@ namespace fheco {
                                                         if(iterator_tuple[iterator_tuple.size()-1]==iterator_variables_[iterator_variables_.size()-1].lower_bound()){
                                                             sub_ref_arg0_tuple = sub_arg0_tuple ;
                                                             sub_ref_arg1_tuple = sub_arg1_tuple;
-                                                            temp_res = ((ciphertexts(sub_arg0_tuple)<<rotation0)+(plaintexts(sub_arg1_tuple)<<rotation1))*mask ;
+                                                            cipherinfo = ciphertexts.get_value(temp0);
+                                                            plaininfo = plaintexts.get_value(temp1);
+                                                            std::cout<<"First :: cipher_id"<<cipherinfo.id()<<", plaintext_id"<<plaininfo.id()<<"\n";
+                                                            temp_res = ((cipherinfo<<rotation0)+(plaininfo<<rotation1))*mask ;
                                                         }else{
+                                                            std::cout<<"After :: plaintext_id"<<plaininfo.id()<<"\n";
+                                                            std::cout<<"After :: cipher_id"<<cipherinfo.id()<<"\n";
                                                             is_arg0_vectorizble=is_arg0_vectorizble&&(sub_ref_arg0_tuple==sub_arg0_tuple);
                                                             is_arg1_vectorizble=is_arg1_vectorizble&&(sub_ref_arg1_tuple==sub_arg1_tuple);
-                                                            temp_res +=((ciphertexts(sub_arg0_tuple)<<rotation0)+(plaintexts(sub_arg1_tuple)<<rotation1))*mask ;  
+                                                            temp_res +=((cipherinfo<<rotation0)+(plaininfo<<rotation1))*mask; 
+                                                           
                                                         }
                                                     }
                                                     /***************************************************/
                                                     if(iterator_tuple[iterator_tuple.size()-1]==iterator_variables_[iterator_variables_.size()-1].upper_bound()-1){
                                                         if(is_arg0_vectorizble&&is_arg1_vectorizble&&is_vectorization_possible){
-                                                            temp_res = ciphertexts(sub_arg0_tuple)+plaintexts(sub_arg1_tuple) ;
+                                                            std::cout<<"vectorization possible \n";
+                                                            temp_res = cipherinfo+plaininfo ;
                                                         }  
                                                         is_arg0_vectorizble = true ;
                                                         is_arg1_vectorizble = true ; 
                                                     }
                                                     return true ;
                                                 });
+                                                std::cout<<"succeful exiting form  \n";
                                                 sub_ref_result_tuple = std::vector<size_t>(ref_result_tuple.begin(), ref_result_tuple.end() - 1);
-                                                result(sub_ref_result_tuple)=temp_res ;
+                                                for (auto info : sub_ref_result_tuple){
+                                                    std::cout<<info<<" ";
+                                                }
+                                                std::cout<<"\n";
+                                                const vector<size_t>& timpo= sub_ref_result_tuple ;
+                                                //result(timpo)=temp_res ;
+                                                std::cout<<"---------------------work is finished ----------------------------------\n";
                                             }
                                     }
                                     /************************************************************************************************/
@@ -1753,8 +1724,9 @@ namespace fheco {
                             throw std::runtime_error("Undefined operation. Or unsupporetd operation");
                     }
                     //std::cout<<"\n Returning the result in evaluate_expression\n";
+                    DynamicTensor<Ciphertext> tensor = result ;
                     expression.set_is_evaluated(true);
-                    expression.set_ciphertexts(result);
+                    expression.set_ciphertexts(tensor);
                     return evaluate_expression(expression);
                 }else{
                     throw invalid_argument("This expression cant be evaluated \n");
@@ -1766,11 +1738,11 @@ namespace fheco {
     /***************************************************************************************************************************************/
     /***************************************************************************************************************************************/
     void Computation::evaluate(bool is_output){
-        std::vector<Var> expr_compute_vars = expression_.get_compute_args();
         bool have_same_variables = true ; 
-        bool found = false ; 
+        /*bool found = false ; 
+        std::vector<Var> expr_compute_vars = expression_.get_compute_args();
         // verify that the expression to evaluate and the computation have the same computation variables
-        /* if (expr_compute_vars.size()!=iterator_variables_.size()){
+        if (expr_compute_vars.size()!=iterator_variables_.size()){
             have_same_variables = false ; 
         }else{
             for(int i =0;i<expr_compute_vars.size();i++){
@@ -1787,10 +1759,16 @@ namespace fheco {
                 }
             }
         } */
+        Expression input_expression = expression_ ;
         if(have_same_variables){
-            Expression input_expression = expression_ ;
-            std::cout<<"\n start expression evaluation  \n";
-            // we verify here if ti possible to have an assignment operation 
+            std::cout<<"Finish 2 \n";
+            DynamicTensor<Ciphertext> result_ciphertexts ;
+            std::cout<<"\n start Computation : "<<name_<<" with dimensions : ";
+            for(const auto& dim_var : output_dim_variables_){
+                std::cout<<dim_var.upper_bound()<<" ";
+            }
+            std::cout<<"\n";
+            // verify if it is possible to apply an assignment operation 
             vector<Var> dimension_vars = input_expression.get_args();
             if(input_expression.op()==Expression::Op_t::o_none){
                 if(dimension_vars.size()==output_dim_variables_.size()){
@@ -1803,43 +1781,202 @@ namespace fheco {
                         }
                     }
                 }
+                /***************** apply assignment or reduction operation***********/
+                if(input_expression.is_reduction()){
+                    std::vector<Var> vars0 = input_expression.get_compute_args();
+                    DynamicTensor<Ciphertext> ciphertexts0 = input_expression.get_ciphertexts();
+                    /**********************************************/
+                    int ref_sum = 0;
+                    std::vector<std::vector<int>> ranges = {};
+                    std::vector<size_t> iterator_tuple ={};
+                    for (int i=0; i<iterator_variables_.size(); i++) {
+                            int dim = iterator_variables_[i].upper_bound() - iterator_variables_[i].lower_bound();
+                            std::vector<int> tup = {0,dim,iterator_variables_[i].increment_step()};
+                            ranges.push_back(tup);
+                            iterator_tuple.push_back(iterator_variables_[i].lower_bound());
+                            ref_sum+=iterator_variables_[i].lower_bound();
+                    }
+                    /********************************************/
+                    std::vector<size_t> dimensions ;
+                    for(int i=0; i<output_dim_variables_.size()-1 ; i++){
+                        dimensions.push_back(output_dim_variables_[i].upper_bound() - output_dim_variables_[i].lower_bound());
+                    }
+                    DynamicTensor<Ciphertext> result = DynamicTensor<Ciphertext>(dimensions); 
+                    /************************************************/
+                    int mask_size = output_dim_variables_[output_dim_variables_.size()-1].upper_bound()-output_dim_variables_[output_dim_variables_.size()-1].lower_bound();
+                    vector<integer> mask ;
+                    bool is_vectorization_possible = false ; 
+                    int reduction_size = Compiler::active_func()->slot_count();
+                    if(reduction_size>1){
+                        is_vectorization_possible = true ;
+                    }    
+                    /*******************************************/    
+                    std::vector<std::size_t> arg0_tuple={}, sub_arg0_tuple ={} , sub_ref_arg0_tuple={};
+                    Ciphertext temp_res = Ciphertext(PackedVal(1,0));
+                    Ciphertext temp_res_red = Ciphertext(PackedVal(1,0));
+                    Ciphertext vectorized_row = Ciphertext(PackedVal(1,0));
+                    bool is_arg0_vectorizble = true ;
+                    /**************************************************************************/
+                    std::vector<size_t> ref_reduction_tuple ={} ,sub_ref_reduction_tuple ={};
+                    generateNestedLoops(ranges,[&](const std::vector<int>& iterators) {                                                                                                                                                 
+                        std::vector<std::size_t> reduction_tuple ;
+                        iterator_tuple ={},arg0_tuple={};
+                        int comp =0 ;
+                        for (int val : iterators) {
+                            iterator_tuple.push_back(val);
+                            comp+=val;
+                        } 
+                        /****************************************************************************/
+                        arg0_tuple = calculateCurrentPos(iterator_variables_,vars0, iterator_tuple);
+                        reduction_tuple = calculateCurrentPos(iterator_variables_,output_dim_variables_, iterator_tuple);
+                        int rotation0 = arg0_tuple[arg0_tuple.size()-1];
+                        if(arg0_tuple.size() > 1){
+                            sub_arg0_tuple = std::vector<size_t>(arg0_tuple.begin(), arg0_tuple.end() - 1);
+                        }else{ sub_arg0_tuple={0};}
+                        /******************************************************************************/
+                        if(comp==ref_sum){
+                            sub_ref_arg0_tuple = sub_arg0_tuple ;
+                            ref_reduction_tuple = reduction_tuple ;
+                            temp_res_red = (ciphertexts0(sub_arg0_tuple)<<rotation0);
+                        }else{                                    
+                            bool update = false;
+                            bool row_updated = false ;
+                            for(int i =0;i<reduction_tuple.size();i++){
+                                if(reduction_tuple[i]!=ref_reduction_tuple[i]){
+                                    update=true ;
+                                    if(i<reduction_tuple.size()-1){
+                                        row_updated = true;
+                                    }
+                                    break;
+                                }
+                            }
+                            if(update){    
+                                mask = vector<integer>(mask_size,0); 
+                                mask[ref_reduction_tuple[ref_reduction_tuple.size()-1]]=1;
+                                vectorized_row += temp_res*mask ;
+                                if(row_updated==true){
+                                    std::cout<<"row updated \n";
+                                    sub_ref_reduction_tuple = std::vector<size_t>(ref_reduction_tuple.begin(), ref_reduction_tuple.end() - 1);
+                                    result(sub_ref_reduction_tuple)=vectorized_row;
+                                    vectorized_row = Ciphertext(PackedVal(1,0));
+                                }
+                                ref_reduction_tuple=reduction_tuple;
+                                temp_res = Ciphertext(PackedVal(1,0));
+                            }
+                            /****************************************************/
+                            if(iterator_tuple[iterator_tuple.size()-1]==iterator_variables_[iterator_variables_.size()-1].lower_bound()){
+                                sub_ref_arg0_tuple = sub_arg0_tuple ;
+                                temp_res_red = (ciphertexts0(sub_arg0_tuple)<<rotation0);
+                            }else{
+                                is_arg0_vectorizble=is_arg0_vectorizble&&(sub_ref_arg0_tuple==sub_arg0_tuple);
+                                temp_res_red+=(ciphertexts0(sub_arg0_tuple)<<rotation0);    
+                            }
+                        }
+                        /***************************************************/
+                        if(iterator_tuple[iterator_tuple.size()-1]==iterator_variables_[iterator_variables_.size()-1].upper_bound()-1){
+                            if(is_arg0_vectorizble&&is_vectorization_possible){
+                                temp_res += SumVec(ciphertexts0(sub_arg0_tuple),reduction_size);
+                            }else{
+                                temp_res+=temp_res_red;
+                            }   
+                            is_arg0_vectorizble = true ;
+                        }
+                        
+                        return true ;
+                    });
+                    mask = vector<integer>(mask_size,0); 
+                    mask[mask_size-1]=1;
+                    vectorized_row += temp_res*mask ;
+                    sub_ref_reduction_tuple = std::vector<size_t>(ref_reduction_tuple.begin(), ref_reduction_tuple.end() - 1);                
+                    result(sub_ref_reduction_tuple) = vectorized_row; 
+                    result_ciphertexts = result ;
+                }
+                /*********************************************************************/
+                else{
+                    std::cout<<"welcome in assignment operation == \n";
+                    DynamicTensor<Ciphertext> ciphertexts = input_expression.get_ciphertexts();
+                    std::vector<std::vector<int>> ranges = {};
+                    for (int i=0; i<output_dim_variables_.size()-1; i++) {
+                            int dim = output_dim_variables_[i].upper_bound() - output_dim_variables_[i].lower_bound();
+                            std::vector<int> tup = {0,dim,output_dim_variables_[i].increment_step()};
+                            ranges.push_back(tup);
+                    }
+                    std::vector<size_t> dimensions ;
+                    std::cout<<"dimensions :";
+                    for(int i=0; i<output_dim_variables_.size()-1 ; i++){
+                        dimensions.push_back(output_dim_variables_[i].upper_bound() - output_dim_variables_[i].lower_bound());
+                        std::cout<<dimensions[i]<<" : ";
+                    }
+                    std::cout<<"\n";
+                    /*************************************/
+                    DynamicTensor<Ciphertext> result = DynamicTensor<Ciphertext>(dimensions); 
+                    std::vector<size_t> ref_reduction_tuple ={} ,sub_ref_reduction_tuple ={},iterator_tuple ={};
+                    std::vector<size_t> end_tuple={};
+                    for(int i =0; i< iterator_variables_.size(); i++){
+                        end_tuple.push_back(iterator_variables_[i].upper_bound());
+                    }
+                    generateNestedLoops(ranges,[&](const std::vector<int>& iterators) {                                                                                                                                                 
+                        iterator_tuple ={} ;
+                        int comp =0 ;
+                        //std::cout<<"pos :";
+                        bool initialize = false ;
+                        for (int val : iterators) {
+                            if(val>=end_tuple[comp]){
+                                initialize = true ; 
+                            }
+                            iterator_tuple.push_back(val);
+                            comp+=1;
+                        }
+                        //std::cout<<"\n";
+                        if(initialize){
+                            result(iterator_tuple) = Ciphertext(PackedVal(0)); 
+                        }else{
+                            result(iterator_tuple)=ciphertexts(iterator_tuple);    
+                        }                    
+                        return true ;
+                    });
+                    result_ciphertexts = result ;
+                }
+            }else{
+                result_ciphertexts = evaluate_expression(input_expression);  
             }
-            DynamicTensor<Ciphertext> ciphertexts = evaluate_expression(input_expression);
-            std::cout<<"\n Return from expression evaluation \n";
+            std::cout<<"End of expression evaluation \n";          
             expression_.set_is_evaluated(true);
             if(is_output){
-                    std::cout<<"\n\n welcome : \n";
-                    if (expression_.type()==Type::ciphertxt) {
-                        ciphertexts({0}).set_output(name_);
-                        expression_.set_args(iterator_variables_);
-                    }else{
-                        vector<size_t> dimensions ;
-                        int dim = 0 ;
-                        std::vector<std::vector<int>> ranges = {};
-                        for (int i =0; i< output_dim_variables_.size()-1;i++) {
-                            dim = output_dim_variables_[i].upper_bound() - output_dim_variables_[i].lower_bound();
-                            dimensions.push_back(dim);
-                            ranges.push_back({0,dim,output_dim_variables_[i].increment_step()});
-                        } 
-                        /**********************************************************************************/
-                        generateNestedLoops(ranges,[&ciphertexts,this](const std::vector<int>& iterators) {
-                            std::vector<std::size_t> iterator_tuple ;
-                            std::string name=name_;
-                            int comp = 0 ;
-                            for (int val : iterators) {
-                                iterator_tuple.push_back(val);
-                                name+="["+std::to_string(iterator_tuple[comp])+"]";
-                                comp+=1;
-                            }
-                            std::cout<<"setting name for variable :"<<name<<"\n";
-                            ciphertexts(iterator_tuple).set_output(name);
-                            return true ;
-                        });    
-                        expression_.set_args(output_dim_variables_);                
+                if (expression_.type()==Type::ciphertxt) {
+                    result_ciphertexts({0}).set_output(name_);
+                }else{
+                    vector<size_t> dimensions ;
+                    int dim = 0 ;
+                    std::vector<std::vector<int>> ranges = {};
+                    for (int i =0 ; i<output_dim_variables_.size()-1;i++) {
+                        int dim = output_dim_variables_[i].upper_bound() - output_dim_variables_[i].lower_bound();
+                        ranges.push_back({0, dim, output_dim_variables_[i].increment_step()});
                     }
+                    /**********************************************************************************/
+                    generateNestedLoops(ranges,[&](const std::vector<int>& iterators) {
+                        std::vector<std::size_t> iterator_tuple = {} ;
+                        std::string name=name_;
+                        int comp = 0 ;
+                        for (int val : iterators) {
+                            iterator_tuple.push_back(val);
+                            name+="["+std::to_string(iterator_tuple[comp])+"]";
+                            comp+=1;
+                        }
+                        const vector<size_t>& tempo = iterator_tuple;
+                        std::cout<<"setting name for variable :"<<name<<" "<<result_ciphertexts(tempo).id()<<"\n";
+                        result_ciphertexts(tempo).set_output(name);
+                        return true ;
+                    });    
                 }
-                expression_.set_ciphertexts(ciphertexts);
-                std::cout<<"\n\n End of evaluation \n";
+            }
+            if (expression_.type()==Type::ciphertxt) {
+                expression_.set_args(iterator_variables_);
+            }else{
+                expression_.set_args(output_dim_variables_);
+            }
+            expression_.set_ciphertexts(result_ciphertexts);
+            std::cout<<"\n\n End of evaluation \n";
         }else{
             throw invalid_argument("Provided expression is invalide");
         }   

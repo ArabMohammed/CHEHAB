@@ -5,42 +5,55 @@
 #include "fheco/dsl/var.hpp"
 using namespace std ;
 namespace fheco {
-    std::unordered_set<std::string> Var::declared_vars_;
-
+    size_t Var::count_ = 0;
     Var::Var(const std::string& n , const int lower_bound, const int upper_bound)
         : name_(n), lower_bound_(lower_bound), upper_bound_(upper_bound),op_(Op_var::o_none) {
-            if(Var::declared_vars_.find(n) != Var::declared_vars_.end()){
+            id_=count_ ;
+            count_=count_+1;
+            /* if(Var::declared_vars_.find(n) != Var::declared_vars_.end()){
                 throw invalid_argument("a variable with this name already exists");
             }
-            Var::declared_vars_.insert(n);
+            Var::declared_vars_.insert(n); */
         }
     Var::Var(const std::string& n , const int lower_bound, const int upper_bound, const int increment_step)
-            : name_(n), lower_bound_(lower_bound), upper_bound_(upper_bound),increment_step_(increment_step),op_(Op_var::o_none){
-                if(Var::declared_vars_.find(n) != Var::declared_vars_.end()){
+            : name_(n),lower_bound_(lower_bound), upper_bound_(upper_bound),increment_step_(increment_step),op_(Op_var::o_none){
+                id_=count_ ;
+                count_=count_+1;
+                /*   if(Var::declared_vars_.find(n) != Var::declared_vars_.end()){
                     throw invalid_argument("a variable with this name already exists");
                 }
-                Var::declared_vars_.insert(n);
+                Var::declared_vars_.insert(n); */
             }
     Var::Var(const Op_var type,const std::vector<Var> operands)
-            : op_(type), operands_(operands){}
+            : op_(type), operands_(operands){
+                id_=count_ ;
+                count_=count_+1;
+            }
     
     Var::Var(const Op_var type,const std::vector<Var> operands,const int rotation_steps)
-            : op_(type), operands_(operands), rotation_steps_(rotation_steps){}
+            : op_(type), operands_(operands), rotation_steps_(rotation_steps){
+                id_=count_ ;
+                count_=count_+1;
+            }
     
     Var::Var(const int n)
-        : name_(std::to_string(n)),lower_bound_(n),upper_bound_(n+1),is_const_(true),op_(Op_var::o_none){}
+        : name_(std::to_string(n)),lower_bound_(n),upper_bound_(n+1),is_const_(true),op_(Op_var::o_none){
+            id_=count_ ;
+            count_=count_+1;
+        }
 
     // Default constructor
     Var::Var() : name_(""), lower_bound_(0), upper_bound_(1) {}
 
     // Copy constructor
     Var::Var(const Var &other): name_(other.name_), lower_bound_(other.lower_bound_), upper_bound_(other.upper_bound_),rotation_steps_(other.rotation_steps_),
-        increment_step_(other.increment_step_), is_const_ (other.is_const_),op_(other.op_),operands_(other.operands_)
+        increment_step_(other.increment_step_), is_const_ (other.is_const_),op_(other.op_),operands_(other.operands_),id_(other.id_)
     {}
     // Move constructor
     Var::Var(Var &&other) noexcept : lower_bound_(other.lower_bound_), upper_bound_(other.upper_bound_),rotation_steps_(other.rotation_steps_),name_(std::move(other.name_)), 
                                 increment_step_(other.increment_step_), is_const_ (other.is_const_),op_(other.op_),operands_(std::move(other.operands_))
     {
+        other.id_=id_;
         other.lower_bound_ = 0;
         other.upper_bound_ = 1;
         other.rotation_steps_ = 0;
@@ -59,6 +72,7 @@ namespace fheco {
     // Copy assignment operator
     Var &Var::operator=(const Var &other) {
         if (this != &other) {
+            id_ = other.id_ ;
             name_ = other.name_;
             upper_bound_ = other.upper_bound_ ;
             lower_bound_ = other.lower_bound_ ;
@@ -75,6 +89,7 @@ namespace fheco {
      meaning it's a reference to a temporary object that can be "moved from.*/
     Var &Var::operator=(Var &&other) noexcept {
         if (this != &other) {
+            id_=other.id_;
             name_ = std::move(other.name_);
             upper_bound_ = other.upper_bound_;
             lower_bound_ = other.lower_bound_ ;

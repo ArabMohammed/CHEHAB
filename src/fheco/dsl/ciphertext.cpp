@@ -68,7 +68,11 @@ Ciphertext &Ciphertext::operator=(const Ciphertext &other)
   }
   return *this;
 }
-
+/**************************************/
+Ciphertext::Ciphertext(const Ciphertext &other): name_(other.name_), shape_(other.shape_),example_val_(other.example_val_),
+                                                id_(other.id_)
+  {}
+/************************************************************************************/
 Ciphertext &Ciphertext::operator=(Ciphertext &&other)
 {
   if (idx_.size())
@@ -82,7 +86,13 @@ Ciphertext &Ciphertext::operator=(Ciphertext &&other)
   }
   return *this;
 }
-
+/***************************************/
+Ciphertext::Ciphertext(Ciphertext &&other) noexcept : id_(other.id_),name_(std::move(other.name_)),example_val_(std::move(other.example_val_)),
+                                                      shape_(std::move(other.shape_))
+{
+    
+}
+/***************************************************************************************************************/
 const Ciphertext Ciphertext::operator[](size_t idx) const
 {
   size_t actual_dim = shape_.size() - idx_.size();
@@ -112,7 +122,7 @@ Ciphertext &Ciphertext::operator[](size_t idx)
 
 const Ciphertext &Ciphertext::set_output(string label) const
 {
-  //std::cout<<"set output is called \n";
+  std::cout<<"set output is called From res \n";
   Compiler::active_func()->set_output(*this, move(label));
   return *this;
 }

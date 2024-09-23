@@ -9,11 +9,13 @@
 #include "fheco/dsl/expression.hpp"
 #include "fheco/dsl/var.hpp"
 #include "fheco/dsl/ciphertext.hpp"
+#include "fheco/dsl/plaintext.hpp"
 #include "fheco/dsl/tensor.hpp"
 namespace fheco
 {
     class Var ; 
     class Ciphertext ;
+    class Plaintext ;
     class Expression ;
     template <typename T>
     class DynamicTensor ;
@@ -34,6 +36,10 @@ namespace fheco
             Input(const Input &other);
             // Move constructor
             Input(Input &&other) noexcept;
+            // Move assignment operator 
+            Input &operator=(Input &&other) noexcept;
+            // Copy assignment operator
+            Input &operator=(const Input &other);
             // desctructor 
             ~Input()= default ;
             
@@ -46,6 +52,9 @@ namespace fheco
             Expression& operator()(Args&&...  args) const {
                 std::vector<Var> arg_list = {std::forward<Args>(args)...};
                 return this->apply_operator(arg_list);
+            }
+            const std::vector<Var> iterator_variables()const {
+                return iterator_variables_  ;
             }
             /*****************************************************/    
         private : 

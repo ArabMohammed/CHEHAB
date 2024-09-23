@@ -32,7 +32,7 @@ namespace fheco
             Var(const int n);
             // construct a new variable without specifying name 
             // It can be used when dealing with integer values 
-            // lower_bound will be set to 0 , upper_bound will be set to 1 
+            // lower_bound will be set to n , upper_bound will be set to n+1 
             explicit Var();
             // Copy constructor
             Var(const Var &other);
@@ -42,7 +42,9 @@ namespace fheco
             const std::string &name() const;
             /** Test if two Vars are the same. This simply compares the names. */
             bool same_as(const Var &other) const {
-                return name() == other.name();
+                std::cout<<"checking if two  vars are the same \n";
+                std::cout<<id()<<" "<<other.id()<<"\n";
+                return id() == other.id();
             }
             // Move assignment operator 
             Var &operator=(Var &&other) noexcept;
@@ -77,6 +79,7 @@ namespace fheco
             int increment_step()const{
                 return increment_step_ ;
             }
+            inline std::size_t id() const { return id_; }
             /****************************************************************************/
             struct VarHash {
                 std::size_t operator()(const Var &var) const {
@@ -88,7 +91,7 @@ namespace fheco
                 bool operator()(const Var &var1, const Var &var2) const {
                     return var1.same_as(var2);
                 }
-            };
+            }; 
             /*******************************************************************/
             /*******************************************************************/
             friend Var operator+(const Var &lhs, const int value);
@@ -125,6 +128,8 @@ namespace fheco
             static std::unordered_set<std::string> declared_vars_ ;
             /*********************************************************/
         private : 
+            static std::size_t count_ ;
+            std::size_t id_;
             int lower_bound_ ;
             int upper_bound_ ;
             int rotation_steps_ = 0 ;

@@ -34,12 +34,12 @@ public:
    // Default constructor
   ~Ciphertext() = default;
 
-  Ciphertext(const Ciphertext &other) = default;
+  Ciphertext(const Ciphertext &other);
 
-  Ciphertext(Ciphertext &&other) = default;
+  Ciphertext(Ciphertext &&other) noexcept;
 
   Ciphertext &operator=(const Ciphertext &other);
-
+  
   Ciphertext &operator=(Ciphertext &&other);
 
   const Ciphertext operator[](std::size_t idx) const;
@@ -60,7 +60,7 @@ public:
 
   inline const std::optional<PackedVal> &example_val() const { return example_val_; }
 
-  string name(){
+  const string name() const{
     return name_;
   }
 
@@ -68,7 +68,7 @@ private:
   // terms ids start from 1
   std::size_t id_;
 
-  string name_;
+  string name_ = "";
 
   std::vector<std::size_t> shape_;
 

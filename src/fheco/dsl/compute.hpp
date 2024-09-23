@@ -4,6 +4,7 @@
 #include <vector>
 #include "fheco/dsl/var.hpp"
 #include "fheco/dsl/ciphertext.hpp"
+#include "fheco/dsl/plaintext.hpp"
 #include "fheco/dsl/expression.hpp"
 #include "fheco/dsl/tensor.hpp"
 #include <unordered_map>
@@ -11,7 +12,8 @@
 namespace fheco
 {
     class Var;
-    class Ciphertext;
+    class Ciphertext ;
+    class Plaintext ;
     class Expression;
     template <typename T>
     class DynamicTensor ;
@@ -19,10 +21,10 @@ namespace fheco
     {
         public:
             /* Construct a new computation thaat support only ciphertext type */
-            explicit Computation(const std::string &name, const std::vector<Var> iterator_variables,const Expression &expression);
+            explicit Computation(const std::string &name, const std::vector<Var> &iterator_variables,const Expression &expression);
             
             /* Construct a new coputation that support vectorciphertext type*/
-            explicit Computation(const std::string &name, const std::vector<Var> iterator_variables,const std::vector<Var> output_dim_variables ,const Expression &expression);
+            explicit Computation(const std::string &name, const std::vector<Var> &iterator_variables,const std::vector<Var> &output_dim_variables ,const Expression &expression);
 
             /* Overloaded constructor with Type parameter */
             //explicit Computation(const std::string &name, const std::vector<Var> iterator_variables, Type type);
@@ -74,7 +76,7 @@ namespace fheco
                 return is_reduction_ ;
             }
             
-            void resize(std::vector<Var> new_dimensions_vars);
+            //void resize(std::vector<Var> new_dimensions_vars);
         
         private:
             Expression& apply_operator(const std::vector<Var> &compute_args) const;

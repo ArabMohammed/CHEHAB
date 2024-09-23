@@ -38,10 +38,11 @@ void validate_shape(const std::vector<std::size_t> &shape);
 
 std::vector<size_t> calculateCurrentPos(std::vector<Var> iterator_vars,std::vector<Var> compute_args, std::vector<size_t> coordinates);
 
-std::tuple<std::vector<size_t>, std::vector<size_t>, std::vector<size_t>> match_positions(
+/* std::tuple<std::vector<size_t>, std::vector<size_t>, std::vector<size_t>> match_positions(
     const std::vector<Var>& iterator_variables_,
     const std::vector<Var>& reduction_variables_,
     const std::vector<Var>& vars0,
-    const std::vector<Var>& vars1);
+    const std::vector<Var>& vars1); */
 
-} // namespace fheco
+} 
+// namespace fheco

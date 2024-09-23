@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src
 
-CXX_FLAGS = 
+CXX_FLAGS = -fno-tree-vectorize
 

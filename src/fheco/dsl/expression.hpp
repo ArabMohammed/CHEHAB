@@ -34,21 +34,20 @@ namespace fheco
         Expression(Op_t op, const Expression& expression0);
 
         /* Create an expressionession for a binary operator */
-        Expression(Op_t op, const Expression& expression0, const Expression& expression1, const std::vector<Var> args, const std::vector<Var> compute_args, Type type);
+        Expression(Op_t op, const Expression& expression0, const Expression& expression1, const std::vector<Var>& args, const std::vector<Var>& compute_args, Type type);
 
-        /* Expressionession representing a dot product */
-        Expression(Op_t op, const Expression& expression0, const Expression& expression1, bool is_reduction,bool is_possible_reduction, const std::vector<Var> args, const std::vector<Var> compute_args, Type type);
+        Expression(Op_t op, const Expression& expression0, const Expression& expression1, bool is_reduction,bool is_possible_reduction, const std::vector<Var>& args, const std::vector<Var>& compute_args, Type type);
 
-        /* Construct an integer expressionession */
+        /* Construct an integer expression */
         Expression(integer value);
 
-        /* Construct an expressionession corresponding to a new cihertext input */
-        Expression(DynamicTensor<Ciphertext> ciphertexts, std::vector<Var> iterator_variables, std::vector<Var> compute_args, Type type);
+        /* Construct an expression corresponding to a new ciphertext input */
+        Expression(DynamicTensor<Ciphertext> ciphertexts, const std::vector<Var>& iterator_variables, const std::vector<Var>& compute_args, Type type);
         /* Construct an expression correspoding to a nex plaintext input       */
-        Expression(DynamicTensor<Plaintext> plaintexts, std::vector<Var> iterator_variables, std::vector<Var> compute_args, Type type);
+        Expression(DynamicTensor<Plaintext> plaintexts, const std::vector<Var>& iterator_variables, const std::vector<Var>& compute_args, Type type);
         // Copy constructor 
         Expression(const Expression &other);
-
+        
         // Move constructor
         Expression(Expression &&other) noexcept;
 
@@ -108,7 +107,7 @@ namespace fheco
         DynamicTensor<Plaintext> get_plaintexts() const {
             return plaintexts_;
         }
-        void set_plaintexts(DynamicTensor<Plaintext> plaintexts){
+        void set_plaintexts(const DynamicTensor<Plaintext>& plaintexts){
             plaintexts_=plaintexts ;
         }
         /**********************************************************/

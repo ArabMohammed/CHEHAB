@@ -7,33 +7,33 @@ using namespace std;
 
 namespace fheco
 {
-  void validate_shape(const vector<size_t> &shape)
-  {
-    size_t slot_count = 1;
-    for (auto dim_size : shape)
-      slot_count = util::mul_safe(slot_count, dim_size);
+    void validate_shape(const vector<size_t> &shape)
+    {
+        size_t slot_count = 1;
+        for (auto dim_size : shape)
+        slot_count = util::mul_safe(slot_count, dim_size);
 
-    if (slot_count > Compiler::active_func()->slot_count())
-      throw invalid_argument("shape too large, total number of elements must be <= function slot count");
-  }
-  /**********************************************************************************************************************/
+        if (slot_count > Compiler::active_func()->slot_count())
+        throw invalid_argument("shape too large, total number of elements must be <= function slot count");
+    }
+    /**********************************************************************************************************************/
+    
     std::vector<size_t> calculateCurrentPos(std::vector<Var> iterator_vars,std::vector<Var> compute_args, std::vector<size_t> coordinates){
         std::vector<std::tuple<std::string , size_t >>  bindings = {} ; 
         for(int i =0;i<iterator_vars.size();i++){
             bindings.push_back({iterator_vars[i].name(),coordinates[i]});
         }
-        //std::cout<<"start calculateCurrentPos : \n";
         std::vector<size_t> actual_pos ={};
         size_t value = 1;
         for(int j=0;j<compute_args.size();j++){
             value=compute_args[j].evalute(bindings) ;
             actual_pos.push_back(compute_args[j].evalute(bindings));
         }
-        //std::cout<<"\n end calculateCurrentPos \n";
         return actual_pos ;                 
     } 
 
     /***************************************************************************************************************************/
+   
     void generateNestedLoops(const std::vector<std::vector<int>>& ranges, std::function<bool(const std::vector<int>&)> body) {
     std::vector<int> iterators(ranges.size(), 0);
         // Initialize iterators with the start values
@@ -62,7 +62,10 @@ namespace fheco
             }
         }
     }
-    /***********************************************************************************************************/
+
+    /*************************************************************************************/
+    
+    /******************************************************
     std::tuple<std::vector<size_t>, std::vector<size_t>, std::vector<size_t>> match_positions(
     const std::vector<Var>& iterator_variables_,
     const std::vector<Var>& reduction_variables_,
@@ -97,11 +100,11 @@ namespace fheco
                     break;
                 }
             }
-            /***************/
             if(!added){
                 reduction_size=reduction_size*(iterator_variables_[i].upper_bound()-iterator_variables_[i].lower_bound());
             }
         }
         return std::make_tuple(reduction_pos, vars0_pos, vars1_pos);
     }
+    /*********************************************************************************/
 } // namespace fheco
