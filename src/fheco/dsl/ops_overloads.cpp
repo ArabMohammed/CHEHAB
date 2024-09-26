@@ -8,6 +8,8 @@
 #include <vector>
 # include <iostream>
 #include <iostream>
+#include <cstdlib>  
+
 using namespace std;
 
 namespace fheco
@@ -229,12 +231,16 @@ Ciphertext rotate(const Ciphertext &arg, int steps)
     throw invalid_argument("subscript read must be performed on const variables");
 
   auto signed_slot_count = static_cast<int64_t>(Compiler::active_func()->slot_count());
+  int abs_rotation = abs(steps);
+  int real_slot_count = 4096 ;
   if (steps >= signed_slot_count || steps < 0)
   {
+    if(signed_slot_count)
     steps %= signed_slot_count;
     if (steps < 0)
-      steps += signed_slot_count;
+      steps += real_slot_count;
   }
+  
   Ciphertext dest{};
   Compiler::active_func()->operate_unary(ir::OpCode::rotate(steps), arg, dest);
   return dest;
@@ -252,7 +258,7 @@ Plaintext rotate(const Plaintext &arg, int steps)
     if (steps < 0)
       steps += signed_slot_count;
   }
-  Plaintext dest{};
+  Plaintext dest{}; 
   Compiler::active_func()->operate_unary(ir::OpCode::rotate(steps), arg, dest);
   return dest;
 }

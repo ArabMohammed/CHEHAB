@@ -58,11 +58,11 @@ namespace fheco
                 return this->apply_operator(arg_list);
             }
             /*****************************************************/
-            std::string name() const {
+            const std::string name() const {
                 return name_;
             }
 
-            std::vector<Var> iterator_variables() const {
+            const std::vector<Var> iterator_variables() const {
                 return iterator_variables_;
             }
 
@@ -72,10 +72,12 @@ namespace fheco
             // Evaluate this computation to get corresponding ciphertext  
             void evaluate(bool is_output);
 
-            bool is_reduction(){
+            const bool is_reduction() const{
                 return is_reduction_ ;
             }
-            
+            const bool is_evaluated() const{
+                return is_evaluated_ ;
+            }
             //void resize(std::vector<Var> new_dimensions_vars);
         
         private:
@@ -86,6 +88,7 @@ namespace fheco
             std::string name_;
             /***Set to true if we have a reduction operation ***/
             bool is_reduction_ = false;
+            bool is_evaluated_ = false ;
             // Variables used to evaluate the expression  
             std::vector<Var> iterator_variables_;
             std::vector<Var> output_dim_variables_;

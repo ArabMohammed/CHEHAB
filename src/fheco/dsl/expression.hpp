@@ -96,18 +96,18 @@ namespace fheco
             is_reduction_ = res;
         }
         /***************************************************/
-        void set_ciphertexts(const DynamicTensor<Ciphertext>& ciphertexts) {
+        void set_ciphertexts( DynamicTensor<Ciphertext> ciphertexts) {
             ciphertexts_ = ciphertexts;
         }
 
-        DynamicTensor<Ciphertext> get_ciphertexts() const {
+         DynamicTensor<Ciphertext> get_ciphertexts() const {
             return ciphertexts_;
         }
         /***************************************************/
-        DynamicTensor<Plaintext> get_plaintexts() const {
+         DynamicTensor<Plaintext> get_plaintexts() const {
             return plaintexts_;
         }
-        void set_plaintexts(const DynamicTensor<Plaintext>& plaintexts){
+        void set_plaintexts( DynamicTensor<Plaintext> plaintexts){
             plaintexts_=plaintexts ;
         }
         /**********************************************************/

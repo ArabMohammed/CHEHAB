@@ -42,7 +42,7 @@ pub fn specific_rules(slot_count: usize) -> Vec<Rewrite<FheLang, ConstantFold>> 
         rw!("mul_0-1"; "(* 0 ?x)" => "0"),
         rw!("mul_0-2"; "(* ?x 0)" => "0"),
         
-        rw!("simplify-add-negate-1-1"; "(+ ?x (- ?y))" => "(- ?x ?y)"),
+        /*rw!("simplify-add-negate-1-1"; "(+ ?x (- ?y))" => "(- ?x ?y)"),
         rw!("simplify-add-negate-1-2"; "(+ (- ?y) ?x)" => "(- ?x ?y)"),
         rw!("simplify-add-sub-1-1"; "(+ (- ?x ?y) ?y)" => "?x"),
         rw!("simplify-add-sub-1-2"; "(+ ?x (- ?y ?x))" => "?y"),
@@ -271,7 +271,7 @@ pub fn specific_rules(slot_count: usize) -> Vec<Rewrite<FheLang, ConstantFold>> 
         /*************************************/
         rw!("mul-to-square"; "(* ?x ?x)" => "(square ?x)"),
         rw!("part-fold-dist-add-1-4"; "(* (+ (* ?ct_x ?c0) ?c1) (+ (* ?ct_x ?c2) ?c3))" => "(+ (* ?ct_x (+ (* ?ct_x (* ?c0 ?c2)) (+ (* ?c0 ?c3) (* ?c1 ?c2)))) (* ?c1 ?c3))"),
-        rw!("part-fold-dist-add-2"; "(* (+ ?ct_x ?c0) ?c1)" => "(+ (* ?ct_x ?c1) (* ?c0 ?c1))"),
+        rw!("part-fold-dist-add-2"; "(* (+ ?ct_x ?c0) ?c1)" => "(+ (* ?ct_x ?c1) (* ?c0 ?c1))"),*/
     ];
     return rules;
 }
@@ -282,7 +282,7 @@ pub fn specific_rules(slot_count: usize) -> Vec<Rewrite<FheLang, ConstantFold>> 
 pub fn rotation_rules(slot_count: usize) -> Vec<Rewrite<FheLang, ConstantFold>> {
     let rules: Vec<Rewrite<FheLang, ConstantFold>> = vec![
         rw!("rotate_0"; "(<< ?x 0)" => "?x"),
-        rw!("part-fold-rotate-add-1"; "(<< (+ ?x ?c0) ?n)" => "(+ (<< ?x ?n) (<< ?c0 ?n))"),
+        /*rw!("part-fold-rotate-add-1"; "(<< (+ ?x ?c0) ?n)" => "(+ (<< ?x ?n) (<< ?c0 ?n))"),
         rw!("part-fold-rotate-add-2"; "(<< (+ ?c0 ?x) ?n)" => "(+ (<< ?c0 ?n) (<< ?x ?n))"),
         rw!("part-fold-rotate-sub-1"; "(<< (- ?x ?c0) ?n)" => "(- (<< ?x ?n) (<< ?c0 ?n))"),
         rw!("part-fold-rotate-sub-2"; "(<< (- ?c0 ?x) ?n)" => "(- (<< ?c0 ?n) (<< ?x ?n))"),
@@ -296,7 +296,7 @@ pub fn rotation_rules(slot_count: usize) -> Vec<Rewrite<FheLang, ConstantFold>> 
         rw!("undo-nest-rotate-mul-1"; "(<< (* ?x (<< ?y ?n)) ?m)" => {format!("(* (<< ?x ?m) (<< ?y (% (+ ?n ?m) {})))",slot_count).parse::<Pattern<_>>().unwrap() }),
         rw!("undo-nest-rotate-mul-2"; "(<< (* (<< ?y ?n) ?x) ?m)" => {format!("(* (<< ?y (% (+ ?n ?m) {})) (<< ?x ?m))",slot_count).parse::<Pattern<_>>().unwrap() }),
         rw!("merge-rotate-mul"; "(* (<< ?x ?n) (<< ?y ?n))" => "(<< (* ?x ?y) ?n)"),
-        rw!("merge-rotate-sub"; "(- (<< ?x ?n) (<< ?y ?n))" => "(<< (- ?x ?y) ?n)"),
+        rw!("merge-rotate-sub"; "(- (<< ?x ?n) (<< ?y ?n))" => "(<< (- ?x ?y) ?n)"),*/
 
     ];
     return rules;

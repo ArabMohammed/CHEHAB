@@ -8,7 +8,7 @@
 
 using namespace std;
 using namespace seal;
-
+ 
 void print_bool_arg(bool arg, const string &name, ostream &os)
 {
   os << (arg ? name : "no" + name);

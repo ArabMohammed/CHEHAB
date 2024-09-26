@@ -379,17 +379,6 @@ namespace fheco {
                     total_dim=total_dim*(iterator_variables_[i].upper_bound()-iterator_variables_[i].lower_bound());
                     rotation_step=rotation_step*(iterator_variables_[i].upper_bound()-iterator_variables_[i].lower_bound())+compute_args[i].rotation_steps() ;
                 }
-                /* Ciphertext info = ciphertexts_({0});
-                int total_dim = iterator_variables_[0].upper_bound()-iterator_variables_[0].lower_bound() ;
-                int rotation_step1 = compute_args[0].rotation_steps()*total_dim;
-                info = info << rotation_step1 ;
-                int rotation_step2 =0 ;
-                for(int i = 1 ; i< compute_args.size();i++){
-                   //total_dim=total_dim*(iterator_variables_[i].upper_bound()-iterator_variables_[i].lower_bound());
-                    rotation_step2=compute_args[i].rotation_steps() ;
-                }
-                info = info << rotation_step2 ;
-                std::cout<<"rot-step1 :"<<rotation_step1<<" rot-step2 :"<<rotation_step2<<"\n\n"; */
                 Ciphertext info = ciphertexts_({0});
                 info = info << rotation_step ;
                 DynamicTensor<Ciphertext> ciphertexts({1});
@@ -405,6 +394,7 @@ namespace fheco {
                 }
                 /*********************************************************/
                 DynamicTensor<Ciphertext> updated_ciphertexts(dimensions);
+                DynamicTensor<Ciphertext> ciphertexts = ciphertexts_ ;
                 for(int i = 0 ; i< compute_args.size() ; i++){
                     if (compute_args[i].rotation_steps()!=0){
                         std::vector<std::vector<int>> ranges = {};
@@ -438,13 +428,14 @@ namespace fheco {
                             }
                             if(i!=compute_args.size()-1){
                                 //std::cout<<"rotation to be done :"<<iterator_tuple[0]<<":"<<iterator_tuple[1]<<" , "<<rotated_iterator_tuple[0]<<":"<<rotated_iterator_tuple[1]<<"\n";
-                                updated_ciphertexts.assign_subtensor(iterator_tuple,ciphertexts_.subtensor(rotated_iterator_tuple));
+                                updated_ciphertexts.assign_subtensor(iterator_tuple,ciphertexts.subtensor(rotated_iterator_tuple));
                             }else{
-                                updated_ciphertexts(iterator_tuple)=ciphertexts_(iterator_tuple) << (rotation_step%slot_count) ;
+                                updated_ciphertexts(iterator_tuple)=ciphertexts(iterator_tuple) << (rotation_step%slot_count) ;
                             }
                             return true ;
                         });
                     }
+                    ciphertexts=updated_ciphertexts;
                 }
                 std::cout<<"return rotated input expression\n";
                 Expression* new_instance = new Expression(updated_ciphertexts,iterator_variables_,compute_args,type_);

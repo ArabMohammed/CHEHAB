@@ -122,7 +122,6 @@ Ciphertext &Ciphertext::operator[](size_t idx)
 
 const Ciphertext &Ciphertext::set_output(string label) const
 {
-  std::cout<<"set output is called From res \n";
   Compiler::active_func()->set_output(*this, move(label));
   return *this;
 }

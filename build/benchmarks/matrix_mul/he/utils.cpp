@@ -147,6 +147,9 @@ void get_clear_outputs(
     vector<uint64_t> clear_output(slot_count);
     encoder.decode(encoded_output, clear_output);
     clear_output.resize(func_slot_count);
+    for(auto val : clear_output)
+      std::cout<<val<<" ";
+    std::cout<<"\n";
     clear_outputs.emplace(encrypted_output.first, ClearArgInfo{move(clear_output), true, false});
   }
 

@@ -1,0 +1,12 @@
+benchmark,optimization_time(ms),execution_time(ms),multiply_plain,multiply,sub,add,rotate_rows,square
+linear_reg,21280.5,14.1042,0,1,2,0,0,0
+gy_kernel,296.963,9.62956,4,4,0,5,6,0
+sobel,161253,81.5332,6,10,0,16,8,1
+hamming_dist,342.724,49.4575,1,2,1,13,12,0
+dot_product,216.464,48.5242,0,1,0,12,12,0
+gx_kernel,230.345,9.56456,0,0,0,0,0,0
+matrix_mul,7722.35,30394.2,1024,2048,0,6112,5120,0
+poly_reg,128.433,37.3907,0,2,2,1,0,1
+box_blur,280.33,11.396,0,0,0,8,8,0
+l2_distance,213.045,45.2234,0,0,1,12,12,1
+roberts_cross,42363.9,31.8199,2,3,0,6,3,1

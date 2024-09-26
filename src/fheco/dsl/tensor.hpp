@@ -18,23 +18,30 @@ public:
         }
         data_.resize(size_);
     }
-
+    
+    DynamicTensor(const std::vector<size_t>& dimensions, const T& initial_value) : dimensions_(dimensions) {
+        size_ = 1;
+        for (size_t dim : dimensions_) {
+            size_ *= dim;
+        }
+        data_.resize(size_, initial_value);  // Initialize all elements with the given value
+    }
     // Copy constructor
     DynamicTensor(const DynamicTensor& other)
         : dimensions_(other.dimensions_), data_(other.data_), size_(other.size_) {}
 
     // Move constructor
-    DynamicTensor(DynamicTensor&& other) noexcept
+    /*DynamicTensor(DynamicTensor&& other) noexcept
         : dimensions_(std::move(other.dimensions_)), data_(std::move(other.data_)), size_(other.size_) {
         other.size_ = 0;
-    }
+    }*/
 
     // Copy assignment operator
     DynamicTensor& operator=(const DynamicTensor& other) {
         if (this == &other) {
             return *this;  // Handle self-assignment
         }
-       std::cout<<"Copy assignment operator ==> \n";
+        //std::cout<<"Copy assignment operator ==> \n";
         dimensions_ = other.dimensions_;
         data_ = other.data_;
         size_ = other.size_;
@@ -54,33 +61,29 @@ public:
         size_ = other.size_;
 
         // Leave the moved-from object in a valid but empty state
-        other.size_ = 0;
-        other.data_.clear(); // or other.data_ = {}; if it's a vector or similar
-        other.dimensions_.clear(); // or other.dimensions_ = {};
+        //other.size_ = 0;
+        //other.data_.clear(); // or other.data_ = {}; if it's a vector or similar
+        //other.dimensions_.clear(); // or other.dimensions_ = {};
 
         return *this;
-    }
+    } 
     // Const access to an element
     const T& operator()(const std::vector<size_t>& indices) const {
-        std::cout<<"non mutable access in tensor \n";
+        //std::cout<<"non mutable access in tensor \n";
         return data_[get_flat_index(indices)];
     }
     const T& get_value(const std::vector<size_t>& indices) const {
-        std::cout << "Non-mutable access using get_value with size :"<<size_<<"\n";
+        //std::cout << "Non-mutable access using get_value with size :"<<size_<<"\n";
         return data_[get_flat_index(indices)];
     }
     // Access an element by multi-dimensional indices
     T& operator()(const std::vector<size_t>& indices) {
-        std::cout<<"mutable access in tensor : "<<size_<<"\n";
-        for(auto val : dimensions_){
-            std::cout<<val<<" ";
-        }
-        std::cout<<"\n";
+        //std::cout<<"mutable access in tensor : "<<size_<<"\n";
         return data_[get_flat_index(indices)];
     }
     /***set the value of a position  */
     void set_value(const T& value,const std::vector<size_t>& indices ){
-        std::cout << "mutable access using set_value with size :"<<size_<<"\n";
+       // std::cout << "mutable access using set_value with size :"<<size_<<"\n";
         data_[get_flat_index(indices)]=value ;
     }
     

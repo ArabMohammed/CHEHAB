@@ -4,7 +4,7 @@
 using namespace std;
 using namespace fheco;
 
-vector<Ciphertext> predict(
+vector<Ciphertext> predict( 
   const vector<vector<vector<Ciphertext>>> &x, const vector<vector<vector<vector<Plaintext>>>> &w1,
   const vector<Plaintext> &b1, const vector<vector<vector<vector<Plaintext>>>> &w4, const vector<Plaintext> &b4,
   const vector<vector<Plaintext>> &w8, const vector<Plaintext> &b8)
@@ -67,7 +67,7 @@ vector<vector<vector<Ciphertext>>> conv_2d(
     for (size_t j_out = 0; j_out < n_cols_out; ++j_out)
     {
       for (size_t k_out = 0; k_out < n_channels_out; ++k_out)
-      {
+      { 
         for (size_t i_kernels = 0; i_kernels < n_rows_kernel; ++i_kernels)
           for (size_t j_kernels = 0; j_kernels < n_cols_kernel; ++j_kernels)
             for (size_t k_kernels = 0; k_kernels < n_channels_kernel; ++k_kernels)
@@ -91,12 +91,12 @@ vector<vector<vector<Ciphertext>>> scaled_mean_pool_2d(
   // input {14,14,5}
   // kernel_shape = {2,2} 
   // strides = {2,2}
-  auto n_rows_in = input.size(); 
-  auto n_cols_in = input[0].size();
-  auto n_channels_in = input[0][0].size();
-  auto n_rows_kernel = kernel_shape[0];
-  auto n_cols_kernel = kernel_shape[1];
-  auto row_stride = strides[0];
+  auto n_rows_in = input.size(); // 14 
+  auto n_cols_in = input[0].size(); //14 
+  auto n_channels_in = input[0][0].size(); // 5
+  auto n_rows_kernel = kernel_shape[0]; // = 2
+  auto n_cols_kernel = kernel_shape[1]; // = 2
+  auto row_stride = strides[0]; 
   auto col_stride = strides[1];
 
   auto n_rows_out = n_rows_in / row_stride + (n_rows_in % row_stride > 0 ? 1 : 0);

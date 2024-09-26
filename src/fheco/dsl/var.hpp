@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstddef>
-#include <optional>
+#include <optional> 
 #include <string>
 #include <vector>
 #include <unordered_set>
@@ -42,8 +42,6 @@ namespace fheco
             const std::string &name() const;
             /** Test if two Vars are the same. This simply compares the names. */
             bool same_as(const Var &other) const {
-                std::cout<<"checking if two  vars are the same \n";
-                std::cout<<id()<<" "<<other.id()<<"\n";
                 return id() == other.id();
             }
             // Move assignment operator 

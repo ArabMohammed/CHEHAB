@@ -29,7 +29,7 @@ void gen_func(
   std::string_view header_name, std::ostream &source_os);
 
 void gen_func_decl(const std::string &func_name, std::ostream &os);
-
+ 
 void gen_rotation_steps_getter_decl(const std::string &func_name, std::ostream &os);
 
 void gen_func_def_signature(const std::string &func_name, std::ostream &os);

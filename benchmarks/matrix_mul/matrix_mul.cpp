@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <fstream>
 #include <iostream>
-#include <stdexcept>
+#include <stdexcept> 
 #include <string>
 #include <vector>
 #include <stdexcept>
@@ -59,7 +59,30 @@ vector<integer> load(istream &is, char delim)
     vector<integer> line_data;
     line_data.reserve(tokens.size());
     for (const auto &token : tokens)
-       data.push_back(static_cast<integer>(stoull(token)));
+    {
+      try
+      {
+        // Add a check for invalid characters
+        if (!token.empty() && all_of(token.begin(), token.end(), ::isdigit))
+        {
+          data.push_back(static_cast<integer>(stoull(token)));
+        }
+        else
+        {
+          throw invalid_argument("Invalid numeric string in the input: " + token);
+        }
+      }
+      catch (const invalid_argument &e)
+      {
+        cerr << "Error: " << e.what() << endl;
+        throw; // Rethrow to terminate if required 
+      }
+      catch (const out_of_range &e)
+      {
+        cerr << "Error: Number out of range in string: " << token << endl;
+        throw; // Rethrow to terminate if required
+      }
+    }
   }
   return data;
 }
@@ -96,17 +119,16 @@ Computation pad_2d(const Input &input,const vector<size_t> &kernel_shape,const v
   Var m("m", 0,n_rows_out) ;
   Var l("l", 0,n_cols_out) ;
   Var ch("ch",0,n_channels_in);
-  /* Computation* C1 = new Computation("padded_in",{i1,j1,ch},{m,l,ch},input(i1-pad_top,j1-pad_left,ch));
-  C1*.evaluate(false);
-  return *C1 ; */
-  std::unique_ptr<Computation> C1 = std::make_unique<Computation>("padded_in", std::vector<Var>({i1,j1,ch}), std::vector<Var>({m,l,ch}),input(i1-pad_top,j1-pad_left,ch));
-  C1->evaluate(false);
-  return *C1; // Return the unique_ptr
+  Var m1("m", 0,n_rows_in+1) ;
+  Var l1("l", 0,n_cols_in+1) ;
+  Computation C1("padded_in", {i1,j1,ch}, {m,l,ch},input(i1,j1,ch));
+  C1.evaluate(false);
+  Computation C2("padded_in", {m,l,ch}, {m,l,ch},C1(m-pad_top,l-pad_left,ch));
+  return C2; // Return the unique_ptr
 }
 /***********************************************************/
 Computation add(const Computation &input, const Input &b)
 {
-  std::cout<<"start add \n";
   auto n_channels = input.expression().get_args()[2].upper_bound();
   auto n_b = b.iterator_variables()[0].upper_bound();
   if (n_channels != n_b)
@@ -117,11 +139,21 @@ Computation add(const Computation &input, const Input &b)
   Var i("i",0,n_rows);
   Var j("j",0,n_cols);
   Var k("k",0,n_channels);
-  Expression exp = input(i,j,k) + b(k) ;
-  std::unique_ptr<Computation> result= std::make_unique<Computation>("res",std::vector<Var>({i,j,k}),std::vector<Var>({i,j,k}),exp);
-  result->evaluate(true);
+  Computation result("res",{i,j,k},{i,j,k},input(i,j,k) + b(k));
   std::cout<<"end add \n";
-  return *result;
+  return result;
+}
+/*********************************************************/
+Computation square(const Computation &input)
+{
+  auto n_rows = input.expression().get_args()[0].upper_bound();
+  auto n_cols = input.expression().get_args()[1].upper_bound();
+  auto n_channels = input.expression().get_args()[2].upper_bound();
+  Var i("i",0,n_rows);
+  Var j("j",0,n_cols);
+  Var k("k",0,n_channels);
+  Computation result("square",{i,j,k},{i,j,k},input(i,j,k)*input(i,j,k));
+  return result;
 }
 /****************************************************** */
 Computation conv_2d(const Input &input, const Input &kernels,const vector<size_t> &strides)
@@ -142,25 +174,51 @@ Computation conv_2d(const Input &input, const Input &kernels,const vector<size_t
   auto row_stride = strides[0]; // =2
   auto col_stride = strides[1]; // =2
   Computation padded_in = pad_2d(input, {n_rows_kernel, n_cols_kernel}, strides);
+  padded_in.evaluate(false);
   std::cout<<"return from pad_2d function \n";
   auto n_rows_out = n_rows_in / row_stride + (n_rows_in % row_stride > 0 ? 1 : 0); // 14
   auto n_cols_out = n_cols_in / col_stride + (n_cols_in % col_stride > 0 ? 1 : 0); // 14
   auto n_channels_out = kernels.iterator_variables()[3].upper_bound(); // 5
-  Var i_out("i_out",0,n_rows_out); // 14
-  Var j_out("j_out",0,n_cols_out); // 14
+  Var i_out("i_out",0,n_rows_out); // n_rows_out
+  Var j_out("j_out",0,n_cols_out); // n_cols_out
   Var k_out("k_out",0,n_channels_out);
   Var i_kernels("i_kernels",0,n_rows_kernel);
   Var j_kernels("j_kernels",0,n_cols_kernel);
   Var k_kernels("k_kernels",0,n_channels_kernel);
-  Var i_in("i_in",0,31);
-  Var j_in("j_in",0,31);
-  Var k_in("k_in",0,1);
-  std::unique_ptr<Computation> output= std::make_unique<Computation>("res",
-                std::vector<Var>({i_out,j_out,k_out,i_kernels,j_kernels,k_kernels}),
-                std::vector<Var>({i_out,j_out,k_out}),
+  Computation output("res",
+                {i_out,j_out,k_out,i_kernels,j_kernels,k_kernels},
+                {i_out,j_out,k_out},
                 padded_in(i_kernels + i_out*row_stride , j_kernels + j_out*col_stride , k_kernels) * kernels(i_kernels , j_kernels , k_kernels , k_out)
                 );
-  return *output;
+  return output;
+}
+/***********************************************************/
+Computation scaled_mean_pool_2d(Computation &input, const vector<size_t> &kernel_shape, const vector<size_t> &strides){
+  auto n_rows_in = input.iterator_variables()[0].upper_bound();// 14 
+  auto n_cols_in = input.iterator_variables()[1].upper_bound();//14 
+  auto n_channels_in = input.iterator_variables()[2].upper_bound(); // 5
+  auto n_rows_kernel = kernel_shape[0]; // = 2
+  auto n_cols_kernel = kernel_shape[1]; // = 2
+  auto row_stride = strides[0]; 
+  auto col_stride = strides[1];
+  auto n_rows_out = n_rows_in / row_stride + (n_rows_in % row_stride > 0 ? 1 : 0);
+  auto n_cols_out = n_cols_in / col_stride + (n_cols_in % col_stride > 0 ? 1 : 0);
+  auto n_channels_output = n_channels_in;
+  
+  /********************************************************************************/
+  Var i_output("i_out",0,1); // n_rows_out
+  Var j_output("j_out",0,1); // n_cols_out
+  Var k_output("k_out",0,n_channels_output);
+  Var i_kernel("i_kernel",0,n_rows_kernel);
+  Var j_kernel("j_kernel",0,n_cols_kernel);
+
+  /********************************************************************************/
+  Computation output("scaled_mean_pool_2d",
+                {i_output,j_output,k_output,i_kernel,j_kernel},
+                {i_output,j_output,k_output},
+                input(i_kernel + i_output*row_stride , j_kernel + j_output*col_stride , k_output)
+                );
+  return output;
 }
 /***********************************************************/
 void matrix_mul(int m_a, int n_b, int n_a_m_b)
@@ -204,121 +262,38 @@ void matrix_mul(int m_a, int n_b, int n_a_m_b)
     //cline.set_output("C[" + to_string(i) + "][]");
     //C_row_encrypted.push_back(cline);
   }  
-
-  /******************
-  ifstream w1_is("w1.txt");
-  if (!w1_is)
-    throw invalid_argument("failed to open w1 file");
-  char delim = ' ';
-  auto w1_raw = load(w1_is, delim); 
-
-  auto row_stride = 2; // =2
-  auto col_stride = 2; // =2
-  Var i_out("i_out",0,2); // 14
-  Var j_out("j_out",0,2); // 14
-  Var k_out("k_out",0,5);
-  Var i_kernels("i_kernels",0,5);
-  Var j_kernels("j_kernels",0,5);
-  Var k_kernels("k_kernels",0,1);
-  Var i_in("i_in",0,31);
-  Var j_in("j_in",0,31);
-  Var k_in("k_in",0,1);
-  /****************************************
-  Var k_val("k_val",0,64);
-  Var k_val1("k_val1",0,8);
-  vector<integer> info = vector<integer>(64,1);
-  Input test({k_val1,k_val1},Type::plaintxt,info);
-  Input cipher("cipher",{k_val},Type::vectorciphertxt);
-  std::cout<<"resize ciphertext \n";
-  cipher.resize({k_val1,k_val1});
-  std::cout<<"resize following ciphertext \n";
-  cipher.resize({k_val1,j_kernels,i_out});
-  std::cout<<"resize plaintext \n";
-  test.resize({k_val1});
-  /****************************************
-  vector<integer> initial_inputs = w1_raw ;
-  Input padded_in ("padded_in",{i_in,j_in,k_in},Type::vectorciphertxt);
-  Input kernels ({i_kernels,j_kernels,k_kernels,k_out},Type::plaintxt,initial_inputs);
-  Computation res("res",{i_out,j_out,k_out,i_kernels,k_kernels,j_kernels},{i_out,j_out,k_out},padded_in(i_kernels + i_out*row_stride , j_kernels + j_out*col_stride , k_kernels)*kernels(i_kernels , j_kernels , k_kernels , k_out));
-  res.evaluate(true);*/
-  
-  /*****************************************************/
-  /*  Var i("i",0,m_a); 
-  Var j("j",0,m_a);
-  Var k("k",0,m_a);
-  Input A("A",{i,j,k},Type::vectorciphertxt);
-  Input B("B",{i,j,k},Type::vectorciphertxt);
-  Computation C("C", {i,j,k},{i,j,k},A(i,j,k)*B(i,j-2,k)); 
-  C.evaluate(true); */
-  /*****************************************************/
-  /*   Var i("i",0,m_a); 
-  Var j("j",0,m_a);
-  Var k("k",0,m_a);
-  Input A("A",{i,k},Type::vectorciphertxt);
-  Input B("B",{j,k},Type::vectorciphertxt);
-  Computation C("C", {i,j,k},{i,j},A(i,k)*B(j,k)); 
-  C.evaluate(true); */
-  /*****************************************************
-  Var i("i",0,m_a); 
-  Var j("j",0,m_a);
-  Var k("k",0,m_a);
-  Input B("tensor",{i,j,k},Type::vectorciphertxt);
-  Computation C("output", {i,j,k},{i,j},B(i,j,k)); 
-  C.evaluate(true); 
-  /*************************************************/
   /***************************Load variables *********************/
+  std::cout<<"start matrix mul \n";
   ifstream w1_is("w1.txt");
   if (!w1_is)
     throw invalid_argument("failed to open w1 file");
   char delim = ' ';
   auto w1_raw = load(w1_is, delim); 
-  vector<integer> b_raw = {64818,1519,391,64179,63483};
-  
-  size_t n_rows_kernel = 5; // 5
-  size_t n_cols_kernel = 5; //5 
+  //   vector<integer> b_raw = {64818,1519,391,64179,63483};
+  //vector<integer> b_raw = {64818,1519,391,64179};
+  vector<integer> b_raw = {648,151,391,641} ;
+  std::cout<<"next \n";
   vector<size_t> strides = {2, 2};
-  vector<size_t> kernel_shape = {5,5};
-  Var i("i",0,28);
-  Var j("j",0,28);
+  vector<size_t> mean_pool_kernel_shape = {2, 2};
+  vector<size_t> kernel_shape = {4,4};
+  Var i("i",0,10);
+  Var j("j",0,10);
   Var k("k",0,1);
-  Var k_out("k_out",0,5);
-  Var i_kernels("i_kernels",0,5);
-  Var j_kernels("j_kernels",0,5);
+  Var k_out("k_out",0,4);
+  Var i_kernels("i_kernels",0,4);
+  Var j_kernels("j_kernels",0,4);
   Input input("x",{i,j,k},Type::vectorciphertxt);
   Input b({i_kernels},Type::plaintxt,b_raw);
   Input kernels ({i_kernels,j_kernels,k,k_out},Type::plaintxt,w1_raw);
   Computation output = conv_2d(input, kernels, strides);
   output.evaluate(false);
-  Computation res = add(output,b);
-
-  /************************************
-  auto n_rows_in = input.iterator_variables()[0].upper_bound(); // 28
-  auto n_cols_in = input.iterator_variables()[1].upper_bound(); // 28
-  auto n_channels_in = input.iterator_variables()[2].upper_bound();
-  //auto n_rows_kernel = kernel_shape[0]; // 5
-  //auto n_cols_kernel = kernel_shape[1]; // 5
-  auto row_stride = strides[0];
-  auto col_stride = strides[1];
-
-  auto n_rows_out = (n_rows_in + 1) / row_stride; // 14
-  auto n_cols_out = (n_cols_in + 1) / col_stride; // 14
-                       // 13*2  +5 -28                                                        
-  auto pad_rows = max((n_rows_out - 1) * row_stride + n_rows_kernel - n_rows_in, 0UL); // 3 
-  auto pad_cols = max((n_cols_out - 1) * col_stride + n_cols_kernel - n_cols_in, 0UL);  // 3
-  // pad_rows = pad_cols = 3
-  auto pad_top = pad_rows / 2;
-  auto pad_bottom = pad_rows - pad_top;
-  auto pad_left = pad_cols / 2;
-  auto pad_right = pad_cols - pad_left;
-  n_rows_out = n_rows_in + pad_rows; // 31
-  n_cols_out = n_cols_in + pad_cols; // 31 
-  //Var i("i",0,n_rows_in) ;
-  //Var j("j",0,n_cols_in) ;
-  Var m("m", 0,n_rows_out) ;
-  Var l("l", 0,n_cols_out) ;
-  Computation C1("C1",{i,j,k},{m,l,k},input(i-pad_top,j-pad_left,k));
-  C1.evaluate(false);
-  /*******************************************/
+  Computation output1 = add(output,b);
+  output1.evaluate(false);
+  Computation output2 = square(output1);
+  output2.evaluate(false);
+  Computation output3 = scaled_mean_pool_2d(output2, mean_pool_kernel_shape, mean_pool_kernel_shape);
+  output3.evaluate(true);
+  /**********************/
 }
 
 int main(int argc, char **argv)
@@ -371,13 +346,14 @@ int main(int argc, char **argv)
   t = chrono::high_resolution_clock::now();
   string func_name = "matrix_mul" ;
   /******************************/
-  size_t slot_count = 8;
+  size_t slot_count = 4;
   int m_a = slot_count ;
   int n_a_m_b = slot_count ;
   int n_b = slot_count ;
   /*****************************/
-  Compiler::enable_scalar_vector_shape();
+  //Compiler::enable_scalar_vector_shape();
   const auto &func = Compiler::create_func(func_name, slot_count, 20, true, true);
+
   matrix_mul(m_a, n_b, n_a_m_b);
   string gen_name = "_gen_he_" + func_name;
   string gen_path = "he/" + gen_name;
@@ -412,3 +388,23 @@ int main(int argc, char **argv)
   } 
   return 0;
 }
+/*
+ vector<Ciphertext> input_ciphertexts ;
+  Ciphertext cline ; 
+  for (int i = 0; i < m_a; ++i)
+  {
+    Ciphertext line("X[" + to_string(i) + "]");
+    input_ciphertexts.push_back(line);
+  }
+  for (int i = 0; i < m_a; ++i)
+  {
+    vector<integer> mask = vector<integer>(m_a,0); 
+    mask[i]=1 ; 
+    if(i==0){
+      cline = input_ciphertexts[i]*mask ;
+    }else{
+      cline += (input_ciphertexts[i]>>i)*mask ;
+    }
+  }
+  cline.set_output("res");
+*/
