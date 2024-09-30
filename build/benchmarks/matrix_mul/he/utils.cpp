@@ -147,9 +147,6 @@ void get_clear_outputs(
     vector<uint64_t> clear_output(slot_count);
     encoder.decode(encoded_output, clear_output);
     clear_output.resize(func_slot_count);
-    for(auto val : clear_output)
-      std::cout<<val<<" ";
-    std::cout<<"\n";
     clear_outputs.emplace(encrypted_output.first, ClearArgInfo{move(clear_output), true, false});
   }
 
@@ -177,6 +174,9 @@ void print_encrypted_outputs_info(
     int remaining_noise_budget = decryptor.invariant_noise_budget(output.second);
     int noise_upper_bound = init_noise_budget - remaining_noise_budget;
     os << output.first << ": " << level << ", " << remaining_noise_budget << ", " << noise_upper_bound << '\n';
+    if(remaining_noise_budget<=0){
+        throw std::out_of_range("\n===>Remaining Noise budget for output : "+output.first+" is 0 !!\n");
+    }
   }
 }
 

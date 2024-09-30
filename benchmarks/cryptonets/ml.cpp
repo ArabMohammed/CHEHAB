@@ -13,7 +13,7 @@ vector<Ciphertext> predict(
     vector<size_t> b1_shape = {5};
     vector<size_t> b4_shape = {10};
     vector<size_t> b8_shape = {10};
-  */
+  */ 
   vector<size_t> conv_strides = {2, 2};
   vector<size_t> mean_pool_kernel_shape = {2, 2};
   // w1_shape = {5, 5, 1, 5};

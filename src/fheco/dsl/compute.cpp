@@ -195,12 +195,9 @@ namespace fheco {
             else if (expression_.type() == Type::vectorciphertxt){
                 std::vector<size_t> dimensions ={};
                 int slot_count = expresssion_args[expresssion_args.size()-1].upper_bound()-expresssion_args[expresssion_args.size()-1].lower_bound();
-                std::cout<<"dimensions :";
                 for(int i =0; i<expresssion_args.size()-1;i++){
                     dimensions.push_back(expresssion_args[i].upper_bound()-expresssion_args[i].lower_bound());
-                    std::cout<<expresssion_args[i].upper_bound()-expresssion_args[i].lower_bound()<<" ";
                 }
-                std::cout<<"\n";
                 
                 DynamicTensor<Ciphertext> ciphertexts = expression_.get_ciphertexts();
                 DynamicTensor<Ciphertext> updated_ciphertexts(dimensions,Ciphertext(PackedVal(1,0)));
@@ -268,7 +265,6 @@ namespace fheco {
     DynamicTensor<Ciphertext> Computation::evaluate_expression(Expression& expression ){
             if (expression.is_defined()){
                 if (expression.is_evaluated()) {
-                    std::cout<<"welcomeeee \n";
                     return expression.get_ciphertexts();
                 }
                 DynamicTensor<Ciphertext> result ;
@@ -405,21 +401,21 @@ namespace fheco {
                                                         //std::cout<<"reduction updated == mask : ";
                                                         vector<integer> mask = vector<integer>(mask_size,0); 
                                                         mask[ref_reduction_tuple.back()]=1;
-                                                        std::cout<<"reduction updated :";
+                                                        /*std::cout<<"reduction updated :";
                                                         for(auto val : ref_reduction_tuple){
                                                             std::cout<<val<<" : ";
                                                         }  
-                                                        std::cout<<" \n";
+                                                        std::cout<<" \n";*/
                                                         //result(ref_reduction_tuple)=temp_res;
                                                     
                                                         vectorized_row = vectorized_row+(temp_res>>ref_reduction_tuple.back())*mask ;
                                                         if(row_updated==true){
                                                             sub_ref_reduction_tuple = std::vector<size_t>(ref_reduction_tuple.begin(), ref_reduction_tuple.end() - 1);
-                                                            std::cout<<"row updated :";
+                                                            /*std::cout<<"row updated :";
                                                             for(auto val : sub_ref_reduction_tuple){
                                                                 std::cout<<val<<" , ";
                                                             }   
-                                                            std::cout<<"\n";                                                          
+                                                            std::cout<<"\n";*/                                                        
                                                             result(sub_ref_reduction_tuple)=vectorized_row;
                                                             vectorized_row = Ciphertext(PackedVal(1,0));
                                                         }
@@ -558,7 +554,7 @@ namespace fheco {
                                         /**********************************************/
                                         int mask_size = output_dim_variables_.back().upper_bound()-output_dim_variables_.back().lower_bound();
                                         vector<integer> mask ;
-                                        bool is_vectorization_possible = false ; 
+                                        bool is_vectorization_possible = false ;  
                                         int reduction_size = Compiler::active_func()->slot_count();
                                         if(vars0[vars0.size()-1].same_as(vars1[vars1.size()-1])&&(reduction_size>1)){
                                             is_vectorization_possible = true ;
@@ -618,21 +614,21 @@ namespace fheco {
                                                         //std::cout<<"reduction updated == mask : ";
                                                         vector<integer> mask = vector<integer>(mask_size,0); 
                                                         mask[ref_reduction_tuple.back()]=1;
-                                                        std::cout<<"reduction updated :";
+                                                        /*std::cout<<"reduction updated :";
                                                         for(auto val : ref_reduction_tuple){
                                                             std::cout<<val<<" : ";
                                                         }  
-                                                        std::cout<<" \n";
+                                                        std::cout<<" \n";*/
                                                         //result(ref_reduction_tuple)=temp_res;
                                                     
                                                         vectorized_row = vectorized_row+(temp_res>>ref_reduction_tuple.back())*mask ;
                                                         if(row_updated==true){
                                                             sub_ref_reduction_tuple = std::vector<size_t>(ref_reduction_tuple.begin(), ref_reduction_tuple.end() - 1);
-                                                            std::cout<<"row updated :";
+                                                            /*std::cout<<"row updated :";
                                                             for(auto val : sub_ref_reduction_tuple){
                                                                 std::cout<<val<<" , ";
                                                             }   
-                                                            std::cout<<"\n";                                                          
+                                                            std::cout<<"\n"; */                                                      
                                                             result(sub_ref_reduction_tuple)=vectorized_row;
                                                             vectorized_row = Ciphertext(PackedVal(1,0));
                                                         }
@@ -877,7 +873,7 @@ namespace fheco {
                                                         mask[ref_reduction_tuple.back()]=1;
                                                         vectorized_row = vectorized_row+(temp_res>>ref_reduction_tuple.back())*mask ;
                                                         if(row_updated==true){
-                                                            std::cout<<"row updated \n";
+                                                            //std::cout<<"row updated \n";
                                                             sub_ref_reduction_tuple = std::vector<size_t>(ref_reduction_tuple.begin(), ref_reduction_tuple.end() - 1);
                                                             result(sub_ref_reduction_tuple)=vectorized_row;
                                                             vectorized_row = Ciphertext(PackedVal(1,0));
@@ -921,7 +917,6 @@ namespace fheco {
                                             std::cout<<"operation is not a reduction \n";
                                             std::vector<std::size_t> result_tuple = {} ,sub_ref_result_tuple={} , ref_result_tuple = {};
                                             generateNestedLoops(ranges,[&](const std::vector<int>& iterators) {   
-                                                std::cout<<"welcome \n";                                                                                                                                             
                                                 iterator_tuple ={};
                                                 int comp =0 ;
                                                 for (int val : iterators) {
@@ -932,7 +927,6 @@ namespace fheco {
                                                 arg0_tuple = calculateCurrentPos(iterator_variables_,vars0, iterator_tuple);
                                                 arg1_tuple = calculateCurrentPos(iterator_variables_,vars1, iterator_tuple);
                                                 result_tuple = calculateCurrentPos(iterator_variables_,output_dim_variables_, iterator_tuple);
-                                                std::cout<<"well\n";
                                                 int rotation0 = arg0_tuple[arg0_tuple.size()-1];
                                                 int rotation1 = arg1_tuple[arg1_tuple.size()-1];
                                                 if(arg0_tuple.size() > 1){
@@ -941,7 +935,6 @@ namespace fheco {
                                                 if(arg1_tuple.size()>1){
                                                     sub_arg1_tuple = std::vector<size_t>(arg1_tuple.begin(), arg1_tuple.end() - 1);
                                                 }else{ sub_arg1_tuple={0};} 
-                                                std::cout<<"positions specifying done \n";
                                                 mask = vector<integer>(mask_size,0); 
                                                 mask[result_tuple.back()]=1;
                                                 /*****************************************************************/
@@ -949,17 +942,7 @@ namespace fheco {
                                                     sub_ref_arg0_tuple = sub_arg0_tuple ;
                                                     sub_ref_arg1_tuple = sub_arg1_tuple;
                                                     ref_result_tuple = result_tuple ;
-                                                    std::cout<<"sub_arg0 :";
-                                                    for(auto val : sub_arg0_tuple)
-                                                        std::cout<<val<<" ";
-                                                    std::cout<<"\n";
-                                                    std::cout<<"sub_arg1 :";
-                                                    for(auto val : sub_arg1_tuple)
-                                                        std::cout<<val<<" ";
-                                                    std::cout<<"\n";
-                                                    std::cout<<"welcome cipher_id : "<<ciphertexts(sub_arg0_tuple).id()<<"plain_text :"<<plaintexts(sub_arg1_tuple).id()<<"rotation0 :"<<rotation0<<"rotation1"<<rotation1<<" \n";
                                                     temp_res = (((ciphertexts(sub_arg0_tuple)<<rotation0)+(plaintexts(sub_arg1_tuple)<<rotation1))>>ref_result_tuple.back())*mask ;
-                                                    std::cout<<"welcome in first step \n";
                                                 }else{                                    
                                                     bool row_updated = false ;
                                                     for(int i =0;i<result_tuple.size();i++){
@@ -971,7 +954,7 @@ namespace fheco {
                                                         }
                                                     }
                                                     if(row_updated){   
-                                                        std::cout<<"row updated \n"; 
+                                                        //std::cout<<"row updated \n"; 
                                                         sub_ref_result_tuple = std::vector<size_t>(ref_result_tuple.begin(), ref_result_tuple.end() - 1);
                                                         result(sub_ref_result_tuple)=temp_res ;
                                                         ref_result_tuple=result_tuple;
@@ -995,14 +978,12 @@ namespace fheco {
                                                     }  
                                                     is_arg0_vectorizble = true ;
                                                     is_arg1_vectorizble = true ; 
-                                                    std::cout<<"last step done \n";
                                                 }
                                                 return true ;
                                             });
                                             sub_ref_result_tuple = ref_result_tuple;
                                             sub_ref_result_tuple.pop_back();
                                             result(sub_ref_result_tuple)=temp_res ;
-                                            std::cout<<"---------------------work is finished ----------------------------------\n";
                                         }
                                 }
                                 /************************************************************************************************/
@@ -1090,7 +1071,7 @@ namespace fheco {
                                                         mask[ref_reduction_tuple[ref_reduction_tuple.size()-1]]=1;
                                                         vectorized_row = vectorized_row+(temp_res>>ref_reduction_tuple.back())*mask ;
                                                         if(row_updated==true){
-                                                            std::cout<<"row updated \n";
+                                                            //std::cout<<"row updated \n";
                                                             sub_ref_reduction_tuple = std::vector<size_t>(ref_reduction_tuple.begin(), ref_reduction_tuple.end() - 1);
                                                             result(sub_ref_reduction_tuple)=vectorized_row;
                                                             vectorized_row = Ciphertext(PackedVal(1,0));
@@ -1345,7 +1326,7 @@ namespace fheco {
                                                         mask[ref_reduction_tuple[ref_reduction_tuple.size()-1]]=1;
                                                         vectorized_row += temp_res*mask ;
                                                         if(row_updated==true){
-                                                            std::cout<<"row updated \n";
+                                                            //std::cout<<"row updated \n";
                                                             sub_ref_reduction_tuple = std::vector<size_t>(ref_reduction_tuple.begin(), ref_reduction_tuple.end() - 1);
                                                             result(sub_ref_reduction_tuple)=vectorized_row;
                                                             vectorized_row = Ciphertext(PackedVal(1,0));
@@ -1569,7 +1550,7 @@ namespace fheco {
                                                         mask[ref_reduction_tuple[ref_reduction_tuple.size()-1]]=1;
                                                         vectorized_row += temp_res*mask ;
                                                         if(row_updated==true){
-                                                            std::cout<<"row updated \n";
+                                                            //std::cout<<"row updated \n";
                                                             sub_ref_reduction_tuple = std::vector<size_t>(ref_reduction_tuple.begin(), ref_reduction_tuple.end() - 1);
                                                             result(sub_ref_reduction_tuple)=vectorized_row;
                                                             vectorized_row = Ciphertext(PackedVal(1,0));
@@ -1690,14 +1671,16 @@ namespace fheco {
                     default:
                         throw std::runtime_error("Undefined operation. Or unsupporetd operation");
                 }
-                std::cout<<"\n Returning the result in evaluate_expression\n";
                 return result ;
             }else{
                 throw invalid_argument("This expression is undefined \n");
             }
     }
+    
+    
     /***************************************************************************************************************************************/
     /***************************************************************************************************************************************/
+    
     void Computation::evaluate(bool is_output){
         bool have_same_variables = true ; 
         /*bool found = false ; 
@@ -1758,8 +1741,8 @@ namespace fheco {
                             ref_sum+=iterator_variables_[i].lower_bound();
                     }
                     /********************************************/
-                    std::vector<size_t> dimensions ;
-                    for(int i=0; i<output_dim_variables_.size()-1 ; i++){
+                    std::vector<size_t> dimensions = {} ;
+                    for(int i=0; i <output_dim_variables_.size()-1; i++){
                         dimensions.push_back(output_dim_variables_[i].upper_bound() - output_dim_variables_[i].lower_bound());
                     }
                     DynamicTensor<Ciphertext> result = DynamicTensor<Ciphertext>(dimensions); 
@@ -1788,6 +1771,10 @@ namespace fheco {
                         } 
                         /****************************************************************************/
                         arg0_tuple = calculateCurrentPos(iterator_variables_,vars0, iterator_tuple);
+                        /*std::cout<<"arg0_tuple :";
+                        for(auto val : arg0_tuple)
+                            std::cout<<val<<" ";
+                        std::cout<<"\n";*/
                         reduction_tuple = calculateCurrentPos(iterator_variables_,output_dim_variables_, iterator_tuple);
                         int rotation0 = arg0_tuple[arg0_tuple.size()-1];
                         if(arg0_tuple.size() > 1){
@@ -1797,7 +1784,7 @@ namespace fheco {
                         if(comp==ref_sum){
                             sub_ref_arg0_tuple = sub_arg0_tuple ;
                             ref_reduction_tuple = reduction_tuple ;
-                            temp_res_red = (ciphertexts0(sub_arg0_tuple)<<rotation0);
+                            temp_res_red = ciphertexts0(sub_arg0_tuple)<<rotation0;
                         }else{                                    
                             bool update = false;
                             bool row_updated = false ;
@@ -1811,9 +1798,12 @@ namespace fheco {
                                 }
                             }
                             if(update){    
+                                //std::cout<<"row updated :"<<ref_reduction_tuple.back()<<" \n";
+                                //result(ref_reduction_tuple)=temp_res;
                                 mask = vector<integer>(mask_size,0); 
-                                mask[ref_reduction_tuple[ref_reduction_tuple.size()-1]]=1;
+                                mask[ref_reduction_tuple.back()]=1; 
                                 vectorized_row = vectorized_row+(temp_res>>ref_reduction_tuple.back())*mask ;
+                                //vectorized_row = vectorized_row + temp_res*mask ;
                                 if(row_updated==true){
                                     sub_ref_reduction_tuple = std::vector<size_t>(ref_reduction_tuple.begin(), ref_reduction_tuple.end() - 1);
                                     result(sub_ref_reduction_tuple)=vectorized_row;
@@ -1825,15 +1815,18 @@ namespace fheco {
                             /****************************************************/
                             if(iterator_tuple[iterator_tuple.size()-1]==iterator_variables_[iterator_variables_.size()-1].lower_bound()){
                                 sub_ref_arg0_tuple = sub_arg0_tuple ;
-                                temp_res_red = (ciphertexts0(sub_arg0_tuple)<<rotation0);
+                                temp_res_red = ciphertexts0(sub_arg0_tuple)<<rotation0;
+                                //temp_res_red = ciphertexts0(sub_arg0_tuple);
                             }else{
                                 is_arg0_vectorizble=is_arg0_vectorizble&&(sub_ref_arg0_tuple==sub_arg0_tuple);
-                                temp_res_red += (ciphertexts0(sub_arg0_tuple)<<rotation0);    
+                                temp_res_red += ciphertexts0(sub_arg0_tuple)<<rotation0;    
+                                //temp_res_red += ciphertexts0(sub_arg0_tuple);    
                             }
                         }
                         /***************************************************/
                         if(iterator_tuple[iterator_tuple.size()-1]==iterator_variables_[iterator_variables_.size()-1].upper_bound()-1){
                             if(is_arg0_vectorizble&&is_vectorization_possible){
+                                std::cout<<"vectorization realised \n";
                                 temp_res += SumVec(ciphertexts0(sub_arg0_tuple),reduction_size);
                             }else{
                                 temp_res += temp_res_red;
@@ -1845,13 +1838,15 @@ namespace fheco {
                     mask = vector<integer>(mask_size,0); 
                     mask[mask_size-1]=1;
                     vectorized_row = vectorized_row+(temp_res>>ref_reduction_tuple.back())*mask ;
+                    //vectorized_row = vectorized_row+temp_res*mask ;
                     sub_ref_reduction_tuple = std::vector<size_t>(ref_reduction_tuple.begin(), ref_reduction_tuple.end() - 1);                
-                    result(sub_ref_reduction_tuple) = vectorized_row; 
-                    result_ciphertexts1 = result ;
+                    result(sub_ref_reduction_tuple)=vectorized_row;
+                    //result(ref_reduction_tuple) = temp_res; 
+                    result_ciphertexts1 = result ; 
                 }
                 /*********************************************************************/
                 else{
-                    std::cout<<"welcome in assignment operation == \n";
+                    //std::cout<<"welcome in assignment operation == \n";
                     DynamicTensor<Ciphertext> ciphertexts = input_expression.get_ciphertexts();
                     std::vector<std::vector<int>> ranges = {};
                     for (int i=0; i<output_dim_variables_.size()-1; i++) {
@@ -1860,12 +1855,12 @@ namespace fheco {
                             ranges.push_back(tup);
                     }
                     std::vector<size_t> dimensions ;
-                    std::cout<<"dimensions :";
+                    //std::cout<<"dimensions :";
                     for(int i=0; i<output_dim_variables_.size()-1 ; i++){
                         dimensions.push_back(output_dim_variables_[i].upper_bound() - output_dim_variables_[i].lower_bound());
-                        std::cout<<dimensions[i]<<" : ";
+                        //std::cout<<dimensions[i]<<" : ";
                     }
-                    std::cout<<"\n";
+                    //std::cout<<"\n";
                     /*************************************/
                     DynamicTensor<Ciphertext> result = DynamicTensor<Ciphertext>(dimensions); 
                     std::vector<size_t> ref_reduction_tuple ={} ,sub_ref_reduction_tuple ={},iterator_tuple ={};
@@ -1897,7 +1892,6 @@ namespace fheco {
                 }
                 /*********************************************************************/
                 /*********************************************************************/
-                std::cout<<"End of expression evaluation \n";          
                 expression_.set_is_evaluated(true);
                 is_evaluated_ = true ;
                 if(is_output){
@@ -1907,7 +1901,7 @@ namespace fheco {
                         vector<size_t> dimensions ;
                         int dim = 0 ;
                         std::vector<std::vector<int>> ranges = {};
-                        for (int i =0 ; i<output_dim_variables_.size();i++) {
+                        for (int i =0 ; i<output_dim_variables_.size()-1;i++) {
                             int dim = output_dim_variables_[i].upper_bound() - output_dim_variables_[i].lower_bound();
                             ranges.push_back({0, dim, output_dim_variables_[i].increment_step()});
                         }
@@ -1921,7 +1915,7 @@ namespace fheco {
                                 name+="["+std::to_string(iterator_tuple[comp])+"]";
                                 comp+=1;
                             }
-                            std::cout<<"output : "<<name<<"\n";
+                            std::cout<<"set_output : "<<name<<"\n";
                             result_ciphertexts1(iterator_tuple).set_output(name);
                             return true ;
                         });    
@@ -1934,11 +1928,11 @@ namespace fheco {
                     expression_.set_args(output_dim_variables_);
                 }
                 expression_.set_ciphertexts(result_ciphertexts1);
-                std::cout<<"\n\n End of evaluation Successs !!!!!  \n";
+                //std::cout<<"\n\n End of evaluation Successs !!!!!  \n";
             
             }else{
                 DynamicTensor<Ciphertext> result_ciphertexts1 = evaluate_expression(input_expression);  
-                std::cout<<"End of expression evaluation \n";          
+                //std::cout<<"End of expression evaluation \n";          
                 expression_.set_is_evaluated(true);
                 is_evaluated_ = true ; 
                 if(is_output){
@@ -1976,7 +1970,7 @@ namespace fheco {
                     expression_.set_args(output_dim_variables_);
                 }
                 expression_.set_ciphertexts(result_ciphertexts1);
-                std::cout<<"\n\n End of evaluation Successs !!!!!  \n";
+                //std::cout<<"\n\n End of evaluation Successs !!!!!  \n";
             }
         }
     }

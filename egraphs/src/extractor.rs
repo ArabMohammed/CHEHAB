@@ -1,3 +1,4 @@
+
 use egg::*;
 use std::{
     cmp::Ordering,
@@ -86,7 +87,6 @@ where
         // Check if all children have their costs calculated
         let has_cost = |&id| self.costs.contains_key(&eg.find(id));
         if node.children().iter().all(has_cost) {
-            // costs: HashMap<Id, (f64, f64, f64, L)>,
             let costs = &self.costs;
 
             // Get the cost of a child e-class
@@ -108,42 +108,37 @@ where
             if node.children().len() == 2 {
                 // Get the operation of the current node
                 let op = node.display_op().to_string();
-
                 // Check if the operation is multiplication
                 if op == "*" {
                     // Get the first and second child nodes
                     let child_0 = node.children().iter().nth(0).unwrap();
                     let child_1 = node.children().iter().nth(1).unwrap();
-
                     // Find the corresponding enodes for the children in the e-graph
                     let child_0_enode = costs[&eg.find(*child_0)].3.clone();
                     let child_1_enode = costs[&eg.find(*child_1)].3.clone();
-
                     // Get the operations of the child enodes
                     let op_child_0 = child_0_enode.display_op().to_string();
                     let op_child_1 = child_1_enode.display_op().to_string();
-
                     // Determine if the operation is constant
                     let is_constant_op = |op: &str| match op {
                         "+" | "<<" | "*" | "-" | "square" => false,
                         _ => true,
                     };
-
                     // Check if one of the children is constant
                     let is_constant = is_constant_op(&op_child_0) || is_constant_op(&op_child_1);
-
                     // Apply cost adjustment if one of the children is constant
+                    if is_constant {
+                        op_costs -= 99.0 * OP;
+                    }
                 }
-
                 let child_0 = node.children().iter().nth(0).unwrap();
                 let child_1 = node.children().iter().nth(1).unwrap();
 
                 // If both children are the same, subtract the cost of one child
-                /**************************To verify ***************************************/
                 if child_0 == child_1 {
                     return Some((depth, mul_depth, op_costs - costs[&eg.find(*child_1)].2));
                 }
-                /***************************************************************************/
+
                 let sub_classes_class_0 = map.get(&child_0).unwrap();
                 let sub_classes_class_1 = map.get(&child_1).unwrap();
 
@@ -160,7 +155,7 @@ where
                     .intersection(sub_classes_class_1)
                     .cloned()
                     .collect::<HashSet<Id>>();
-                // reduce the cost of shared e-classes from the op_costs 
+
                 for id in shared_sub_classes {
                     let node = costs[&eg.find(id)].3.clone();
 
@@ -175,15 +170,14 @@ where
                         _ => LITERAL,
                     };
 
-                    op_costs -= op_cost; 
-                } 
+                    op_costs -= op_cost;
+                }
                 return Some((depth, mul_depth, op_costs));
             } else {
                 // If the node has more than two children, return the calculated cost
                 return Some((depth, mul_depth, op_costs));
             }
         }
-
         // Return None if the cost cannot be calculated
         None
     }
@@ -212,34 +206,30 @@ where
     /// - None
     fn find_costs(&mut self) {
         let mut did_something = true;
-        // store the eclass ids of the desecndants e-classes of an eclass
         let mut sub_classes: HashMap<Id, HashSet<Id>> = HashMap::new();
+
         // Iterate until no more changes are detected
         while did_something {
             did_something = false;
-            // did_something remains false when the cost of eclasses 
-            // doesnt change 
+
             for class in self.egraph.classes() {
-                // calculate the cost of an eclass 
-                if class.nodes.len()> 0 {
-                    let pass = self.make_pass(&mut sub_classes, class);
-                    match (self.costs.get(&class.id), pass) {
-                        // If the cost is calculated for the first time
-                        (None, Some(new)) => {
-                            self.costs.insert(class.id, new);
+                let pass = self.make_pass(&mut sub_classes, class);
+                match (self.costs.get(&class.id), pass) {
+                    // If the cost is calculated for the first time
+                    (None, Some(new)) => {
+                        self.costs.insert(class.id, new);
+                        did_something = true;
+                    }
+                    // If the cost is already calculated and there is a change
+                    (Some(old), Some(new)) => {
+                        if ALPHA * new.0 + BETA * new.1 + GAMMA * new.2
+                            != ALPHA * old.0 + BETA * old.1 + GAMMA * old.2
+                        {
                             did_something = true;
                         }
-                        // If the cost is already calculated and there is a change
-                        (Some(old), Some(new)) => {
-                            if ALPHA * new.0 + BETA * new.1 + GAMMA * new.2
-                                != ALPHA * old.0 + BETA * old.1 + GAMMA * old.2
-                            {
-                                did_something = true;
-                            }
-                            self.costs.insert(class.id, new);
-                        }
-                        _ => (),
+                        self.costs.insert(class.id, new);
                     }
+                    _ => (),
                 }
             }
         }
@@ -289,16 +279,11 @@ where
         let nodes = eclass.nodes.clone();
 
         // Find the e-node with the minimum cost
-/*         let (cost, node) = nodes
-            .iter()
-            .map(|n| (self.node_total_cost(n, sub_classes), n))// claculate the cost of an enode
-            .min_by(|a, b| Self::cmp(&a.0, &b.0))
-            .unwrap_or_else(|| panic!("Can't extract, eclass is empty: {:#?}", eclass)); */
         let (cost, node) = nodes
-        .iter()
-        .map(|n| (self.node_total_cost(n, sub_classes), n))// claculate the cost of an enode
-        .min_by(|a, b| Self::cmp(&a.0, &b.0))
-        .unwrap_or_else(||panic!("Can't extract, eclass is empty: {:#?}", eclass));
+            .iter()
+            .map(|n| (self.node_total_cost(n, sub_classes), n))
+            .min_by(|a, b| Self::cmp(&a.0, &b.0))
+            .unwrap_or_else(|| panic!("Can't extract, eclass is empty: {:#?}", eclass));
 
         match cost {
             // If no valid cost could be calculated, return None
@@ -307,8 +292,6 @@ where
             // If a valid cost is found
             Some(cost) => {
                 // Update the hierarchy for the e-class based on the best e-node
-                //  for_each():  Runs a given function on each child `Id`.
-                // get the list of descendants eclasses of the a node 
                 node.for_each(|id| {
                     node_sub_classes.insert(id);
                     node_sub_classes = node_sub_classes

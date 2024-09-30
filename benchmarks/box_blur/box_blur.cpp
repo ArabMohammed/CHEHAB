@@ -43,6 +43,28 @@ void box_blur(size_t width)
                               img(x+1,y-1)*kernel[2][0]+img(x+1,y)*kernel[2][1]+img(x+1,y+1)*kernel[2][2]);
   C.evaluate(true);
   /********************************************/
+  // start by working on a ciphertext of dimensions 4*4
+  vector<integer> kernel = {1, 1, 1, 1, 8, 1,1, 1, 1};
+  Ciphertext img("img");
+  for(int x =0 ; x<4 ; x++){
+    for(int y=0; y<4 ; y++){
+      vector<integer> mask = vector<integer>(16,0);
+      for(int i=0 ; i<3 ; i++){
+        for(int j=0 ; j<3 ; j++){
+           mask[((x+i)*n_rows_image+(y+j))%N]=kernel[i+1][j+1]
+        }
+      }
+    }
+  }
+  Ciphertext top_row = img >> width; img(x-1,y)
+  Ciphertext bottom_row = img << width;
+  Ciphertext top_sum = kernel[0][0] * (top_row >> 1) + kernel[0][1] * top_row + kernel[0][2] * (top_row << 1);
+  Ciphertext curr_sum = kernel[1][0] * (img >> 1) + kernel[1][1] * img + kernel[1][2] * (img << 1);
+  Ciphertext bottom_sum =
+  kernel[2][0] * (bottom_row >> 1) + kernel[2][1] * bottom_row + kernel[2][2] * (bottom_row << 1);
+  Ciphertext result = top_sum + curr_sum + bottom_sum;
+  result.set_output("result");
+
 }
 void print_bool_arg(bool arg, const string &name, ostream &os)
 {

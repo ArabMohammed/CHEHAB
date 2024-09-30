@@ -1,105 +1,259 @@
-import random
-class Matrix : 
-   
-    def __init__(self, nb_rows,nb_cols):
-        self.nb_rows = nb_rows
-        self.nb_cols = nb_cols 
+import numpy as np
+"""
+# Parameters
+n_elements_input = 9  # Number of elements in 1D input
+stride = 2  # Stride for the 1D convolution
+n_elements_kernel = 3  # Size of the kernel
+n_channels_input = 3  # Input channels (e.g., multiple feature maps)
+n_channels_output = 2  # Output channels
+
+# Input and Kernel (Random initialization for demonstration purposes)
+# in this case we have an image of 30 pixels with each pixel of 3 elements
+input_sequence = np.random.randint(0,2,(n_elements_input, n_channels_input))
+kernel = np.random.randint(0,10,(n_elements_kernel, n_channels_input, n_channels_output))
+
+# Output size calculation
+n_elements_out = int(n_elements_input / stride + n_elements_input % stride)
+
+# Initialize output array
+output_sequence = np.zeros((n_elements_out, n_channels_output))
+
+# Perform 1D convolution with stride
+element_offset = 0
+for i_out in range(n_elements_out):
+    for k_out in range(n_channels_output):
+        # Apply kernel for each output channel
+        for i_kernel in range(n_elements_kernel):
+            for k_input in range(n_channels_input):
+                if (i_kernel + element_offset) < n_elements_input:
+                    print(f"input : {(i_kernel + element_offset, k_input)}, kernel :{(i_kernel, k_input, k_out)} ")
+                    output_sequence[i_out, k_out] += (
+                        input_sequence[i_kernel + element_offset, k_input] * kernel[i_kernel, k_input, k_out]
+                    )
+        print(f"output : {(i_out, k_out)}")
+    element_offset += stride  # Update offset for stride
+############################################################
+element_offset = 0
+for i_out in range(n_elements_out):
+    for k_out in range(n_channels_output):
+        # Apply kernel for each output channel
+        vector<vector<size_t>> mask = vector<vector<size_t>(size_image,0),n_channels_input>
+        for i_kernel in range(n_elements_kernel):
+            for k_input in range(n_channels_input):
+                if (i_kernel + element_offset) < n_elements_input:
+                    print(f"input : {(i_kernel + element_offset, k_input)}, kernel :{(i_kernel, k_input, k_out)} ")
+                    output_sequence[i_out, k_out] += (
+                        input_sequence[i_kernel + element_offset, k_input] * kernel[i_kernel, k_input, k_out]
+                    )
+                ############################################
+                mask[k_input][i_kernel + element_offset]=kernel[i_kernel, k_input, k_out]
+        output_sequence[i_out, k_out]=Reduc(mask[k_input]*input_image[k_input]) for k_input in range(3)
+        
+        print(f"output : {(i_out, k_out)}")
+    element_offset += stride  # Update offset for stride
+
+# Display result
+print("Output sequence:")
+print(output_sequence)
+##############################################"
+input : (0, 0), kernel :(0, 0, 0)  
+input : (0, 1), kernel :(0, 1, 0) 
+input : (0, 2), kernel :(0, 2, 0) 
+input : (1, 0), kernel :(1, 0, 0) 
+input : (1, 1), kernel :(1, 1, 0) 
+input : (1, 2), kernel :(1, 2, 0) 
+input : (2, 0), kernel :(2, 0, 0) 
+input : (2, 1), kernel :(2, 1, 0) 
+input : (2, 2), kernel :(2, 2, 0)
+output (0,0)
+
+input(0,0) kernel :(0, 0, 0) 
+input(1,0) kernel :(1, 0, 0)  => input(,0)*kernel(,0,0)* vec{1,1,1,0....}
+input(2,0) kernel :(2, 0, 0)  
+
+###########################
+input : (0, 1), kernel :(0, 1, 0) 
+input : (1, 1), kernel :(1, 1, 0) => input(,1)*kernel(,1,0)*vec{1,1,1,0...}
+input : (2, 1), kernel :(2, 1, 0) 
+#########################
+input : (0, 2), kernel :(0, 2, 0) 
+input : (1, 2), kernel :(1, 2, 0) => intpu(,2)*kernel(,2,0)*vec{1,1,1,0.....}
+input : (2, 2), kernel :(2, 2, 0)
+#####################################################
+####################################################
+output (0,1)
+input : (0, 0), kernel :(0, 0, 1) 
+input : (0, 1), kernel :(0, 1, 1) 
+input : (0, 2), kernel :(0, 2, 1) 
+input : (1, 0), kernel :(1, 0, 1) 
+input : (1, 1), kernel :(1, 1, 1) 
+input : (1, 2), kernel :(1, 2, 1) 
+input : (2, 0), kernel :(2, 0, 1) 
+input : (2, 1), kernel :(2, 1, 1) 
+input : (2, 2), kernel :(2, 2, 1) 
+############################
+input : (0, 0), kernel :(0, 0, 1) 
+input : (1, 0), kernel :(1, 0, 1) => intput(,0)*kernel(,0,1)*vec{1,1,1,0.....}
+input : (2, 0), kernel :(2, 0, 1) 
+###########################
+input : (0, 1), kernel :(0, 1, 1) 
+input : (1, 1), kernel :(1, 1, 1) => intput(,1)*kernel(,1,1)*vec{1,1,1,0.....}
+input : (2, 1), kernel :(2, 1, 1) 
+########################
+input : (0, 2), kernel :(0, 2, 1) 
+input : (1, 2), kernel :(1, 2, 1) => intput(,2)*kernel(,2,1)*vec{1,1,1,0.....}
+input : (2, 2), kernel :(2, 2, 1) 
+#################################################
+#################################################
+input : (2, 0), kernel :(0, 0, 0) 
+input : (2, 1), kernel :(0, 1, 0) 
+input : (2, 2), kernel :(0, 2, 0) 
+input : (3, 0), kernel :(1, 0, 0) 
+input : (3, 1), kernel :(1, 1, 0) 
+input : (3, 2), kernel :(1, 2, 0) 
+input : (4, 0), kernel :(2, 0, 0) 
+input : (4, 1), kernel :(2, 1, 0) 
+input : (4, 2), kernel :(2, 2, 0) 
+#################################
+input : (2, 0), kernel :(0, 0, 0) 
+input : (3, 0), kernel :(1, 0, 0) => (intput(,0)<<stride)*kernel(,0,0)*vec{1,1,1,0.....} 
+input : (4, 0), kernel :(2, 0, 0) 
+#################################
+input : (2, 1), kernel :(0, 1, 0) 
+input : (3, 1), kernel :(1, 1, 0) => (intput(,1)<<stride)*kernel(,1,0)*vec{1,1,1,0.....} 
+input : (4, 1), kernel :(2, 1, 0) 
+#################################
+input : (2, 2), kernel :(0, 2, 0) 
+input : (3, 2), kernel :(1, 2, 0) => (intput(,2)<<stride)*kernel(,2,0)*vec{1,1,1,0.....} 
+input : (4, 2), kernel :(2, 2, 0) 
+#################################################
+#################################################
+"""
+
+"""
+def zero_pad_1d(signal, padding):
+    #Pads the input signal with zeros at both ends.
+    return [0] * padding + signal + [0] * padding
+
+def apply_kernel_1d(signal_slice, kernel):
+    #Applies the kernel to the given 1D signal slice.
+    return sum(signal_slice[i] * kernel[i] for i in range(len(kernel)))
+
+def manual_strided_convolution_1d(input_signal, kernel, stride, padding=0):
+    #Performs strided 1D convolution manually without NumPy.
+    # Input signal dimensions
+    n_input = len(input_signal)
     
-def generate_matrix(mat : Matrix): 
-    result = []
-    for i in range(mat.nb_rows): 
-        temp = []
-        for j in range(mat.nb_cols): 
-            temp.append(random.randrange(-5,5))
-        result.append(temp)
-    return result 
-def multiply_(A : Matrix,B : Matrix): 
-    C = Matrix(nb_rows=A.nb_rows,nb_cols=B.nb_cols)
-    result = []
-    result = [[sum(A.value[i][k] * B.value[k][j] for k in range(A.nb_cols)) for j in range(B.nb_cols)] for i in range(A.nb_rows)]
-    C.value = result
-    return C
+    # Kernel dimensions
+    n_kernel = len(kernel)
+    
+    # Pad the input signal
+    padded_signal = zero_pad_1d(input_signal, padding)
+    
+    # Calculate output dimensions
+    n_output = (n_input + 2 * padding - n_kernel) // stride + 1
+    
+    # Initialize the output array
+    output = [0] * n_output
+    
+    # Perform the convolution with the specified stride
+    for i_out in range(n_output):
+        # Extract the slice of the input signal corresponding to the current position
+        offset = i_out * stride
+        
+        # Extract the 1D slice and apply the kernel
+        signal_slice = padded_signal[offset:offset + n_kernel]
+        output[i_out] = apply_kernel_1d(signal_slice, kernel)
+    
+    return output
+
+# Example usage
+input_signal = [1, 2, 3, 4, 5, 6, 7, 8]  # Example input signal (1D array)
+kernel = [1, 0, -1]  # Example kernel (1D filter)
+stride = 2  # Stride value
+padding = 1  # Padding value
+
+# Perform manual strided 1D convolution
+output_signal = manual_strided_convolution_1d(input_signal, kernel, stride, padding)
+
+# Print the output
+print(output_signal)
+"""
+
+n_rows_image = 3 
+n_cols_image = 3
+N = n_rows_image*n_cols_image
+input_image = np.random.randint(0,2,(n_rows_image*n_cols_image))
+output_image = np.zeros((n_rows_image*n_cols_image))
+###################
+kernel = [[1,1,1],[1,-8,1],[1,1,1]]
+for x in range(n_rows_image):
+    for y in range(n_cols_image):
+        t=0 
+        for j in range(-1,2):
+            for i in range(-1,2):
+                print(f"kernel :{((j+1)*3)+i+1}, Image :{((x+i)*n_rows_image+(y+j))%N}")
+                t+=kernel[i+1][j+1]*input_image[((x+i)*n_rows_image+(y+j))%N]
+                output_image[(x*n_rows_image+y)%N]=2*input_image[(x*n_rows_image+y)%N]-t
+        print("Next ===>")
+#######################################################
+#######################################################
+kernel :0, Image :5
+kernel :1, Image :8
+kernel :2, Image :2
+kernel :3, Image :6
+kernel :4, Image :0
+kernel :5, Image :3
+kernel :6, Image :7
+kernel :7, Image :1
+kernel :8, Image :4
+##################
+kernel :0, Image :5   
+kernel :1, Image :8 => 
+kernel :2, Image :2
+"""
+# Image dimensions
+n_rows_image = 3
+n_cols_image = 3
+
+# Generate a random binary input image (values 0 or 1)
+input_image = np.random.randint(0, 2, (n_rows_image, n_cols_image))
+
+# Initialize the output image
+output_image = np.zeros((n_rows_image, n_cols_image))
+
+# Define a convolution kernel (Laplacian filter)
+kernel = [[1, 1, 1], [1, -8, 1], [1, 1, 1]]
+
+# Apply convolution
+for x in range(n_rows_image):
+    for y in range(n_cols_image):
+        t = 0  # Temporary variable for accumulation
+        # Loop over kernel positions
+        for j in range(0, 3):
+            for i in range(0, 3):
+                # Compute image coordinates with boundary checking (using modulo for wrapping)
+                img_x = (x + i -1) % n_rows_image
+                img_y = (y + j -1) % n_cols_image
+                # Access kernel and image values, perform convolution
+                print(f"kernel :({i},{j}), Image :({img_x},{img_y})")
+                t += kernel[i][j] * input_image[img_x, img_y]
+        print("next =====> ")
+        # Update the output image with the convolution result
+        output_image[x, y] = 2 * input_image[x, y] - t
+
+# Display input and output images
+print("Input Image:\n", input_image)
+print("Output Image:\n", output_image)
 ################################################
-function_slot_count= 64
-size_i = function_slot_count
-size_j = function_slot_count
-size_k = function_slot_count
-input = []
-b=[]
-output=[]
-################################
-##############################
-for i in range(size_i*size_j): 
-        temp = []
-        for j in range(size_k): 
-            temp.append(random.randrange(-5,5))
-        input.append(temp)
-##############################
-for k in range(size_k):
-    b.append(random.randrange(-5,5))
-##############################
-for i in range(size_i*size_j): 
-    temp=[]
-    for k in range(size_k):
-        temp.append(b[k]*input[i][k])
-    output.append(temp)
-##############################
-is_cipher = 1 
-is_signed = 1
-## writing matrix to file  
-with open("matrix_mul_io_example.txt","w") as file : 
-    nb_inputs= size_i*size_j + 1 
-    nb_outputs = size_i*size_j 
-    header = str(function_slot_count)+" "+str(nb_inputs)+" "+str(nb_outputs)+"\n"
-    file.write(header) 
-    rows=[]
-    for i in range(size_i*size_j):
-        nb_row = i // function_slot_count 
-        nb_col = i % function_slot_count 
-        row = "input[{}][{}]".format(nb_row,nb_col)+" "+str(is_cipher)+" "+str(is_signed)+" "+" ".join(str(num) for num in input[i])+"\n"
-        rows.append(row)
-    ###
-    row = "b"+" "+str(is_cipher)+" "+str(is_signed)+" "+" ".join(str(num) for num in b)+"\n"
-    rows.append(row)
-    file.writelines(rows)
-    ## outputs
-    rows=[] 
-    for i in range(size_i*size_j): 
-        nb_row = i // function_slot_count 
-        nb_col = i % function_slot_count 
-        row = "output[{}][{}]".format(nb_row,nb_col)+" "+str(is_cipher)+" "+str(is_signed)+" "+" ".join(str(num) for num in output[i])+"\n"
-        rows.append(row)
-    file.writelines(rows)
-  Var i("i",0,m_a);
-  Var j("j",0,m_a);
-  Var k("k",0,m_a);
-  Input input("input",{i,j,k},Type::vectorciphertxt);
-  Input b("b",{k},Type::vectorciphertxt);
-  Computation output("output",{i,j,k},input(i,j,k)*b(k)); 
-  output.evaluate(true);
-  */
-/******************************************************/
- /*  Var i("i",0,m_a); 
-  Var j("j",0,m_a);
-  Var k("k",0,m_a);
-  Input A("A",{i,k},Type::vectorciphertxt);
-  Input B("B",{j,k},Type::vectorciphertxt);
-  Computation C("C", {i,j,k},{i,j},A(i,k)*B(j,k)); 
-  C.evaluate(true);  */
-/*******************************************************/
-  auto row_stride = 2; // =2
-  auto col_stride = 2; // =2
-  Var i_out("i_out",0,2); // 14
-  Var j_out("j_out",0,2); // 14
-  Var k_out("k_out",0,5);
-  Var i_kernels("i_kernels",0,5);
-  Var j_kernels("j_kernels",0,5);
-  Var k_kernels("k_kernels",0,1);
-  Var i_in("i_in",0,31);
-  Var j_in("j_in",0,31);
-  Var k_in("k_in",0,1);
-  Input padded_in ("padded_in",{i_in,j_in,k_in},Type::vectorciphertxt);
-  Input kernels ("kernel",{i_kernels,j_kernels,k_kernels,k_out},Type::vectorciphertxt);
-  Computation res("res",{i_out,j_out,k_out,i_kernels,k_kernels,j_kernels},{i_out,j_out,k_out},padded_in(i_kernels + i_out*row_stride , j_kernels + j_out*col_stride , k_kernels)*kernels(i_kernels , j_kernels , k_kernels , k_out));
-  res.evaluate(true);
-  /*********************************************************/
+################################################
+kernel :(0,0), Image :(2,2)
+kernel :(1,0), Image :(0,2)
+kernel :(2,0), Image :(1,2)
+kernel :(0,1), Image :(2,0)
+kernel :(1,1), Image :(0,0)
+kernel :(2,1), Image :(1,0)
+kernel :(0,2), Image :(2,1)
+kernel :(1,2), Image :(0,1)
+kernel :(2,2), Image :(1,1)
+"""

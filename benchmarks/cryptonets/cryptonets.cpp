@@ -48,7 +48,7 @@ void cryptonets(integer modulus)
   if (!b8_is)
     throw invalid_argument("failed to open b8 file");
 
-  char delim = ' ';
+  char delim = ' '; 
   /*******************************************************/
   /*******************************************************/
   vector<vector<vector<vector<integer>>>> w1_vals;

@@ -54,7 +54,7 @@ public:
         if (this == &other) {
             return *this;  // Handle self-assignment
         }
-        std::cout << "Move assignment operator ==> \n";
+        //std::cout << "Move assignment operator ==> \n";
 
         dimensions_ = std::move(other.dimensions_);
         data_ = std::move(other.data_);
