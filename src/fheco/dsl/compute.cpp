@@ -294,13 +294,13 @@ namespace fheco {
                                 /*************************************************************************************************/
                                 else if(lhs.type()==Type::ciphertxt&&rhs.type()==Type::ciphertxt){
                                     int len = rhs.get_args().size();
-                                        int reduction_size=rhs.get_args()[len-1].upper_bound()-rhs.get_args()[len-1].lower_bound();                                            
-                                        DynamicTensor<Ciphertext> ciphertexts0=evaluate_expression(lhs) ; 
-                                        DynamicTensor<Ciphertext> ciphertexts1=evaluate_expression(rhs);
-                                        result = DynamicTensor<Ciphertext>({1});
-                                    if(expression.is_reduction()&&reduction_size>1){
-                                        result({0})=SumVec(ciphertexts0({0})*ciphertexts1({0}),reduction_size); 
-                                    }{
+                                    int reduction_size=rhs.get_args()[len-1].upper_bound()-rhs.get_args()[len-1].lower_bound();                                            
+                                    DynamicTensor<Ciphertext> ciphertexts0=evaluate_expression(lhs) ; 
+                                    DynamicTensor<Ciphertext> ciphertexts1=evaluate_expression(rhs);
+                                    result = DynamicTensor<Ciphertext>({1});
+                                    if(expression.is_reduction()&&(reduction_size>1)){
+                                        result({0})= SumVec(ciphertexts0({0})*ciphertexts1({0}),reduction_size); 
+                                    }else{
                                         result({0})= ciphertexts0({0})*ciphertexts1({0}); 
                                     }
                                 }
@@ -759,7 +759,7 @@ namespace fheco {
                                         reduction_size=reduction_size*(lhs.get_args().back().upper_bound()-lhs.get_args().back().lower_bound());
                                     }
                                     if(expression.is_reduction()&&reduction_size>1){ 
-                                            result({0})=SumVec(plaintexts({0})+ciphertexts({0}),reduction_size); 
+                                        result({0})=SumVec(plaintexts({0})+ciphertexts({0}),reduction_size); 
                                     }else{
                                         result({0})=plaintexts({0})+ciphertexts({0}); 
                                     }
@@ -773,7 +773,7 @@ namespace fheco {
                                     result = DynamicTensor<Ciphertext>({1});
                                     if(expression.is_reduction()&&reduction_size>1){
                                         result({0})=SumVec(ciphertexts0({0})+ciphertexts1({0}),reduction_size); 
-                                    }{
+                                    }else{
                                         result({0})= ciphertexts0({0})+ciphertexts1({0}); 
                                     }
                                 }
@@ -1223,9 +1223,9 @@ namespace fheco {
                                     DynamicTensor<Ciphertext> ciphertexts1=evaluate_expression(rhs);
                                     result = DynamicTensor<Ciphertext>({1});
                                     if(expression.is_reduction()){
-                                        result({0})=SumVec(ciphertexts0({0})+ciphertexts1({0}),reduction_size); 
-                                    }{
-                                        result({0})= ciphertexts0({0})+ciphertexts1({0}); 
+                                        result({0})=SumVec(ciphertexts0({0})-ciphertexts1({0}),reduction_size); 
+                                    }else{
+                                        result({0})= ciphertexts0({0})-ciphertexts1({0}); 
                                     }
                                 }
                                 /************************************************************************************************/

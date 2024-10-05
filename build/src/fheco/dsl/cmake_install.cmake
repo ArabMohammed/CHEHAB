@@ -1,4 +1,4 @@
-# Install script for directory: /home/ma9232/CHEHAB/src/fheco/dsl
+# Install script for directory: /home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/dsl
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -29,7 +29,7 @@ endif()
 
 # Install shared libraries without execute permission?
 if(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
-  set(CMAKE_INSTALL_SO_NO_EXE "0")
+  set(CMAKE_INSTALL_SO_NO_EXE "1")
 endif()
 
 # Is this installation the result of a crosscompile?
@@ -37,23 +37,23 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
   set(CMAKE_CROSSCOMPILING "FALSE")
 endif()
 
-# Set path to fallback-tool for dependency-resolution.
+# Set default install directory permissions.
 if(NOT DEFINED CMAKE_OBJDUMP)
   set(CMAKE_OBJDUMP "/usr/bin/objdump")
 endif()
 
-if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/FHECO/fheco/dsl" TYPE FILE FILES
-    "/home/ma9232/CHEHAB/src/fheco/dsl/ciphertext.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/dsl/common.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/dsl/compiler.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/dsl/ops_overloads.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/dsl/plaintext.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/dsl/expression.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/dsl/input.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/dsl/var.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/dsl/compute.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/dsl/tensor.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/dsl/ciphertext.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/dsl/common.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/dsl/compiler.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/dsl/ops_overloads.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/dsl/plaintext.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/dsl/expression.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/dsl/input.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/dsl/var.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/dsl/compute.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/dsl/tensor.hpp"
     )
 endif()
 

@@ -1,1 +1,1 @@
-/home/ma9232/.conda/envs/myenv/bin/c++ CMakeFiles/matrix_mul.dir/matrix_mul.cpp.o -o matrix_mul  ../../libfheco.a
+/usr/bin/c++ CMakeFiles/matrix_mul.dir/matrix_mul.cpp.o -o matrix_mul  ../../libfheco.a 

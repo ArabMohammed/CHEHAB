@@ -22,8 +22,8 @@ pub fn run(lines: &Vec<&str>,timeout: u64,slot_count: usize,axiomatic: bool,enab
         let expr: RecExpr<FheLang> = line.parse().unwrap();
         runner = runner.with_expr(&expr)
     } 
-    let node_limit : usize = 100000 ; 
-    let time_limit : u64 = 200 ;
+    let node_limit : usize = 50000 ; 
+    let time_limit : u64 = 60 ;
     let iter_limit : usize = 10000 ; 
     println!("\n\n starting runner with node_limit : {}, time_limit : {}, iteration_limit : {} \n",node_limit,time_limit,iter_limit);
     runner = runner.with_node_limit(node_limit)

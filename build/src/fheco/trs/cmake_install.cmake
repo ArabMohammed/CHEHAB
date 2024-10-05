@@ -1,4 +1,4 @@
-# Install script for directory: /home/ma9232/CHEHAB/src/fheco/trs
+# Install script for directory: /home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/trs
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -29,7 +29,7 @@ endif()
 
 # Install shared libraries without execute permission?
 if(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
-  set(CMAKE_INSTALL_SO_NO_EXE "0")
+  set(CMAKE_INSTALL_SO_NO_EXE "1")
 endif()
 
 # Is this installation the result of a crosscompile?
@@ -37,24 +37,24 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
   set(CMAKE_CROSSCOMPILING "FALSE")
 endif()
 
-# Set path to fallback-tool for dependency-resolution.
+# Set default install directory permissions.
 if(NOT DEFINED CMAKE_OBJDUMP)
   set(CMAKE_OBJDUMP "/usr/bin/objdump")
 endif()
 
-if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/FHECO/fheco/trs" TYPE FILE FILES
-    "/home/ma9232/CHEHAB/src/fheco/trs/common.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/trs/fold_op_gen_matcher.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/trs/op_gen_matcher.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/trs/op_gen_op_code.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/trs/ops_overloads.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/trs/rule.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/trs/ruleset.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/trs/substitution.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/trs/term_matcher.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/trs/term_op_code.hpp"
-    "/home/ma9232/CHEHAB/src/fheco/trs/trs.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/trs/common.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/trs/fold_op_gen_matcher.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/trs/op_gen_matcher.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/trs/op_gen_op_code.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/trs/ops_overloads.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/trs/rule.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/trs/ruleset.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/trs/substitution.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/trs/term_matcher.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/trs/term_op_code.hpp"
+    "/home/moh/PFE_Homorphic_encryption/EqualitySaturationHallideSyntax/CHEHAB/src/fheco/trs/trs.hpp"
     )
 endif()
 

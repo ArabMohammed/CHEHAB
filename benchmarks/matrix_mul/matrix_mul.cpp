@@ -159,7 +159,7 @@ Computation square(const Computation &input)
 Computation conv_2d(const Input &input, const Input &kernels,const vector<size_t> &strides)
 {
   // input   {28,28,1}
-  // kernel  {5, 5, 1, 5};
+  // kernel  {5, 5, 1, 5}; 
   // strides = {2,2}
   std::cout<<"==> start conv_2d Function\n";
   auto n_channels_in = input.iterator_variables()[2].upper_bound();

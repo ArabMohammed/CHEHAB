@@ -235,9 +235,9 @@ Ciphertext rotate(const Ciphertext &arg, int steps)
   int real_slot_count = 4096 ;
   if (steps >= signed_slot_count || steps < 0)
   {
-    if(signed_slot_count)
     steps %= signed_slot_count;
-    if (steps < 0)
+    std::cout<<"rotations in ops_overloads :"<<steps<<" \n";
+    if (steps < 0) 
       steps += real_slot_count;
   }
   
