@@ -43,10 +43,10 @@ exceptions = ["max","sort"]
 ###############################
 ### specify the number of iteration  
 ###### Configurations ##############
-cse_enabled = 1 
-vectorize_code = 1
+cse_enabled = 0 
+vectorize_code = 0
 slot_counts= [4,8,16]
-iterations = 5
+iterations = 3 
 window_size = 0
 depths = [5,10]
 regimes = ["50-50","100-50","100-100"]

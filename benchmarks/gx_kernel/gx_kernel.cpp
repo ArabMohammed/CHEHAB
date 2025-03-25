@@ -9,7 +9,7 @@ using namespace fheco;
 #include <vector>
 #include "../global_variables.hpp"  
 /*****************************/
-void fhe_vectorized(int width){
+void fhe_vectorized(int width){ 
   vector<vector<integer>> kernel = {{1, 0, 1}, {2, 0, 2}, {1, 0, 1}};
   Ciphertext img("img");
   Ciphertext top_row = img >> width;
@@ -44,9 +44,9 @@ void fhe(int width){
   // Traverse each pixel in the output image
   for (int i = 1; i <= height; ++i) {
     for (int j = 1; j <= width; ++j) {
-        Ciphertext top_sum = padded_image[i - 1][j - 1] * 1 + padded_image[i - 1][j + 1] * 1;
-        Ciphertext curr_sum = padded_image[i][j - 1] * 2 + padded_image[i][j + 1] * 2 ;
-        Ciphertext bottom_sum = padded_image[i + 1][j - 1] * 1 + padded_image[i + 1][j + 1] * 1;
+        Ciphertext top_sum = padded_image[i - 1][j - 1] * (-1) + padded_image[i - 1][j + 1] * 1;
+        Ciphertext curr_sum = padded_image[i][j - 1] * (-2) + padded_image[i][j + 1] * 2 ;
+        Ciphertext bottom_sum = padded_image[i + 1][j - 1] * (-1) + padded_image[i + 1][j + 1] * 1;
         output[i - 1][j - 1] = top_sum + curr_sum + bottom_sum;
     }
   }
