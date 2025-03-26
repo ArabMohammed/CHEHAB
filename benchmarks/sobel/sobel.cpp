@@ -138,7 +138,6 @@ int main(int argc, char **argv)
   /**************/t = chrono::high_resolution_clock::now();
   if (vectorize_code)
   {
-      int benchmark_type = STRUCTURED_WITH_MULTIPLE_OUTPUTS;
       const auto &func = Compiler::create_func(func_name, 1, 20, false, true);
       fhe(slot_count);
       string gen_name = "_gen_he_" + func_name;
@@ -150,7 +149,7 @@ int main(int argc, char **argv)
       if (!source_os) 
         throw logic_error("failed to create source file");
       cout << " window is " << window << endl;
-      Compiler::gen_vectorized_code(func, window, benchmark_type);
+      Compiler::gen_vectorized_code(func, window);
       auto ruleset = Compiler::Ruleset::depth;
       auto rewrite_heuristic = trs::RewriteHeuristic::bottom_up;
       Compiler::compile(func, ruleset, rewrite_heuristic, header_os, gen_name + ".hpp", source_os);
@@ -166,7 +165,6 @@ int main(int argc, char **argv)
   }
   else
   {
-      int benchmark_type = STRUCTURED_WITH_MULTIPLE_OUTPUTS;
       const auto &func = Compiler::create_func(func_name,slot_count*slot_count, 20, false, true);
       // update io file 
       std::string updated_inputs_file_name = "fhe_io_example_adapted.txt" ;

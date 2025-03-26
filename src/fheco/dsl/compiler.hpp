@@ -56,11 +56,11 @@ public:
   static ir::Term *build_expression(
   const std::shared_ptr<ir::Func> &func, std::map<string, ir::Term *> map, queue<string> &tokens);
   
-  static void gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int benchmark_type);
+  static void gen_vectorized_code(const std::shared_ptr<ir::Func> &func);
 
-  static void format_vectorized_code(const std::shared_ptr<ir::Func> &func, int benchmark_type);
+  static void format_vectorized_code(const std::shared_ptr<ir::Func> &func);
 
-  static void gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int window, int benchmark_type);
+  static void gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int window);
   
   static void gen_he_code(
     const std::shared_ptr<ir::Func> &func, std::ostream &header_os, std::string_view header_name,
@@ -75,7 +75,7 @@ public:
 
   static void set_active_func(const std::string &name);
   
-  static void call_vectorizer(int vector_width, int benchmark_type);
+  static void call_vectorizer(int vector_width);
   
   static void call_script();
 

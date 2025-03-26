@@ -9,7 +9,7 @@
 #include "fheco/util/expr_printer.hpp"
 #include "../../../benchmarks/global_variables.cpp"
 #include "compiler.hpp"
-#include <cstring> 
+#include <cstring>  
 #include <ctime>  
 #include <filesystem>
 #include <fstream> 
@@ -203,7 +203,7 @@ void Compiler::compile(
  *
  * @param func Shared pointer to the function to be vectorized.
  */
-void Compiler::gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int benchmark_type)
+void Compiler::gen_vectorized_code(const std::shared_ptr<ir::Func> &func)
 {
   // Utility function to print expressions in prefix notation
   util::ExprPrinter expr_printer(func);
@@ -309,10 +309,10 @@ void Compiler::gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int be
   /*********************************************************/
   // Call the vectorizer function with the computed vector width
   std::cout<<"Call the code vectorizer \n";
-  call_vectorizer(vector_width, benchmark_type);
+  call_vectorizer(vector_width);
   /***********************************************************/
   // Call the script to build the source code that operates on vectors
-  format_vectorized_code(func, benchmark_type);
+  format_vectorized_code(func);
 } 
 /**
  * Generates vectorized code for a given function, divided into subvectors.
@@ -335,7 +335,7 @@ void Compiler::gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int be
  * @param func Shared pointer to the function to be vectorized.
  * @param window The number of subvectors to divide the outputs into for vectorization.
  */
-void Compiler::gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int window, int benchmark_type)
+void Compiler::gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int window)
 {
   if (window < 0)
   {
@@ -364,7 +364,7 @@ void Compiler::gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int wi
   /***************************************************************/
   if (window == 0)
   {
-    gen_vectorized_code(func, benchmark_type);
+    gen_vectorized_code(func);
     return;
   }
   else
@@ -419,7 +419,7 @@ void Compiler::gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int wi
     std::vector<const ir::Term *> output_terms = process_output_terms(func->data_flow().outputs_info(),func->data_flow().output_keys());
     if(vector_full_width<window){
       std::cout<<"\nresult vector width smaller than window size ==> windows will be considered=0(deactivated)\n";
-      gen_vectorized_code(func, benchmark_type);
+      gen_vectorized_code(func);
       return;
     }
     int index = 0;
@@ -454,7 +454,7 @@ void Compiler::gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int wi
         }
         expression_file << expression;
         expression_file.close();
-        call_vectorizer(vector_width, benchmark_type);
+        call_vectorizer(vector_width);
         /********************************************/
         std::string vectorized_file = "../vectorized_code.txt";
         /******************************************************/
@@ -493,15 +493,14 @@ void Compiler::gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int wi
     vectorized_code_file_2 << vector_sizes[0] ;
     vectorized_code_file_2.close();
     // Call the script to construct the source code
-    format_vectorized_code(func, benchmark_type);
+    format_vectorized_code(func);
   }
 }
 /***********************************************************************/
-void Compiler::call_vectorizer(int vector_width, int benchmark_type)
+void Compiler::call_vectorizer(int vector_width)
 {
-   string command = "cargo run --release --manifest-path ../../../egraphs/Cargo.toml -- ../expression.txt " +
-                  to_string(vector_width) +" "+ to_string(benchmark_type) + " >> ../vectorized_code.txt";
-
+  string command = "cargo run --release --manifest-path ../../../egraphs/Cargo.toml -- ../expression.txt " +
+                   to_string(vector_width) + " >> ../vectorized_code.txt";
   // Use the system function to run the executable
   int result = system(command.c_str());
 
@@ -1263,7 +1262,7 @@ std::pair<std::string, int> process(
     return {"", index};
 }
 /************************************************************************/
-void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func, int benchmark_type)
+void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func)
 {
   std::vector<int> vectorSizes;
   int maxSize;
@@ -1293,14 +1292,7 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func, int
       vec_file.close();
   }
   /***********************************************************/
-  if (benchmark_type != UNSTRUCTURED_WITH_ONE_OUTPUT) {
-    /* if there are various outputs (vector as output), we need to get the sizes of the slot
-    and the sub_vector before starting the expressions processing, else, (there is only one output)
-    we extract expressions from egraph and we find the sizes using the function processExpression,
-    and we generate rotations to use only one output
-    */
-    slot_count = std::stoi(expressions.back());
-  }
+  slot_count = std::stoi(expressions.back());
   /*********************************************************/
   std::vector<std::string> outputs;
   vector<string> simplified_expressions= {};
@@ -1311,28 +1303,16 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func, int
 
   for (const auto& expr : expressions) {
     if (&expr == &expressions.back()) break;
-      /*************************************/
-    if (benchmark_type == UNSTRUCTURED_WITH_ONE_OUTPUT) { // the size of the outpt is 1 , like l2_distance
-      /* in reality, in this part there is no widnow optimiezation , we get the vector size returned by the egraph
-      after the vectorization process , sub_vector_size is not necessary , but we will add it to avoid re-implement
-      new function for expression processing
-      */
-      processExpression(expr, vectorSizes, maxSize);
-      slot_count = maxSize;
-    }
+    /*************************************/
     auto tokens = process_vectorized_code(expr);
     std::unordered_map<std::string, std::string> dictionary = {};
     process(tokens,0,dictionary,inputs_entries,inputs,inputs_types, slot_count,simplified_expression, rotation_flag, expression_to_rotate);
     // Convert new operands VecAddRot, VecMulRot, VecMinusRot
-    if (benchmark_type == STRUCTURED_WITH_ONE_OUTPUT || benchmark_type == STRUCTURED_WITH_MULTIPLE_OUTPUTS) {
-      //std::cout<<"==> simplied expression :"<<simplified_expression<<"\n";
-      auto tokens1 = split(simplified_expression.substr(1));
-      string updated_expr = convert_new_ops(tokens1);
-      //td::cout<<"==> updated_expr :"<<updated_expr<<"\n";
-      simplified_expressions.push_back(updated_expr);
-    }  else if (benchmark_type == UNSTRUCTURED_WITH_ONE_OUTPUT || benchmark_type == STRUCTURED_WITH_MULTIPLE_OUTPUTS) {
-        simplified_expressions.push_back(simplified_expression.substr(1));
-    }
+    //std::cout<<"==> simplied expression :"<<simplified_expression<<"\n";
+    auto tokens1 = split(simplified_expression.substr(1));
+    string updated_expr = convert_new_ops(tokens1);
+    //td::cout<<"==> updated_expr :"<<updated_expr<<"\n";
+    simplified_expressions.push_back(updated_expr);
     simplified_expression="";
     outputs.push_back(labels_map[id_counter - 1]);
   }

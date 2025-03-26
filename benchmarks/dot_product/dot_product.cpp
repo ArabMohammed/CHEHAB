@@ -7,7 +7,7 @@ using namespace fheco;
 #include <iostream>
 #include <string>
 #include <vector> 
-#include <cmath>
+#include <cmath> 
 #include "../global_variables.hpp" 
 
 /****************/
@@ -63,14 +63,15 @@ int main(int argc, char **argv)
   bool cse = true;
   if (argc > 4)
     cse = stoi(argv[4]);
-  
+   
   int slot_count = 1 ;
   if (argc > 5)
     slot_count = stoi(argv[5]);
 
   bool const_folding = true;
-  if (argc > 5)
-    const_folding = stoi(argv[5]);
+  if (argc > 6)
+    const_folding = stoi(argv[6]); 
+
 
   if (cse)
   {
@@ -94,7 +95,6 @@ int main(int argc, char **argv)
   /**************/t = chrono::high_resolution_clock::now();
   if (vectorize_code)
   {
-    int benchmark_type = STRUCTURED_WITH_ONE_OUTPUT;  // output_number = 1  , structured = 1
     const auto &func = Compiler::create_func(func_name, 1, 20, false, true);
     fhe(slot_count);
     string gen_name = "_gen_he_" + func_name;
@@ -106,7 +106,7 @@ int main(int argc, char **argv)
     if (!source_os)
       throw logic_error("failed to create source file");
     cout << " window is " << window << endl;
-    Compiler::gen_vectorized_code(func, window, benchmark_type);
+    Compiler::gen_vectorized_code(func, window);
     auto ruleset = Compiler::Ruleset::depth;
     auto rewrite_heuristic = trs::RewriteHeuristic::bottom_up;
     Compiler::compile(func, ruleset, rewrite_heuristic, header_os, gen_name + ".hpp", source_os);
@@ -122,7 +122,6 @@ int main(int argc, char **argv)
   }
   else
   {
-    int benchmark_type = STRUCTURED_WITH_ONE_OUTPUT; 
     const auto &func = Compiler::create_func(func_name, slot_count, 20, false, true);
     // update_io_file 
     std::string updated_inputs_file_name = "fhe_io_example_adapted.txt" ;
