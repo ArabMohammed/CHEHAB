@@ -1111,9 +1111,7 @@ std::pair<std::string, int> process(
     const std::vector<std::string>& inputs,
     const std::vector<std::string>& inputs_types,
     int slot_count,
-    string& new_expression,
-    bool& rotation_flag,
-    string& expression_to_rotate
+    string& new_expression
 ) {
     while (index < tokens.size()) {
         if (tokens[index] == "(") {
@@ -1158,8 +1156,7 @@ std::pair<std::string, int> process(
                   updated_vector_elements.push_back(updated_elem);
                 }
                 string result_expr = process_composed_vectors(updated_vector_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count);
-                if (!rotation_flag) new_expression+=" "+result_expr;
-                if (rotation_flag) expression_to_rotate += " " + result_expr;
+                new_expression+=" "+result_expr;
                 if(result_expr.substr(0,1)=="("){
                   std::string label = "c" + std::to_string(id_counter);
                   labels_map[id_counter] = label;
@@ -1168,76 +1165,18 @@ std::pair<std::string, int> process(
                 }else{
                   return {dictionary[vector_string], index};
                 }
-            } else if (tokens[index] == "VecAddRotF" | tokens[index] == "VecAddRotP" |
-                    tokens[index] == "VecMinusRotF" | tokens[index] == "VecMinusRotP" |
-                    tokens[index] == "VecMulRotF" | tokens[index] == "VecMulRotP"){
-                       rotation_flag = true;
-                      std::string expression_to_rotate = "";
-                      expression_to_rotate += " (";
-                      std::string operation = tokens[index];
-                      std::string op = 
-                      operation == "VecAddRotF"  | operation == "VecAddRotP" ? "+" : 
-                      operation == "VecMinusRotF" | operation == "VecMinusRotP" ? "-" : 
-                      operation == "VecMulRotF" | operation == "VecMulRotP" ? "*" : "+";
-                      expression_to_rotate += " " + op;
-
-                      index++;
-                      auto [operand_1, new_index] = process(tokens, index, dictionary, inputs_entries,inputs,inputs_types, slot_count,new_expression, rotation_flag, expression_to_rotate);
-                      index = new_index;
-
-                      if (tokens[index] != ")") {
-                        std::string operand_2;
-                        if (tokens[index] == "(") {
-                            std::tie(operand_2, index) = process(tokens, index, dictionary, inputs_entries,inputs,inputs_types, slot_count,new_expression, rotation_flag, expression_to_rotate);
-                        } else {
-                            operand_2 = tokens[index];
-                            new_expression += " " + operand_2;
-                            expression_to_rotate += " " + operand_2;
-
-                            index++;
-                        }
-                        expression_to_rotate += " )";
-                       
-                        string ret = generate_rotated_expression(expression_to_rotate, /*number of rotations*/ std::stoi(tokens[index]), /*the current operatoin*/ std::string(1, expression_to_rotate[3]));
-                        new_expression += ret;
-                        
-                        std::string op = (operation == "VecAdd") ? "+" : (operation == "VecMinus") ? "-" : (operation == "VecNeg") ? "-" : (operation == "VecMul") ? "*" : "<<";
-                        std::string label = "c" + std::to_string(id_counter);
-                        labels_map[id_counter] = label;
-                        id_counter++;
-                        index++;  // skip ")"
-                        index++;  // skip the space
-                        rotation_flag = false;
-                        return {label, index};
-                        } else {
-                          /******/new_expression+=" )";
-                            index++;
-                            std::string label = "c" + std::to_string(id_counter);
-                            labels_map[id_counter] = label;
-                            inputs_entries[label]=label;
-                            id_counter++;
-                            return {label, index};
-                        }
-                    }
+            } 
             /******/new_expression+=" (";
-            std::string operation = tokens[index];
-            std::string op = 
-              operation == "VecAdd" | operation == "+" ? "+" :
-              operation == "VecMinus"  | operation == "-" ? "-" : 
-              operation == "VecNeg"  | operation == "-" ? "-" :
-              operation == "VecMul"  | operation == "*" ? "*":
-              operation == "VecAddRotS" ? "VecAddRot" :
-              operation == "VecMinusRotS" ? "VecMinusRot" : 
-              operation == "VecMulRotS" ? "VecMulRot" 
-              : "<<";           
+            std::string operation = tokens[index];    
+            std::string op = (operation == "VecAdd") ? "+" : (operation == "VecMinus") ? "-" : (operation == "VecNeg") ? "-": (operation == "VecMul") ? "*": (operation == "VecAddRot") ? "VecAddRot" : (operation == "VecMinusRot") ? "VecMinusRot" : (operation == "VecMulRot") ? "VecMulRot" : "<<";    
             /*****/new_expression+=" "+op ;
             index++;
-            auto [operand_1, new_index] = process(tokens, index, dictionary, inputs_entries,inputs,inputs_types, slot_count,new_expression, rotation_flag, expression_to_rotate);
+            auto [operand_1, new_index] = process(tokens, index, dictionary, inputs_entries,inputs,inputs_types, slot_count,new_expression);
             index = new_index;
             if (tokens[index] != ")") {
                 std::string operand_2;
                 if (tokens[index] == "(") {
-                    std::tie(operand_2, index) = process(tokens, index, dictionary, inputs_entries,inputs,inputs_types, slot_count,new_expression, rotation_flag, expression_to_rotate);
+                    std::tie(operand_2, index) = process(tokens, index, dictionary, inputs_entries,inputs,inputs_types, slot_count,new_expression);
                 } else {
                     operand_2 = tokens[index];
                     new_expression+=" "+operand_2;
@@ -1297,21 +1236,19 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func)
   std::vector<std::string> outputs;
   vector<string> simplified_expressions= {};
   string simplified_expression="";
-  bool rotation_flag = false;   // this flag is reuquired just for the unstructured code, else, it will be used with false always, we use it as argument with other types to avoid write several codes with diff parameters
-  string expression_to_rotate;  // same remark
   unordered_map<string,string> inputs_entries ={};
-
   for (const auto& expr : expressions) {
     if (&expr == &expressions.back()) break;
     /*************************************/
+    //std::cout<<"==> Intial expr : "<<expr<<" \n";
     auto tokens = process_vectorized_code(expr);
     std::unordered_map<std::string, std::string> dictionary = {};
-    process(tokens,0,dictionary,inputs_entries,inputs,inputs_types, slot_count,simplified_expression, rotation_flag, expression_to_rotate);
+    process(tokens,0,dictionary,inputs_entries,inputs,inputs_types, slot_count,simplified_expression);
     // Convert new operands VecAddRot, VecMulRot, VecMinusRot
     //std::cout<<"==> simplied expression :"<<simplified_expression<<"\n";
     auto tokens1 = split(simplified_expression.substr(1));
     string updated_expr = convert_new_ops(tokens1);
-    //td::cout<<"==> updated_expr :"<<updated_expr<<"\n";
+    //std::cout<<"==> updated_expr :"<<updated_expr<<"\n";
     simplified_expressions.push_back(updated_expr);
     simplified_expression="";
     outputs.push_back(labels_map[id_counter - 1]);
@@ -1413,7 +1350,7 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func)
   for (auto output_info : func->data_flow().outputs_info())
   {
     output_terms.push_back(output_info.first);
-  }
+  } 
   /****************************************************************/
   std::reverse(output_terms.begin(), output_terms.end());
   std::string new_term_str ;
