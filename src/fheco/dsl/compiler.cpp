@@ -344,7 +344,7 @@ void Compiler::gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int wi
   }
   /***********Padd vector of output terms to reach a size of 2^x****/
 
-  /*****************************************************************
+  /*****************************************************************/
   // std::cout<<"apply existing trs on output elements to balance them \n";
   auto rewrite_heuristicc = trs::RewriteHeuristic::bottom_up;
   trs::TRS joined_trs{trs::Ruleset::joined_ruleset(func)};
@@ -542,6 +542,12 @@ void processExpression(const std::string& expression, std::vector<int>& vectorSi
 }
 /**********************************************************************************************/
 /*****************Utility function to generate updated io-file after vectorization ************/
+std::string trim(const std::string & source) {
+    std::string s(source);
+    s.erase(0,s.find_first_not_of(" \n\r\t"));
+    s.erase(s.find_last_not_of(" \n\r\t")+1);
+    return s;
+}
 void update_io_file(const unordered_map<string,string>& input_entries,const vector<string> updated_outputs,int function_slot_count){
   std::string inputs_file_name = "fhe_io_example.txt";
   std::ifstream input_file(inputs_file_name);
@@ -561,7 +567,7 @@ void update_io_file(const unordered_map<string,string>& input_entries,const vect
   std::vector<string> old_header = split_string(lines[0], ' '); 
   if(old_header.size()!=3){
       throw invalid_argument("malformatted io_file header\n");
-  }
+  } 
   int old_slot_count = stoi(old_header[0]);
   int old_nb_inputs = stoi(old_header[1]);
   for(int i=1 ; i< old_nb_inputs+1 ; i++){
@@ -591,29 +597,36 @@ void update_io_file(const unordered_map<string,string>& input_entries,const vect
   string new_header = std::to_string(function_slot_count)+" "+std::to_string(input_entries.size())+" "+std::to_string(updated_outputs.size())+"\n";
   updated_input_file << new_header;
   string updated_input ="" ;
+  std::cout<<"=================>  loop over input entries : \n";
   for(const auto&pair : input_entries){
       string vectorString = pair.second.substr(4);
       string addionalInfo = pair.second.substr(0,4);
       updated_input=pair.first+" "+addionalInfo;
+      std::cout<<"==>"<<vectorString<<"||\n";
       vector<std::string> Valuestokens = split_string(vectorString, ' ');
       if(pair.first.substr(0,1)=="c"){
+        /************************************************/
         for(int i =0; i<Valuestokens.size() ; i++){
           string key = Valuestokens[i];
+          std::cout<<"==>key :"<<key<<"||\n";
           if(!is_literal(key)){
-            string value =""; 
-            if (ciphertexts.find(key) != ciphertexts.end()) {
-                updated_input+=ciphertexts[key];  // Access the value corresponding to the key
-            } else {
-                if (plaintexts.find(key) != plaintexts.end()){
-                  updated_input+=plaintexts[key];
-                }else{
-                  throw invalid_argument("key : "+key+" Not found in ciphertexts and plaintexts map \n");
-                }
-            }
+              string value =""; 
+              if (ciphertexts.find(key) != ciphertexts.end()) {
+                  std::cout<<"ciphertxt_map :"<<ciphertexts[key]<<"||\n";
+                  updated_input+=trim(ciphertexts[key])+" ";  // Access the value corresponding to the key
+              } else {
+                  if (plaintexts.find(key) != plaintexts.end()){
+                    updated_input+=plaintexts[key];
+                  }else{
+                    throw invalid_argument("key : "+key+" Not found in ciphertexts and plaintexts map \n");
+                  }
+              }
           }else{
             updated_input+=key+" ";
           }
         }
+        /**********************************************************/
+        std::cout<<"updated_input :"<<updated_input<<"||\n";
       }else if(pair.first.substr(0,1)=="p"){
         for(int i =0; i<Valuestokens.size() ; i++){
           string key = Valuestokens[i];
@@ -634,8 +647,10 @@ void update_io_file(const unordered_map<string,string>& input_entries,const vect
       updated_input+="\n";
       updated_input_file << updated_input;
   }
+
   for(int j=0;j<updated_outputs.size();j++){
     updated_input=updated_outputs[j]+" 1";
+
     for(int i =0;i<function_slot_count;i++){
         updated_input+=" 0";
     }
@@ -1240,15 +1255,15 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func)
   for (const auto& expr : expressions) {
     if (&expr == &expressions.back()) break;
     /*************************************/
-    //std::cout<<"==> Intial expr : "<<expr<<" \n";
+    std::cout<<"==> Intial expr : "<<expr<<" \n";
     auto tokens = process_vectorized_code(expr);
     std::unordered_map<std::string, std::string> dictionary = {};
     process(tokens,0,dictionary,inputs_entries,inputs,inputs_types, slot_count,simplified_expression);
     // Convert new operands VecAddRot, VecMulRot, VecMinusRot
-    //std::cout<<"==> simplied expression :"<<simplified_expression<<"\n";
+    std::cout<<"==> simplied expression :"<<simplified_expression<<"\n";
     auto tokens1 = split(simplified_expression.substr(1));
     string updated_expr = convert_new_ops(tokens1);
-    //std::cout<<"==> updated_expr :"<<updated_expr<<"\n";
+    std::cout<<"==> updated_expr :"<<updated_expr<<"\n";
     simplified_expressions.push_back(updated_expr);
     simplified_expression="";
     outputs.push_back(labels_map[id_counter - 1]);

@@ -7,7 +7,7 @@ using namespace fheco;
 #include <iostream>
 #include <string>
 #include <vector> 
-#include <cmath> 
+#include <cmath>  
 #include "../global_variables.hpp" 
 
 /****************/
@@ -107,9 +107,9 @@ int main(int argc, char **argv)
       throw logic_error("failed to create source file");
     cout << " window is " << window << endl;
     Compiler::gen_vectorized_code(func, window);
-    auto ruleset = Compiler::Ruleset::depth;
-    auto rewrite_heuristic = trs::RewriteHeuristic::bottom_up;
-    Compiler::compile(func, ruleset, rewrite_heuristic, header_os, gen_name + ".hpp", source_os);
+    //auto ruleset = Compiler::Ruleset::depth;
+    //auto rewrite_heuristic = trs::RewriteHeuristic::bottom_up;
+    //Compiler::compile(func, ruleset, rewrite_heuristic, header_os, gen_name + ".hpp", source_os);
     Compiler::gen_he_code(func, header_os, gen_name + ".hpp", source_os);
     /************/elapsed = chrono::high_resolution_clock::now() - t;
     cout << elapsed.count() << " ms\n";

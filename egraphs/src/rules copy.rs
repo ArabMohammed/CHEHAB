@@ -1100,7 +1100,7 @@ pub fn vector_assoc_add_rules(vector_width: usize) -> Vec<Rewrite<VecLang, Const
         if is_vec("?x","?z","?t","?y")
         ),
     ];
-    rules  
+    rules 
 }
 /***************************************************/
 pub fn vector_assoc_add_mul_rules(vector_width: usize) -> Vec<Rewrite<VecLang, ConstantFold>> {

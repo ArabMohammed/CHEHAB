@@ -20,7 +20,7 @@ void fhe_vectorized(int width){
     kernel[2][0] * (bottom_row >> 1) + kernel[2][1] * bottom_row + kernel[2][2] * (bottom_row << 1);
   Ciphertext result = top_sum + curr_sum + bottom_sum;
   result.set_output("result"); 
-}
+} 
 /**********************************************************************************/
 using Matrix = std::vector<std::vector<Ciphertext>>;
 
@@ -125,9 +125,9 @@ int main(int argc, char **argv)
         throw logic_error("failed to create source file");
       cout << " window is " << window << endl;
       Compiler::gen_vectorized_code(func, window);
-      auto ruleset = Compiler::Ruleset::depth;
-      auto rewrite_heuristic = trs::RewriteHeuristic::bottom_up;
-      Compiler::compile(func, ruleset, rewrite_heuristic, header_os, gen_name + ".hpp", source_os);
+      //auto ruleset = Compiler::Ruleset::depth;
+      //auto rewrite_heuristic = trs::RewriteHeuristic::bottom_up;
+      //Compiler::compile(func, ruleset, rewrite_heuristic, header_os, gen_name + ".hpp", source_os);
       Compiler::gen_he_code(func, header_os, gen_name + ".hpp", source_os, 29);
       /************/elapsed = chrono::high_resolution_clock::now() - t;
       cout << elapsed.count() << " ms\n";

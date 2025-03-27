@@ -12,7 +12,7 @@ using namespace fheco;
  
 /****************/
  void fhe_vectorized(int slot_count)
-{ 
+{  
   Ciphertext c1("v1");
   Ciphertext c2("v2");
   Ciphertext slot_wise_xor = c1 + c2 - 2 * (c1 * c2);
@@ -105,9 +105,9 @@ int main(int argc, char **argv)
       throw logic_error("failed to create source file");
     cout << " window is " << window << endl;
     Compiler::gen_vectorized_code(func, window);
-    auto ruleset = Compiler::Ruleset::depth;
-    auto rewrite_heuristic = trs::RewriteHeuristic::bottom_up;
-    Compiler::compile(func, ruleset, rewrite_heuristic, header_os, gen_name + ".hpp", source_os);
+    //auto ruleset = Compiler::Ruleset::depth;
+    //auto rewrite_heuristic = trs::RewriteHeuristic::bottom_up;
+    //Compiler::compile(func, ruleset, rewrite_heuristic, header_os, gen_name + ".hpp", source_os);
     Compiler::gen_he_code(func, header_os, gen_name + ".hpp", source_os);
     /************/elapsed = chrono::high_resolution_clock::now() - t;
     cout << elapsed.count() << " ms\n";

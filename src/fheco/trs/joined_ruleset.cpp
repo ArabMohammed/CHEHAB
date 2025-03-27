@@ -51,7 +51,7 @@ Ruleset Ruleset::joined_ruleset(shared_ptr<ir::Func> func)
     {"simplify-add-mul_negate-2", (-y) * x + z, z - y * x},
     {"simplify-add-mul_negate-3", z + x * (-y), z - x * y},
     {"simplify-add-mul_negate-4", z + (-y) * x, z - y * x},
-
+ 
     {"merge-rotate-add", (x << n) + (y << n), (x + y) << n},
 
     {"part-fold-assoc-add", (x + c0) + c1, x + (c0 + c1)},
