@@ -1,2 +1,260 @@
 /scratch/ma9232/My_CHEHAB_Repo/CHEHAB/run_benchmarks.py:200: SyntaxWarning: invalid escape sequence '\s'
   """
+run=> cmake', '-S', '.', '-B', 'build' 
+run=> 'cmake', '--build', 'build'
+****************************************************************
+*****run lin_reg , for slot_count : 32******
+===> Running iteration : 1
+<re.Match object; span=(359, 370), match='max: (3, 1)'>
+Depth=>3, multiplcative_depth=>1
+===> Running iteration : 2
+<re.Match object; span=(360, 371), match='max: (3, 1)'>
+Depth=>3, multiplcative_depth=>1
+===> Running iteration : 3
+<re.Match object; span=(360, 371), match='max: (3, 1)'>
+Depth=>3, multiplcative_depth=>1
+===> Running iteration : 4
+<re.Match object; span=(360, 371), match='max: (3, 1)'>
+Depth=>3, multiplcative_depth=>1
+===> Running iteration : 5
+<re.Match object; span=(359, 370), match='max: (3, 1)'>
+Depth=>3, multiplcative_depth=>1
+**fhe run done**
+**fhe run done**
+**fhe run done**
+**fhe run done**
+**fhe run done**
+add [64, 64, 64, 64, 64] 64
+sub [0, 0, 0, 0, 0] 0
+multiply_plain [32, 32, 32, 32, 32] 32
+rotate_rows [0, 0, 0, 0, 0] 0
+negate [0, 0, 0, 0, 0] 0
+multiply [32, 32, 32, 32, 32] 32
+Depth [3, 3, 3, 3, 3] 3
+Multiplicative Depth [1, 1, 1, 1, 1] 1
+compile_time (s) [19.425, 11.4932, 10.5231, 11.2508, 12.723] 0.011
+execution_time (s) [1300.35, 1296.33, 1297.49, 1296.38] 1.297
+****************************************************************
+*****run l2_distance , for slot_count : 32******
+===> Running iteration : 1
+<re.Match object; span=(360, 372), match='max: (33, 1)'>
+Depth=>33, multiplcative_depth=>1
+===> Running iteration : 2
+<re.Match object; span=(360, 372), match='max: (33, 1)'>
+Depth=>33, multiplcative_depth=>1
+===> Running iteration : 3
+<re.Match object; span=(360, 372), match='max: (33, 1)'>
+Depth=>33, multiplcative_depth=>1
+===> Running iteration : 4
+<re.Match object; span=(360, 372), match='max: (33, 1)'>
+Depth=>33, multiplcative_depth=>1
+===> Running iteration : 5
+<re.Match object; span=(360, 372), match='max: (33, 1)'>
+Depth=>33, multiplcative_depth=>1
+**fhe run done**
+**fhe run done**
+**fhe run done**
+**fhe run done**
+**fhe run done**
+add [31, 31, 31, 31, 31] 31
+sub [64, 64, 64, 64, 64] 64
+multiply_plain [0, 0, 0, 0, 0] 0
+rotate_rows [0, 0, 0, 0, 0] 0
+negate [0, 0, 0, 0, 0] 0
+multiply [32, 32, 32, 32, 32] 32
+Depth [33, 33, 33, 33, 33] 33
+Multiplicative Depth [1, 1, 1, 1, 1] 1
+compile_time (s) [14.8418, 15.1965, 11.6844, 13.6559, 12.3295] 0.014
+execution_time (s) [5118.5, 5113.62, 5117.17, 5118.09] 5.118
+****************************************************************
+*****run dot_product , for slot_count : 32******
+===> Running iteration : 1
+<re.Match object; span=(360, 372), match='max: (32, 1)'>
+Depth=>32, multiplcative_depth=>1
+===> Running iteration : 2
+<re.Match object; span=(360, 372), match='max: (32, 1)'>
+Depth=>32, multiplcative_depth=>1
+===> Running iteration : 3
+<re.Match object; span=(360, 372), match='max: (32, 1)'>
+Depth=>32, multiplcative_depth=>1
+===> Running iteration : 4
+<re.Match object; span=(360, 372), match='max: (32, 1)'>
+Depth=>32, multiplcative_depth=>1
+===> Running iteration : 5
+<re.Match object; span=(360, 372), match='max: (32, 1)'>
+Depth=>32, multiplcative_depth=>1
+**fhe run done**
+**fhe run done**
+**fhe run done**
+**fhe run done**
+**fhe run done**
+add [31, 31, 31, 31, 31] 31
+sub [0, 0, 0, 0, 0] 0
+multiply_plain [0, 0, 0, 0, 0] 0
+rotate_rows [0, 0, 0, 0, 0] 0
+negate [0, 0, 0, 0, 0] 0
+multiply [32, 32, 32, 32, 32] 32
+Depth [32, 32, 32, 32, 32] 32
+Multiplicative Depth [1, 1, 1, 1, 1] 1
+compile_time (s) [12.6431, 10.5135, 10.2935, 9.18186, 10.7725] 0.011
+execution_time (s) [5103.08, 5106.41, 5104.87, 5106.21] 5.106
+****************************************************************
+*****run box_blur , for slot_count : 32******
+===> Running iteration : 1
+<re.Match object; span=(360, 371), match='max: (8, 0)'>
+Depth=>8, multiplcative_depth=>0
+===> Running iteration : 2
+<re.Match object; span=(359, 370), match='max: (8, 0)'>
+Depth=>8, multiplcative_depth=>0
+===> Running iteration : 3
+<re.Match object; span=(360, 371), match='max: (8, 0)'>
+Depth=>8, multiplcative_depth=>0
+===> Running iteration : 4
+<re.Match object; span=(360, 371), match='max: (8, 0)'>
+Depth=>8, multiplcative_depth=>0
+===> Running iteration : 5
+<re.Match object; span=(360, 371), match='max: (8, 0)'>
+Depth=>8, multiplcative_depth=>0
+**fhe run done**
+**fhe run done**
+**fhe run done**
+**fhe run done**
+**fhe run done**
+add [7812, 7812, 7812, 7812, 7812] 7812
+sub [0, 0, 0, 0, 0] 0
+multiply_plain [0, 0, 0, 0, 0] 0
+rotate_rows [0, 0, 0, 0, 0] 0
+negate [0, 0, 0, 0, 0] 0
+multiply [0, 0, 0, 0, 0] 0
+Depth [8, 8, 8, 8, 8] 8
+Multiplicative Depth [0, 0, 0, 0, 0] 0
+compile_time (s) [324.171, 313.56, 311.863, 313.101, 312.866] 0.313
+execution_time (s) [23734.0, 23713.0, 23694.0, 23735.3] 23.724
+****************************************************************
+*****run gx_kernel , for slot_count : 32******
+===> Running iteration : 1
+<re.Match object; span=(376, 387), match='max: (4, 1)'>
+Depth=>4, multiplcative_depth=>1
+===> Running iteration : 2
+<re.Match object; span=(376, 387), match='max: (4, 1)'>
+Depth=>4, multiplcative_depth=>1
+===> Running iteration : 3
+<re.Match object; span=(376, 387), match='max: (4, 1)'>
+Depth=>4, multiplcative_depth=>1
+===> Running iteration : 4
+<re.Match object; span=(376, 387), match='max: (4, 1)'>
+Depth=>4, multiplcative_depth=>1
+===> Running iteration : 5
+<re.Match object; span=(376, 387), match='max: (4, 1)'>
+Depth=>4, multiplcative_depth=>1
+**fhe run done**
+**fhe run done**
+**fhe run done**
+**fhe run done**
+**fhe run done**
+add [4804, 4804, 4804, 4804, 4804] 4804
+sub [0, 0, 0, 0, 0] 0
+multiply_plain [5828, 5828, 5828, 5828, 5828] 5828
+rotate_rows [0, 0, 0, 0, 0] 0
+negate [0, 0, 0, 0, 0] 0
+multiply [5828, 5828, 5828, 5828, 5828] 5828
+Depth [4, 4, 4, 4, 4] 4
+Multiplicative Depth [1, 1, 1, 1, 1] 1
+compile_time (s) [473.341, 478.353, 478.644, 476.674, 477.627] 0.478
+execution_time (s) [27980.3, 28010.8, 27920.9, 28026.2] 27.996
+****************************************************************
+*****run gy_kernel , for slot_count : 32******
+===> Running iteration : 1
+<re.Match object; span=(376, 387), match='max: (4, 1)'>
+Depth=>4, multiplcative_depth=>1
+===> Running iteration : 2
+<re.Match object; span=(375, 386), match='max: (4, 1)'>
+Depth=>4, multiplcative_depth=>1
+===> Running iteration : 3
+<re.Match object; span=(376, 387), match='max: (4, 1)'>
+Depth=>4, multiplcative_depth=>1
+===> Running iteration : 4
+<re.Match object; span=(376, 387), match='max: (4, 1)'>
+Depth=>4, multiplcative_depth=>1
+===> Running iteration : 5
+<re.Match object; span=(376, 387), match='max: (4, 1)'>
+Depth=>4, multiplcative_depth=>1
+**fhe run done**
+**fhe run done**
+**fhe run done**
+**fhe run done**
+**fhe run done**
+add [4804, 4804, 4804, 4804, 4804] 4804
+sub [0, 0, 0, 0, 0] 0
+multiply_plain [5828, 5828, 5828, 5828, 5828] 5828
+rotate_rows [0, 0, 0, 0, 0] 0
+negate [0, 0, 0, 0, 0] 0
+multiply [5828, 5828, 5828, 5828, 5828] 5828
+Depth [4, 4, 4, 4, 4] 4
+Multiplicative Depth [1, 1, 1, 1, 1] 1
+compile_time (s) [466.629, 469.28, 469.348, 478.667, 472.487] 0.469
+execution_time (s) [28062.3, 28077.0, 28080.8, 28126.6] 28.079
+****************************************************************
+*****run roberts_cross , for slot_count : 32******
+===> Running iteration : 1
+<re.Match object; span=(376, 387), match='max: (4, 2)'>
+Depth=>4, multiplcative_depth=>2
+===> Running iteration : 2
+<re.Match object; span=(375, 386), match='max: (4, 2)'>
+Depth=>4, multiplcative_depth=>2
+===> Running iteration : 3
+<re.Match object; span=(376, 387), match='max: (4, 2)'>
+Depth=>4, multiplcative_depth=>2
+===> Running iteration : 4
+<re.Match object; span=(376, 387), match='max: (4, 2)'>
+Depth=>4, multiplcative_depth=>2
+===> Running iteration : 5
+<re.Match object; span=(376, 387), match='max: (4, 2)'>
+Depth=>4, multiplcative_depth=>2
+**fhe run done**
+**fhe run done**
+**fhe run done**
+**fhe run done**
+**fhe run done**
+add [2945, 2945, 2945, 2945, 2945] 2945
+sub [0, 0, 0, 0, 0] 0
+multiply_plain [3969, 3969, 3969, 3969, 3969] 3969
+rotate_rows [0, 0, 0, 0, 0] 0
+negate [0, 0, 0, 0, 0] 0
+multiply [6016, 6016, 6016, 6016, 6016] 6016
+Depth [4, 4, 4, 4, 4] 4
+Multiplicative Depth [2, 2, 2, 2, 2] 2
+compile_time (s) [845.901, 847.11, 843.972, 845.678, 847.514] 0.846
+execution_time (s) [271413.0, 271380.0, 271242.0, 271293.0] 271.337
+****************************************************************
+*****run matrix_mul , for slot_count : 32******
+===> Running iteration : 1
+<re.Match object; span=(360, 372), match='max: (32, 1)'>
+Depth=>32, multiplcative_depth=>1
+===> Running iteration : 2
+<re.Match object; span=(360, 372), match='max: (32, 1)'>
+Depth=>32, multiplcative_depth=>1
+===> Running iteration : 3
+<re.Match object; span=(360, 372), match='max: (32, 1)'>
+Depth=>32, multiplcative_depth=>1
+===> Running iteration : 4
+<re.Match object; span=(360, 372), match='max: (32, 1)'>
+Depth=>32, multiplcative_depth=>1
+===> Running iteration : 5
+<re.Match object; span=(359, 371), match='max: (32, 1)'>
+Depth=>32, multiplcative_depth=>1
+**fhe run done**
+**fhe run done**
+**fhe run done**
+**fhe run done**
+**fhe run done**
+add [31744, 31744, 31744, 31744, 31744] 31744
+sub [0, 0, 0, 0, 0] 0
+multiply_plain [0, 0, 0, 0, 0] 0
+rotate_rows [0, 0, 0, 0, 0] 0
+negate [0, 0, 0, 0, 0] 0
+multiply [32768, 32768, 32768, 32768, 32768] 32768
+Depth [32, 32, 32, 32, 32] 32
+Multiplicative Depth [1, 1, 1, 1, 1] 1
+compile_time (s) [2652.77, 2645.56, 2643.98, 2642.33, 2644.6] 2.645
+execution_time (s) [3988620.0, 3990820.0, 3993050.0, 3992230.0] 3991.525

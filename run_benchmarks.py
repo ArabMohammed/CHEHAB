@@ -38,18 +38,16 @@ try:
 except subprocess.CalledProcessError as e:
     print(f"Command failed with error:\n{e.stderr.decode('utf-8')}")    
 
-#benchmark_folders = ["max","sort","lin_reg","l2_distance","dot_product","box_blur","gx_kernel","gy_kernel","roberts_cross","matrix_mul"] 
-benchmark_folders = ["lin_reg","l2_distance","dot_product","box_blur","gx_kernel","gy_kernel","roberts_cross","matrix_mul"] 
+benchmark_folders = ["max","sort","lin_reg","hamming_dist","poly_reg","l2_distance","dot_product","box_blur","gx_kernel","gy_kernel","roberts_cross","matrix_mul"] 
 exceptions = ["max","sort"]
 ###############################
 ### specify the number of iteration  
 ###### Configurations ##############
-cse_enabled = 0 
-vectorize_code = 0
-#_b slot_counts= [4,8,16]
-slot_counts= [32]
-iterations = 5 
-window_size = 0 
+cse_enabled = 1
+vectorize_code = 1
+slot_counts= [4,8,16,32]
+iterations = 5
+window_size = 0  
 depths = [5,10]
 regimes = ["50-50","100-50","100-100"]
 
@@ -197,7 +195,6 @@ for subfolder_name in benchmark_folders:
 ######################################################################################
 ######################################################################################
 ######################################################################################
-"""
 print("Run polynomial benchmarks !!!!!! ")
 polynomial_folders = ["polynomials_coyote"]
 for subfolder_name in polynomial_folders: 
@@ -350,5 +347,5 @@ for subfolder_name in polynomial_folders:
             with open(output_csv, mode='a', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(row)       
-"""              
+          
         
