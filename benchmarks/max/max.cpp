@@ -17,25 +17,28 @@ void fhe_vectorized(int width){
 Ciphertext cond(Ciphertext val ,Ciphertext  ch1,Ciphertext ch2){
     return val*ch1 + (1-val)*ch2;
 }
-void fhe(int width)
+void fhe(int slot_count)
 { 
   Ciphertext c12("c12"); 
   Ciphertext c23("c23"); 
   Ciphertext c24("c24"); 
-  Ciphertext c25("c25"); 
   Ciphertext c13("c13"); 
-  Ciphertext c14("c14"); 
-  Ciphertext c34("c34"); 
+  Ciphertext c14("c14");  
+  Ciphertext c34("c34");
+
+  Ciphertext c25("c25");  
   Ciphertext c15("c15"); 
   Ciphertext c45("c45"); 
   Ciphertext c35("c35");
+  
   Ciphertext o1("o1"); 
   Ciphertext o2("o2"); 
   Ciphertext o3("o3"); 
   Ciphertext o4("o4"); 
   Ciphertext o5("o5");
   Ciphertext output ;
-  output = cond(c12, 
+  if(slot_count == 5){
+    output =  cond(c12, 
                 (cond(c13,
                     cond(c14,cond(c15, o1, o5),cond(c45, o4, o5)),
                     cond(c34,cond(c35, o3, o5),cond(c45, o4, o5)))
@@ -44,7 +47,15 @@ void fhe(int width)
                     cond(c24,cond(c25, o2, o5),cond(c45, o4, o5)),
                     cond(c34, cond(c35, o3, o5), cond(c45, o4, o5)))
                 )
-                );
+              ); 
+  }else if (slot_count == 4){
+    output = cond( c12, 
+      cond(c13,cond(c14,o1,o4),cond(c34,o3,o4)),
+      cond(c23,cond(c24,o2,o4),cond(c34,o3,o4))
+    );
+  }else if (slot_count == 3){
+    output = cond(c12, cond(c13,o1,o3) , cond(c23,o2,o3));
+  }
   output.set_output("output");
 }
 /******************************************************************************************/
@@ -72,7 +83,7 @@ int main(int argc, char **argv)
     cse = stoi(argv[4]);
    
   int slot_count = 1 ;
-  if (argc > 5)
+  if (argc > 5) 
     slot_count = stoi(argv[5]);
 
   bool const_folding = true;
@@ -103,7 +114,7 @@ int main(int argc, char **argv)
   if (vectorize_code)
   {
     const auto &func = Compiler::create_func(func_name, 1, 20, false, true);
-    fhe(slot_count);
+    fhe(slot_count); 
     string gen_name = "_gen_he_" + func_name;
     string gen_path = "he/" + gen_name;
     ofstream header_os(gen_path + ".hpp");

@@ -1,5 +1,6 @@
 benchmark,add,sub,multiply_plain,rotate_rows,negate,multiply,Depth,Multplicative Depth,compile_time (s),execution_time (s)
-poly_reg_4,12,0,0,0,0,12,5,2,0.004,1.848
-poly_reg_8,24,0,0,0,0,24,5,2,0.005,3.684
-poly_reg_16,48,0,0,0,0,48,5,2,0.007,7.341
-poly_reg_32,96,0,0,0,0,96,5,2,0.010,14.678
+max_3,6,0,0,0,3,6,6,2,0.004,1.028
+max_4,14,0,0,0,7,14,8,3,0.005,2.000
+max_5,30,0,0,0,15,30,10,4,0.006,3.943
+sort_3,10,0,0,0,5,10,8,3,0.004,1.917
+sort_4,58,0,0,0,29,58,14,6,0.008,7.738

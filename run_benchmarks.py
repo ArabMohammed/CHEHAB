@@ -12,8 +12,8 @@ build_folder = os.path.join("build", "benchmarks")
 operations = ["add", "sub", "multiply_plain", "rotate_rows", "negate", "multiply"]
 infos = ["benchmark"]
 additional_infos =[ "Depth", "Multplicative Depth","compile_time (s)", "execution_time (s)"]
-infos.extend(operations)
-infos.extend(additional_infos)
+infos.extend(operations) 
+infos.extend(additional_infos) 
 with open(output_csv, mode='w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(infos)
@@ -33,24 +33,30 @@ try:
         check=True, 
         stdout=subprocess.PIPE, 
         stderr=subprocess.PIPE, 
-        universal_newlines=True 
+        universal_newlines=True
     )
 except subprocess.CalledProcessError as e:
     print(f"Command failed with error:\n{e.stderr.decode('utf-8')}")    
 
 benchmark_folders = ["max","sort","lin_reg","hamming_dist","poly_reg","l2_distance","dot_product","box_blur","gx_kernel","gy_kernel","roberts_cross","matrix_mul"] 
+benchmark_folders = ["max","sort"]
 exceptions = ["max","sort"]
+benchmarks_slot_counts  = {
+    "max" : [3,4,5], 
+    "sort" : [3,4]
+}
 ###############################
 ### specify the number of iteration  
-###### Configurations ##############
-cse_enabled = 1
-vectorize_code = 1
+###### Configurations ############## 
+cse_enabled = 0
+vectorize_code = 0 
 slot_counts= [4,8,16,32]
 iterations = 5
-window_size = 0  
-depths = [5,10]
+window_size = 0   
+depths = [5,10] 
 regimes = ["50-50","100-50","100-100"]
-
+compile_time_timeout_seconds = 7200
+######################################
 for subfolder_name in benchmark_folders:
     benchmark_path = os.path.join(benchmarks_folder, subfolder_name)
     build_path = os.path.join(build_folder, subfolder_name) 
@@ -63,8 +69,9 @@ for subfolder_name in benchmark_folders:
         ##### loop over specified slot_counts #########
         updated_slot_counts = slot_counts 
         if subfolder_name in exceptions :
-            updated_slot_counts = [1]
+            updated_slot_counts = benchmarks_slot_counts[subfolder_name]
         for slot_count in updated_slot_counts:
+            benchmark_compilation_timed_out = False
             print("****************************************************************")
             print(f"*****run {subfolder_name} , for slot_count : {slot_count}******")
             operation_stats = {
@@ -87,7 +94,8 @@ for subfolder_name in benchmark_folders:
                         stdout=subprocess.PIPE, 
                         stderr=subprocess.PIPE, 
                         universal_newlines=True, 
-                        cwd=build_path
+                        cwd=build_path,
+                        timeout=compile_time_timeout_seconds 
                     )
                     lines = result.stdout.splitlines()
 
@@ -118,11 +126,15 @@ for subfolder_name in benchmark_folders:
                     print(f"Depth=>{depth}, multiplcative_depth=>{multiplicative_depth}")
                     operation_stats["Depth"].append(depth)
                     operation_stats["Multiplicative Depth"].append(multiplicative_depth)
-
+                except subprocess.TimeoutExpired:
+                    print(f"Command `{benchmark_run_command}` timed out after {compile_time_timeout_seconds} seconds.")
+                    benchmark_compilation_timed_out = True
                 except subprocess.CalledProcessError as e:
                     error_message = e.stderr.decode('utf-8') if e.stderr else "No error message available."
                     print("Command for {} failed with error:\n{}".format(subfolder_name, error_message))
                     continue
+                if benchmark_compilation_timed_out : 
+                    break 
                 ## building and running fhe code 
                 build_path_he = os.path.join(build_path, "he")
                 result = subprocess.run(['cmake', '-S', '.', '-B', 'build'], 
@@ -130,7 +142,8 @@ for subfolder_name in benchmark_folders:
                             check=True, 
                             stdout=subprocess.PIPE, 
                             stderr=subprocess.PIPE, 
-                            universal_newlines=True)
+                            universal_newlines=True
+                            )
                 result =subprocess.run(['cmake', '--build', 'build'], cwd=build_path_he,universal_newlines=True,
                     check=True, 
                     stdout=subprocess.PIPE, 
@@ -177,24 +190,22 @@ for subfolder_name in benchmark_folders:
             ####################################################################
             bench_name = subfolder_name+"_"+str(slot_count)
             row=[bench_name]
-            for key, values in operation_stats.items():
-                result = statistics.median(values) 
-                if key == "compile_time (s)" or key == "execution_time (s)" :
-                    result = result / 1000
-                    result = format(result, ".3f")
-                print(f"{key} {values} {result}")
-                row.append(result) if values else None
+            if not benchmark_compilation_timed_out : 
+                for key, values in operation_stats.items():
+                    result = statistics.median(values) 
+                    if key == "compile_time (s)" or key == "execution_time (s)" :
+                        result = result / 1000
+                        result = format(result, ".3f")
+                    print(f"{key} {values} {result}")
+                    row.append(result) if values else None
             ##########################################################################
             ##########################################################################
             with open(output_csv, mode='a', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(row)
-
 ######################################################################################
 ######################################################################################
-######################################################################################
-######################################################################################
-######################################################################################
+"""
 print("Run polynomial benchmarks !!!!!! ")
 polynomial_folders = ["polynomials_coyote"]
 for subfolder_name in polynomial_folders: 
@@ -204,6 +215,7 @@ for subfolder_name in polynomial_folders:
     ## informations to collect 
     for regime in regimes :
         for tree_depth in depths : 
+            benchmark_compilation_timed_out = False
             operation_stats = {
             "add": [], "sub": [], "multiply_plain": [], "rotate_rows": [],
             "negate": [], "multiply": [], "Depth": [], "Multiplicative Depth": [],
@@ -225,7 +237,8 @@ for subfolder_name in polynomial_folders:
                             stdout=subprocess.PIPE, 
                             stderr=subprocess.PIPE, 
                             universal_newlines=True, 
-                            cwd=build_path
+                            cwd=build_path,
+                            timeout=compile_time_timeout_seconds 
                         )
                         lines = result.stdout.splitlines()
                         compile_time_found = False 
@@ -245,8 +258,13 @@ for subfolder_name in polynomial_folders:
                         operation_stats["Depth"].append(int(depth))
                         operation_stats["Multiplicative Depth"].append(int(multiplicative_depth))
                         print(f"Depth: {depth} --MultipliDepth {multiplicative_depth}")
+                    except subprocess.TimeoutExpired:
+                        print(f"Command `{command}` timed out after {compile_time_timeout_seconds} seconds.")
+                        benchmark_compilation_timed_out = True
                     except subprocess.CalledProcessError as e:
                         print(f"Command for {subfolder_name} failed with error:\n{e.stderr}")
+                    if benchmark_compilation_timed_out : 
+                        break 
                     #########################################################################
                     ## building and running fhe code 
                     build_path_he = os.path.join(build_path, "he")
@@ -337,15 +355,15 @@ for subfolder_name in polynomial_folders:
             ##################################################################
             ##################################################################
             row=[benchmark_name]
-            for key, values in operation_stats.items():
-                result = statistics.median(values) 
-                if key == "compile_time (s)" or key == "execution_time (s)" :
-                    result = result / 1000
-                    result = format(result, ".3f")
-                print(f"{key} {values} {result}")
-                row.append(result) if values else None
+            if not benchmark_compilation_timed_out : 
+                for key, values in operation_stats.items():
+                    result = statistics.median(values) 
+                    if key == "compile_time (s)" or key == "execution_time (s)" :
+                        result = result / 1000
+                        result = format(result, ".3f")
+                    print(f"{key} {values} {result}")
+                    row.append(result) if values else None
             with open(output_csv, mode='a', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(row)       
-          
-        
+                writer.writerow(row)                      
+"""
