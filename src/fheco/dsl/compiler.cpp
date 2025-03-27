@@ -344,7 +344,7 @@ void Compiler::gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int wi
   }
   /***********Padd vector of output terms to reach a size of 2^x****/
 
-  /*****************************************************************
+  /*****************************************************************/
   // std::cout<<"apply existing trs on output elements to balance them \n";
   auto rewrite_heuristicc = trs::RewriteHeuristic::bottom_up;
   trs::TRS joined_trs{trs::Ruleset::joined_ruleset(func)};

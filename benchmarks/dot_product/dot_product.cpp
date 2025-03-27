@@ -11,7 +11,7 @@ using namespace fheco;
 #include "../global_variables.hpp" 
 
 /****************/
- void fhe_vectorized(int slot_count)
+void fhe_vectorized(int slot_count)
 {
   Ciphertext c0("c0");
   Plaintext v1("v1");

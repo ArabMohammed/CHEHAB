@@ -1,2 +1,0 @@
-/scratch/ma9232/My_CHEHAB_Repo/CHEHAB/run_benchmarks.py:200: SyntaxWarning: invalid escape sequence '\s'
-  """

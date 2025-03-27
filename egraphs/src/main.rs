@@ -2,7 +2,7 @@
 extern crate clap;
 use clap::{App, Arg};
 use egraphslib::*;
-use std::time::Instant;
+use std::time::Instant; 
 use crate::veclang::VecLang;
 use egg::{RecExpr, Id, Language};
 use rand::Rng;
@@ -155,10 +155,10 @@ fn main() {
     let mut stop_reason = 0 ;
     let mut rulesets_appplying_order  = vec![0,1];
     let mut node_limit = 100 ;
-    /*********************************/
-    rulesets_appplying_order  = vec![2,3,4];
+    /*********************************/ 
+    rulesets_appplying_order  = vec![2];
     let mut previous_cost = usize::MAX;
-    node_limit = 100_000 ; 
+    node_limit = 100_000 ;  
     let mut comp = 0;
     let mut iteration = 0;
     let mut current_vector_width = vector_width ; 
@@ -169,7 +169,7 @@ fn main() {
         current_vector_width = rules::get_vector_width(&current_expr);
         if (current_cost == previous_cost){
             comp+=1;
-        }else{
+        }else{ 
             previous_cost=current_cost ; 
             comp=0;
         }

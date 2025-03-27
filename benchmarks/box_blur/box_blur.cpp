@@ -87,7 +87,7 @@ int main(int argc, char **argv)
   if (argc > 3)
     call_quantifier = stoi(argv[3]);
 
-  bool cse = true;
+  bool cse = true; 
   if (argc > 4)
     cse = stoi(argv[4]);
    
