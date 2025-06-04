@@ -9,7 +9,7 @@ use crate::{
     runner::StopReason, 
     cost::VecCostFn,
 }; 
-use std::collections::HashMap;  
+use std::collections::HashMap;   
 use std::collections::HashSet;  
 use egg::rewrite as rw;
 use egg::*;
@@ -766,17 +766,7 @@ pub fn minus_rules(vector_width: usize, expression_depth: usize) -> Vec<Rewrite<
         rw!("sub-a-a-0"; "?a" => 
         "(- ?a 0)"
         if is_leaf("?a","?a")
-        ),
-        rw!("sub-a*b-0-a*b"; "(* ?a ?b)" => 
-        "(- 0 (* ?a ?b))"
-        ),
-        rw!("sub-a+b-0-a+b"; "(+ ?a ?b)" => 
-        "(- 0 (+ ?a ?b))"
-        ),
-        rw!("sub--a-0--a"; "(- ?a)" => 
-        "(- 0 (- ?a))"
-        ),
-        
+        ),        
         /*rw!("part-fold-assoc-add-sub-"; "(- (+ ?b ?c) ?a)" => 
         "(- a? (+ ?b ?c))"
         if is_leaf("?a","?a")
