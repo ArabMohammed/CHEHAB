@@ -277,10 +277,10 @@ where
         // Log an error message for any e-class that failed to compute a cost
         for class in self.egraph.classes() {
             if !self.costs.contains_key(&class.id) {
-                eprintln!(
+                /*eprintln!(
                     "Failed to compute cost for eclass {}: {:?}",
                     class.id, class.nodes
-                );
+                );*/
             }
         }
     }

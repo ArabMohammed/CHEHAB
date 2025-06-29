@@ -340,10 +340,10 @@ where
             rules.iter().try_for_each(|rw| {
                 let start = Instant::now();
                 // Vec<SearchMatches<'a, L>>
-                eprintln!("===> Search Rewrite for rule '{}'", rw.name);
+                // eprintln!("===> Search Rewrite for rule '{}'", rw.name);
                 let mut ms = self.scheduler.search_rewrite(i, &self.egraph, rw);
                 //let total_matches: usize = ms.iter().map(|m| m.substs.len()).sum();
-                eprintln!("Rewrite rule '{}' matched {} times.", rw.name, ms.len());
+                // eprintln!("Rewrite rule '{}' matched {} times.", rw.name, ms.len());
                 debug!("Rewrite rule '{}' matched {} times.", rw.name, ms.len());
                 if rw.name.as_str().starts_with("exp"){
                     // Expansive rule: sample matches
@@ -401,7 +401,7 @@ where
                     } else {
                         applied.insert(rw.name.to_owned(), actually_matched);
                     }
-                    eprintln!("===> {} was applied : {} times", rw.name, actually_matched);
+                    // eprintln!("===> {} was applied : {} times", rw.name, actually_matched);
                 }
                 let end = start.elapsed();
                 //eprintln!("time for applying the rewrte rule {:?} is {:?}", rw.name, end);

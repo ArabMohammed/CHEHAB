@@ -144,14 +144,14 @@ void Compiler::compile(
   {
     case Ruleset::simplification_ruleset:
     {
-      std::cout<<"Run depth TRS ===> \n";
+      //std::cout<<"Run simplification TRS ===> \n";
       trs::TRS simplification_ruleset{trs::Ruleset::simplification_ruleset(func)};
       simplification_ruleset.run(rewrite_heuristic);
       break;
     }
     case Ruleset::depth:
     {
-      std::cout<<"Run depth TRS ===> \n";
+      //std::cout<<"Run depth TRS ===> \n";
       trs::TRS depth_trs{trs::Ruleset::depth_ruleset(func)};
       depth_trs.run(rewrite_heuristic);
       break;
@@ -597,22 +597,22 @@ void update_io_file(const unordered_map<string,string>& input_entries,const vect
   string new_header = std::to_string(function_slot_count)+" "+std::to_string(input_entries.size())+" "+std::to_string(updated_outputs.size())+"\n";
   updated_input_file << new_header;
   string updated_input ="" ;
-  std::cout<<"=================>  loop over input entries : \n";
+  //std::cout<<"=================>  loop over input entries : \n";
   for(const auto&pair : input_entries){
       string vectorString = pair.second.substr(4);
       string addionalInfo = pair.second.substr(0,4);
       updated_input=pair.first+" "+addionalInfo;
-      std::cout<<"==>"<<vectorString<<"||\n";
+      //std::cout<<"==>"<<vectorString<<"||\n";
       vector<std::string> Valuestokens = split_string(vectorString, ' ');
       if(pair.first.substr(0,1)=="c"){
         /************************************************/
         for(int i =0; i<Valuestokens.size() ; i++){
           string key = Valuestokens[i];
-          std::cout<<"==>key :"<<key<<"||\n";
+          //std::cout<<"==>key :"<<key<<"||\n";
           if(!is_literal(key)){
               string value =""; 
               if (ciphertexts.find(key) != ciphertexts.end()) {
-                  std::cout<<"ciphertxt_map :"<<ciphertexts[key]<<"||\n";
+                  //std::cout<<"ciphertxt_map :"<<ciphertexts[key]<<"||\n";
                   updated_input+=trim(ciphertexts[key])+" ";  // Access the value corresponding to the key
               } else {
                   if (plaintexts.find(key) != plaintexts.end()){
@@ -626,7 +626,7 @@ void update_io_file(const unordered_map<string,string>& input_entries,const vect
           }
         }
         /**********************************************************/
-        std::cout<<"updated_input :"<<updated_input<<"||\n";
+        //std::cout<<"updated_input :"<<updated_input<<"||\n";
       }else if(pair.first.substr(0,1)=="p"){
         for(int i =0; i<Valuestokens.size() ; i++){
           string key = Valuestokens[i];
@@ -1116,7 +1116,7 @@ string process_composed_vectors(const vector<string>& vector_elements,
       return dictionary[string_vector];
     }
   }
-}
+} 
 /************************************************************************/
 std::pair<std::string, int> process(
     const std::vector<std::string>& tokens,
@@ -1255,15 +1255,15 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func)
   for (const auto& expr : expressions) {
     if (&expr == &expressions.back()) break;
     /*************************************/
-    std::cout<<"==> Intial expr : "<<expr<<" \n";
+    //std::cout<<"==> Intial expr : "<<expr<<" \n";
     auto tokens = process_vectorized_code(expr);
     std::unordered_map<std::string, std::string> dictionary = {};
     process(tokens,0,dictionary,inputs_entries,inputs,inputs_types, slot_count,simplified_expression);
     // Convert new operands VecAddRot, VecMulRot, VecMinusRot
-    std::cout<<"==> simplied expression :"<<simplified_expression<<"\n";
+    //std::cout<<"==> simplied expression :"<<simplified_expression<<"\n";
     auto tokens1 = split(simplified_expression.substr(1));
     string updated_expr = convert_new_ops(tokens1);
-    std::cout<<"==> updated_expr :"<<updated_expr<<"\n";
+    //std::cout<<"==> updated_expr :"<<updated_expr<<"\n";
     simplified_expressions.push_back(updated_expr);
     simplified_expression="";
     outputs.push_back(labels_map[id_counter - 1]);

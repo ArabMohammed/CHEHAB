@@ -130,6 +130,7 @@ int main(int argc, char **argv)
       Compiler::compile(func, ruleset, rewrite_heuristic, header_os, gen_name + ".hpp", source_os);
       Compiler::gen_he_code(func, header_os, gen_name + ".hpp", source_os, 29);
       /************/elapsed = chrono::high_resolution_clock::now() - t;
+      cout<<"Compile time : \n";
       cout << elapsed.count() << " ms\n";
       if (call_quantifier)
       {
@@ -160,6 +161,7 @@ int main(int argc, char **argv)
       Compiler::compile(func, ruleset, rewrite_heuristic, header_os, gen_name + ".hpp", source_os);
       Compiler::gen_he_code(func, header_os, gen_name + ".hpp", source_os, 29);
       /************/elapsed = chrono::high_resolution_clock::now() - t;
+      cout<<"Compile time : \n";
       cout << elapsed.count() << " ms\n";
       if (call_quantifier)
       {

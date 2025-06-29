@@ -7,7 +7,7 @@ use crate::{
     veclang::{ConstantFold, Egraph, VecLang},
     runner::Runner,
     runner::StopReason, 
-    cost::VecCostFn,
+    cost::VecCostFn, 
 }; 
 use std::collections::HashMap;   
 use std::collections::HashSet;  
@@ -78,24 +78,29 @@ pub fn run(
         /* for the rules , if the rule is expensive we add the prefix exp to its name */
     // Stop timing after the e-graph is built
     let build_time = start_time.elapsed();
-    eprintln!("E-graph built in {:?}", build_time);
+    
+    //eprintln!("E-graph built in {:?}", build_time);
     // Print the reason for stopping to STDERR
+    
     /*eprintln!(
         "Stopped after {} iterations, reason: {:?}",
         runner.iterations.len(),
         runner.stop_reason
     );*/
+    
     // Extract the e-graph and the root node
     let (eg, root) = (runner.egraph, runner.roots[0]);
-    eprintln!("final number of enodes : {:?}", eg.total_size());
+    //eprintln!("final number of enodes : {:?}", eg.total_size());
     let find_cycle = Instant::now();
     find_cycles(&eg);
     let time_end_cycles = find_cycle.elapsed();
+    
     //eprintln!("time for finding cyclse is : {:?}", time_end_cycles);
     /*
     Stop_reason : 0  : Not-saturated 
                   1  : Saturated 
     */
+    
     let mut stop_reason : usize = 0 ;
     match runner.stop_reason {
         Some(StopReason::Saturated) => {
@@ -106,20 +111,22 @@ pub fn run(
     /********************************************************************/
     let mut best_cost = usize::MAX;
     let mut best_expr: RecExpr<VecLang> = RecExpr::default();
-    eprintln!("begining of extraction 0 .... ");
+    //eprintln!("begining of extraction 0 .... ");
     /* we have 3 ways fot the extraction:
         1) greedy_extraction: takes decisions locally
         2) exhaustive_extraction: exploring all possibilities
         3) sa_extraction: based on simulating annealing metaheuristic
     */
-    /************************************ greedy extraction ******************************************/
+    /*********************** greedy extraction **************************/
+    /********************************************************************/
     if extraction_technic == 0 {
         let start_extract_time = Instant::now();
         let mut extractor = GreedyExtractor::new(&eg, VecCostFn { egraph: &eg }, root);
         (best_cost, best_expr) = extractor.find_best(root);
         let extract_time = start_extract_time.elapsed();
     }else if extraction_technic == 1 {
-        /********************************** Exhaustive extraction *************************************/
+        /******************************* Exhaustive extraction ************************/
+        /******************************************************************************/
         let start_extract_time = Instant::now();
         let mut extractor = ExhaustiveExtractor::new(&eg);
         extractor.find_best(
@@ -136,7 +143,8 @@ pub fn run(
         let extract_time = start_extract_time.elapsed();
         /******************************************************************************/
     }else if extraction_technic == 2 {
-        /************************************ SA extraction *************************************************/
+        /********************************** SA extraction *****************************/
+        /******************************************************************************/
         let start_extract_time = Instant::now();
         let mut extractor = SimulatedAnnealingExtractor::new(&eg);
         let mut n_cost:usize = 0;
@@ -152,13 +160,6 @@ pub fn run(
             cooling_rate,
         );
         let extract_time = start_extract_time.elapsed();
-        //Stop timing after the extraction is complete
-        eprintln!("display final results");
-        //eprintln!("Expression extraction took {:?}", extract_time);
-        //eprintln!("Final cost is {}", best_cost);
-        //eprintln!("Extracted Expression : {}", best_expr);
-        // Return the extracted cost and expression
-        /********************************************************************************/
     }
     (best_cost, best_expr, stop_reason)
 
