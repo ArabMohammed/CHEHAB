@@ -436,4 +436,5 @@ ir::Term *TRS::construct_term(
   return matching.find(matcher)->second;
 }
 
+
 } // namespace fheco::trs

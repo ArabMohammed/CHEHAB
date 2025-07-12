@@ -37,11 +37,7 @@ pub fn run(
         2 => {rules = addition_rules(vector_width,expression_depth);},
         3 => {rules = minus_rules(vector_width,expression_depth);},
         4 => {rules = multiplication_rules(vector_width,expression_depth);},
-        5 => {rules = neg_rules(vector_width,expression_depth); }, 
-
-        //7 => {rules = rot_minus_rules(vector_width,expression_depth);},
-        //8 => {rules = rot_multiplication_rules(vector_width,expression_depth);},
-
+        /////////////////////////////////////////////////////
         9 => {rules = vector_assoc_add_rules(vector_width);},
         10 => {rules = vector_assoc_min_rules(vector_width);},
         11 => {rules = vector_assoc_mul_rules(vector_width);},
@@ -244,7 +240,6 @@ where
 /*************************************/
 pub fn print_egraph(egraph: Egraph)
 {
-
     eprintln!("***************egraph******************");
 
                 for eclass in egraph.classes() {
@@ -293,71 +288,6 @@ pub fn print_egraph(egraph: Egraph)
         eprintln!("Class {} linked to {}", class_id, connections_str);
     }
 }
-/*************************************/
-pub fn vectorization_rules(vector_width: usize) -> Vec<Rewrite<VecLang, ConstantFold>> {
-    let mut rules: Vec<Rewrite<VecLang, ConstantFold>> = vec![];
-
-    let mut searcher_add = Vec::new();
-    let mut searcher_mul = Vec::new();
-    let mut searcher_sub = Vec::new();
-    let mut searcher_neg = Vec::new();
-
-    let mut applier_1 = Vec::new();
-    let mut applier_2 = Vec::new();
-
-    for i in 0..vector_width {
-        searcher_add.push(format!("( + ?a{} ?b{}) ", i, i));
-        searcher_mul.push(format!("( * ?a{} ?b{}) ", i, i));
-        searcher_sub.push(format!("( - ?a{} ?b{}) ", i, i));
-        searcher_neg.push(format!("( - ?a{}) ", i));
-
-        applier_1.push(format!("?a{} ", i));
-        applier_2.push(format!("?b{} ", i));
-    }
-
-    let lhs_add: Pattern<VecLang> = format!("(Vec {})", searcher_add.concat()).parse().unwrap();
-    let lhs_mul: Pattern<VecLang> = format!("(Vec {})", searcher_mul.concat()).parse().unwrap();
-    let lhs_sub: Pattern<VecLang> = format!("(Vec {})", searcher_sub.concat()).parse().unwrap();
-    let lhs_neg: Pattern<VecLang> = format!("(Vec {})", searcher_neg.concat()).parse().unwrap();
-
-    // Parse the right-hand side patterns
-    let rhs_add: Pattern<VecLang> = format!(
-        "(VecAdd (Vec {}) (Vec {}))",
-        applier_1.concat(),
-        applier_2.concat()
-    )
-    .parse()
-    .unwrap();
-    eprintln!("{} => {}", lhs_add, rhs_add);
-    let rhs_mul: Pattern<VecLang> = format!(
-        "(VecMul (Vec {}) (Vec {}))",
-        applier_1.concat(),
-        applier_2.concat()
-    )
-    .parse()
-    .unwrap();
-
-    let rhs_sub: Pattern<VecLang> = format!(
-        "(VecMinus (Vec {}) (Vec {}))",
-        applier_1.concat(),
-        applier_2.concat()
-    )
-    .parse()
-    .unwrap();
-
-    let rhs_neg: Pattern<VecLang> = format!("(VecNeg (Vec {}) )", applier_1.concat(),)
-        .parse()
-        .unwrap();
-
-    // Push the rewrite rules into the rules vector
-
-    rules.push(rw!(format!("add-vectorize" ); { lhs_add.clone() } => { rhs_add.clone() }));
-    rules.push(rw!(format!("mul-vectorize"); { lhs_mul.clone() } => { rhs_mul.clone() }));
-    rules.push(rw!(format!("sub-vectorize"); { lhs_sub.clone() } => { rhs_sub.clone() }));
-    rules.push(rw!(format!("neg-vectorize"); { lhs_neg.clone() } => { rhs_neg.clone() }));
-    rules
-}
-/******************************************/
 pub fn is_not_vector_of_scalar_operations(
     vars: &'static str, // Make vars static
 ) -> impl Fn(&mut Egraph, Id, &Subst) -> bool + 'static {
@@ -605,8 +535,11 @@ pub fn cond_check_any_elems_composed(vector_width: usize)-> impl Fn(&mut EGraph<
         count * 2 >= vector_width || count1 >= 1 // Check if at least half of the elements satisfy the condition
     }
 }
+
+/************************************************************************************************/
 /*******************************operation rules*************************************************/
 /***********************************************************************************************/
+
 pub fn combined_rules(vector_width: usize, expression_depth: usize) -> Vec<Rewrite<VecLang, ConstantFold>>{
     let base: usize = 2;
     let mut max_vector_size : usize = base.pow(expression_depth as u32 - 1) * vector_width; 
@@ -614,6 +547,7 @@ pub fn combined_rules(vector_width: usize, expression_depth: usize) -> Vec<Rewri
     /*****************************************************************************/
     max_vector_size = min(max_vector_size,4096);
     let mut rules: Vec<Rewrite<VecLang, ConstantFold>> = vec![
+        /************Addition ********/
         rw!("add-0-0+0"; "0" => "(+ 0 0)"),
         rw!("add-a-a+0"; "?a" => 
         "(+ ?a 0)"
@@ -629,22 +563,31 @@ pub fn combined_rules(vector_width: usize, expression_depth: usize) -> Vec<Rewri
         "(+ 0 (- ?a))" 
         ),
         rw!("neg-0-0+0"; "0" => "(- 0)"),
-        /*******************************/
+        /********* Subtraction *******/
         rw!("sub-0-0-0"; "0" => "(- 0 0)"),
         rw!("sub-a-a-0"; "?a" => 
         "(- ?a 0)"
         if is_leaf("?a","?a")
         ),
-        rw!("sub-a*b-0-a*b"; "(* ?a ?b)" => 
-        "(- 0 (* ?a ?b))"
-        ),
-        rw!("sub-a+b-0-a+b"; "(+ ?a ?b)" => 
-        "(- 0 (+ ?a ?b))"
-        ),
         rw!("sub--a-0--a"; "(- ?a)" => 
-        "(- 0 (- ?a))"
+        "(- 0  ?a)"
         ),
-        /*********************************/
+        /********* Multiplication ********/
+        rw!("mul-0-0*0"; "0" => "(* 0 0)"),
+        rw!("mul-a-a*1"; "?a" => 
+        "(* ?a 1)"
+        if is_leaf("?a","?a")
+        ),
+        rw!("mul-a+b-1-a+b"; "(+ ?a ?b)" => 
+        "(* 1 (+ ?a ?b))"
+        ),
+        rw!("mul-a-b--1"; "(- ?a ?b)" => 
+        "(* 1 (- ?a ?b))"
+        ),
+        rw!("mul-a--1"; "(- ?a)" => 
+        "(* 1 (- ?a))"
+        ),
+        /********************************/
 
     ];
     let mut initial_vector_size : usize = 1 ;
@@ -831,7 +774,9 @@ pub fn combined_rules(vector_width: usize, expression_depth: usize) -> Vec<Rewri
     /**************************************************************************************/
     rules
 }
-/************************************************************/
+
+/****************************************************************************************/
+/****************************************************************************************/
 pub fn addition_rules(vector_width: usize, expression_depth: usize) -> Vec<Rewrite<VecLang, ConstantFold>>{
     let base: usize = 2;
     let mut max_vector_size : usize = base.pow(expression_depth as u32 - 1) * vector_width; 
@@ -992,14 +937,8 @@ pub fn minus_rules(vector_width: usize, expression_depth: usize) -> Vec<Rewrite<
         "(- ?a 0)"
         if is_leaf("?a","?a")
         ),
-        rw!("sub-a*b-0-a*b"; "(* ?a ?b)" => 
-        "(- 0 (* ?a ?b))"
-        ),
-        rw!("sub-a+b-0-a+b"; "(+ ?a ?b)" => 
-        "(- 0 (+ ?a ?b))"
-        ),
         rw!("sub--a-0--a"; "(- ?a)" => 
-        "(- 0 (- ?a))"
+        "(- 0  ?a)"
         ),
         
         /*rw!("part-fold-assoc-add-sub-"; "(- (+ ?b ?c) ?a)" => 
@@ -1165,34 +1104,7 @@ pub fn multiplication_rules(vector_width: usize, expression_depth: usize) -> Vec
     /********************************************/
     rules
 }
-/*************************************************************/
-pub fn neg_rules(vector_width : usize, expression_depth: usize) ->  Vec<Rewrite<VecLang, ConstantFold>>{
-    let base: usize = 2;
-    let mut max_vector_size : usize = base.pow(expression_depth as u32 - 1) * vector_width; 
-    max_vector_size = min(max_vector_size,4096);
-
-    let mut rules: Vec<Rewrite<VecLang, ConstantFold>> = vec![
-        rw!("neg-0-0+0"; "0" => "(- 0)"),
-    ];
-    let mut initial_vector_size : usize = 1 ;
-    while initial_vector_size <= max_vector_size{
-        let mut searcher_neg = Vec::new();
-        let mut applier_1 = Vec::new();
-        for i in 0..initial_vector_size {
-            searcher_neg.push(format!("( - ?b{}) ", i));
-            applier_1.push(format!("?b{} ", i));
-        }
-        let lhs_neg: Pattern<VecLang> = format!("(Vec {})", searcher_neg.concat()).parse().unwrap();
-        let rhs_neg: Pattern<VecLang> = format!("(VecNeg (Vec {}) )", applier_1.concat(),)
-        .parse()
-        .unwrap();
-        // Push the rewrite rules into the rules vector
-        rules.push(rw!(format!("neg-vectorize-{}",initial_vector_size); { lhs_neg.clone() } => { rhs_neg.clone() }));
-        initial_vector_size=initial_vector_size*2 ;
-    }
-    rules
-}
-/***************************************/
+/**************************************************************/
 fn is_not_leaf(var1: &'static str,var2: &'static str) -> impl Fn(&mut EGraph<VecLang, ConstantFold>, Id, &Subst) -> bool {
     let var1_str = var1.parse().unwrap();
     let var2_str = var2.parse().unwrap();

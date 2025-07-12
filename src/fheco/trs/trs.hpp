@@ -12,7 +12,7 @@
 #include <vector>
 
 namespace fheco::ir
-{
+{ 
 class Func;
 
 class Term;
