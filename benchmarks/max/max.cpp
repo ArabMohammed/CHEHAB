@@ -147,7 +147,7 @@ int main(int argc, char **argv)
     util::copyFile(inputs_file_name,updated_inputs_file_name);
     fhe(slot_count);
     string gen_name = "_gen_he_" + func_name;
-    string gen_path = "he/" + gen_name;
+    string gen_path = "he/" + gen_name; 
     ofstream header_os(gen_path + ".hpp");
     if (!header_os)
       throw logic_error("failed to create header file");

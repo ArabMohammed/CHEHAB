@@ -14,7 +14,7 @@ Ruleset Ruleset::simplification_ruleset(shared_ptr<ir::Func> func)
   TermMatcher w{TermMatcherType::term, "w"}; 
   TermMatcher x{TermMatcherType::term, "x"};
   TermMatcher y{TermMatcherType::term, "y"}; 
-  TermMatcher z{TermMatcherType::term, "z"};
+  TermMatcher z{TermMatcherType::term, "z"}; 
   TermMatcher t{TermMatcherType::term, "t"};
 
   TermMatcher c0{TermMatcherType::const_, "c0"};

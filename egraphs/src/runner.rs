@@ -266,15 +266,20 @@ where
         check_rules(&rules);
         self.egraph.rebuild();
         loop {
+            //eprintln!("==> Loop 0");
             let iter = self.run_one(&rules);
+            //eprintln!("==> Loop 1");
             self.iterations.push(iter);
+            //eprintln!("==> Loop 2");
             let stop_reason = self.iterations.last().unwrap().stop_reason.clone();
+            //eprintln!("==> Loop 3");
             // we need to check_limits after the iteration is complete to check for iter_limit
             if let Some(stop_reason) = stop_reason.or_else(|| self.check_limits().err()) {
                 info!("Stopping: {:?}", stop_reason);
                 self.stop_reason = Some(stop_reason);
                 break;
             }
+            //eprintln!("==> Loop 4");
         }
 
         assert!(!self.iterations.is_empty());
@@ -305,7 +310,7 @@ where
 
     fn run_one(&mut self, rules: &[&Rewrite<L, N>]) -> Iteration<IterData> {
         assert!(self.stop_reason.is_none());
-
+        //eprintln!("==> run_one 0");
         info!("\nIteration {}", self.iterations.len());
         
         self.try_start();
@@ -315,7 +320,9 @@ where
         let egraph_classes = self.egraph.number_of_classes();
 
         let hook_time = Instant::now();
+        //eprintln!("==> run_one 1");
         let mut hooks = std::mem::take(&mut self.hooks);
+        //eprintln!("==> run_one 2");
         result = result.and_then(|_| {
             hooks
                 .iter_mut()
@@ -323,7 +330,7 @@ where
         });
         self.hooks = hooks;
         let hook_time = hook_time.elapsed().as_secs_f64();
-
+        //eprintln!("==> run_one 3");
         let egraph_nodes_after_hooks = self.egraph.total_size();
         let egraph_classes_after_hooks = self.egraph.number_of_classes();
 
@@ -331,60 +338,42 @@ where
         trace!("EGraph {:?}", self.egraph.dump());
 
         let start_time = Instant::now();
-
+        //eprintln!("==> run_one 4");
         let mut matches = Vec::new();
         let mut applied = IndexMap::default();
-        let sample_size = 10;
-
+        let max_subs_size : usize = 100 ;
+        /*********************************************************************/
+        //eprintln!("==> run_one 5");
         result = result.and_then(|_| {
             rules.iter().try_for_each(|rw| {
                 let start = Instant::now();
                 // Vec<SearchMatches<'a, L>>
-                eprintln!("===> Search Rewrite for rule '{}'", rw.name);
+                //eprintln!("===> Search Rewrite for rule '{}'", rw.name);
                 let mut ms = self.scheduler.search_rewrite(i, &self.egraph, rw);
-                //let total_matches: usize = ms.iter().map(|m| m.substs.len()).sum();
-                eprintln!("Rewrite rule '{}' matched {} times.", rw.name, ms.len());
-                debug!("Rewrite rule '{}' matched {} times.", rw.name, ms.len());
-                if rw.name.as_str().starts_with("exp"){
-                    // Expansive rule: sample matches
-                    let sampled_matches: Vec<_> = ms.into_iter().take(sample_size).collect();
-                    matches.push(sampled_matches);
-                } else {
-                    // Non-expansive rule: apply all matches
-                    let max_subs_size : usize = 10000 ;
-                    let mut rng = thread_rng(); 
-                    /*ms.iter_mut().map(|match_item| {
-                        if(match_item.substs.len()>max_subs_size){
-                            eprintln!("subs  for rw : {} ==> '{}' ",match_item.substs.len(),rw.name);
-                        }
-                        if(!rw.name.as_str().starts_with("assoc")){
-                            match_item.substs.shuffle(&mut rng);
-                            match_item.substs.truncate(max_subs_size);
-                        }else{
-                            eprintln!("===> Assoc subs  is  for rw : {} ==> '{}' ",match_item.substs.len(),rw.name);
-                        }
-                        SearchMatches {
-                            eclass: match_item.eclass.clone(),
-                            substs: match_item.substs.clone(),
-                            ast: match_item.ast.clone(),
-                        }
-                    }).collect::<Vec<SearchMatches<L>>>();*/ 
-                    matches.push(ms);
-                    //debug!("Applied all {} matches for rule {}", total_matches, rw.name);
-                }
+                /*debug!("Rewrite rule '{}' matched {} times.", rw.name, ms.len());
+                // Non-expansive rule: apply all matches
+                let mut rng = thread_rng(); 
+                ms.iter_mut().map(|match_item| {
+                    match_item.substs.shuffle(&mut rng);
+                    match_item.substs.truncate(max_subs_size);
+                    SearchMatches {
+                        eclass: match_item.eclass.clone(),
+                        substs: match_item.substs.clone(),
+                        ast: match_item.ast.clone(),
+                    }
+                }).collect::<Vec<SearchMatches<L>>>();*/
+                matches.push(ms);
+                //debug!("Applied all {} matches for rule {}", total_matches, rw.name);
                 let end = start.elapsed();
-                // eprintln!("time for searching the rewrte rule {:?} is {:?}", rw.name, end);
                 self.check_limits()
             })
         });
-
         let search_time = start_time.elapsed().as_secs_f64();
-        //eprintln!("Total Search time: {}", search_time);
-
+        
+        /******************* Applying Found matches *********************************/
         let apply_time = Instant::now();
-        /********************************************/
-        //eprintln!("/*************Applying Found matches *****************/");
-        result = result.and_then(|_| {
+        //eprintln!("==> run_one 6");
+        /*result = result.and_then(|_| {
             rules.iter().zip(matches).try_for_each(|(rw, ms)| {
                 let start = Instant::now();
                 let total_matches: usize = ms.iter().map(|m| m.substs.len()).sum();
@@ -407,20 +396,39 @@ where
                 //eprintln!("time for applying the rewrte rule {:?} is {:?}", rw.name, end);
                 self.check_limits()
             })
+        });*/
+        result = result.and_then(|_| {
+            for (rw, ms) in rules.iter().zip(matches) {
+                let total_matches: usize = ms.iter().map(|m| m.substs.len()).sum();
+                if total_matches == 0 {
+                    continue;
+                }
+                //eprintln!("===> {} was matched : {} times", rw.name, total_matches);
+                let actually_matched = self.scheduler.apply_rewrite(i, &mut self.egraph, rw, ms);
+                if actually_matched > 0 {
+                    applied.insert(rw.name.to_owned(), actually_matched);
+                    eprintln!("===> {} was applied: {} times", rw.name, actually_matched);
+                    break; // Greedy: stop after first successful rewrite
+                }
+            }
+            Ok(())
         });
-        //eprintln!("/***********************************************************************/");
-        /************************************************/
+        //eprintln!("==> run_one 7");
+        /***************************************************************************/
         let apply_time = apply_time.elapsed().as_secs_f64();
-        // eprintln!("Total Apply time: {}", apply_time);
+        //eprintln!("Total Apply time: {}", apply_time);
         let rebuild_time = Instant::now();
+        //eprintln!("===> Next1 :");
         let n_rebuilds = self.egraph.rebuild();
         let rebuild_time = rebuild_time.elapsed().as_secs_f64();
+        //eprintln!("===> Next2 :");
         // eprintln!("Rebuild time: {}", rebuild_time);
         info!(
             "Size: n={}, e={}",
             self.egraph.total_size(),
             self.egraph.number_of_classes()
         );
+        //eprintln!("===> Next3 :");
         /************************************************/
         let can_be_saturated = applied.is_empty()
             && self.scheduler.can_stop(i)
@@ -435,6 +443,7 @@ where
         if can_be_saturated {
             result = result.and(Err(StopReason::Saturated))
         }
+        //eprintln!("===> Next4 :");
         /************************************************/
         Iteration {
             applied,
@@ -528,7 +537,9 @@ where
     /// A hook allowing you to customize rewrite application behavior.
     /// Useful to implement rule management.
     ///
-    fn apply_rewrite(
+    /*******************************************************************************************/
+    /*******************************************************************************************/
+    /*fn apply_rewrite(
         &mut self,
         iteration: usize,
         egraph: &mut EGraph<L, N>,
@@ -536,7 +547,48 @@ where
         matches: Vec<SearchMatches<L>>,
     ) -> usize {
         rewrite.apply(egraph, &matches).len()
+    }*/
+    /*****************************************/
+    fn apply_rewrite(
+        &mut self,
+        iteration: usize,
+        egraph: &mut EGraph<L, N>,
+        rewrite: &Rewrite<L, N>,
+        matches: Vec<SearchMatches<L>>,
+    ) -> usize {
+        let mut total_applied = 0;
+        // Step 1: apply rule once to all initial matches
+        let added_ids = rewrite.apply(egraph, &matches); // this calls apply_matches
+        //  Rebuild before searching again
+        egraph.rebuild();
+        total_applied += added_ids.len();
+        // Step 2: recursively apply to newly created eclasses
+        let mut queue: Vec<Id> = added_ids.clone();
+        let max_depth = 5; // optional depth limit to avoid infinite loops
+        let mut depth = 0;
+        while !queue.is_empty() && depth < max_depth {
+            let mut new_ids = vec![];
+
+            for eclass_id in queue.drain(..) {
+                let inner_matches = rewrite.searcher.search_eclass(egraph, eclass_id);
+                if let Some(matches) = inner_matches {
+                    // test if replacing matched term in the apply function works.
+                    let applied_ids = rewrite.apply(egraph, std::slice::from_ref(&matches));
+                    // Rebuild after each application round
+                    egraph.rebuild();
+                    // process applied_ids...
+                    //let applied_ids = rewrite.apply(egraph, &inner_matches);
+                    total_applied += applied_ids.len();
+                    new_ids.extend(applied_ids);
+                }
+            }
+            queue = new_ids;
+            depth += 1;
+        }
+        total_applied
     }
+    /*******************************************************************************************/
+    /*******************************************************************************************/
 }   
 
 /// A [`RewriteScheduler`] that implements exponentional rule backoff.

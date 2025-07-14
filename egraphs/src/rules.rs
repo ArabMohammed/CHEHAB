@@ -32,8 +32,8 @@ pub fn run(
     // Find the depth of the expression 
     let expression_depth : usize = ast_depth(&prog);
     match selected_ruleset_order {
-        0 => {rules = combined_rules(vector_width,expression_depth);},
-        //1 => {rules = vector_rules(vector_width);},
+        0 => {rules = greedy_trs_rules(vector_width,expression_depth);},
+        1 => {rules = combined_rules(vector_width,expression_depth);},
         2 => {rules = addition_rules(vector_width,expression_depth);},
         3 => {rules = minus_rules(vector_width,expression_depth);},
         4 => {rules = multiplication_rules(vector_width,expression_depth);},
@@ -56,7 +56,7 @@ pub fn run(
     type MyRunner = Runner<VecLang, ConstantFold>;
     let runner = MyRunner::new(Default::default())
         .with_egraph(init_eg)
-        .with_expr(&prog)
+        .with_expr(&prog) 
         .with_node_limit(node_limit)
         .with_time_limit(std::time::Duration::from_secs(timeout))
         .with_iter_limit(10_000)
@@ -161,6 +161,15 @@ pub fn run(
 }
 /***********************************************************************************/
 /***********************************************************************************/
+pub struct CostedRewrite<L, N> {
+    pub rule: Rewrite<L, N>,
+    pub cost: usize,
+}
+impl<L, N> CostedRewrite<L, N> {
+    pub fn new(rule: Rewrite<L, N>, cost: usize) -> Self {
+        Self { rule, cost }
+    }
+}
 /***********************************************************************************/
 pub fn ast_depth(expr: &RecExpr<VecLang>) -> usize {
     fn depth_helper(id: Id, expr: &RecExpr<VecLang>) -> usize {
@@ -494,8 +503,6 @@ pub fn cond_check_not_all_values_eq1(vector_width: usize)-> impl Fn(&mut EGraph<
 }
 /***************************************/
 pub fn cond_check_not_all_values_eq0(vector_width: usize)-> impl Fn(&mut EGraph<VecLang, ConstantFold>, Id, &Subst) -> bool {
-
-
     move |egraph : &mut EGraph<VecLang, ConstantFold>, _, subst| {
         (0..vector_width).any(|i| {
             //let var2_str = var2.parse().unwrap();
@@ -540,6 +547,275 @@ pub fn cond_check_any_elems_composed(vector_width: usize)-> impl Fn(&mut EGraph<
 /*******************************operation rules*************************************************/
 /***********************************************************************************************/
 
+pub fn greedy_trs_rules(vector_width: usize, expression_depth: usize) -> Vec<Rewrite<VecLang, ConstantFold>>{
+    let base: usize = 2;
+    let mut max_vector_size : usize = base.pow(expression_depth as u32 - 1) * vector_width; 
+    /******************* Addition rules  *****************************************/
+    /*****************************************************************************/
+    max_vector_size = min(max_vector_size,4096);
+    let mut costedRules: Vec<CostedRewrite<VecLang, ConstantFold>> = vec![];
+    let mut rules: Vec<Rewrite<VecLang, ConstantFold>> = vec![
+        /************Addition ********
+        //rw!("add-0-0+0"; "0" => "(+ 0 0)"),
+        rw!("add-a-a+0"; "?a" => 
+        "(+ ?a 0)"
+        //if is_leaf("?a","?a")
+        ),
+        rw!("add-a*b-0+a*b"; "(* ?a ?b)" => 
+        "(+ 0 (* ?a ?b))"
+        ),
+        rw!("add-a-b-0+a-b"; "(- ?a ?b)" => 
+        "(+ 0 (- ?a ?b))"
+        ),
+        rw!("add--a-0+-a"; "(- ?a)" => 
+        "(+ 0 (- ?a))" 
+        ),
+        rw!("neg-0-0+0"; "0" => "(- 0)"),
+        /********* Subtraction *******/
+        rw!("sub-0-0-0"; "0" => "(- 0 0)"),
+        rw!("sub-a-a-0"; "?a" => 
+        "(- ?a 0)"
+        if is_leaf("?a","?a")
+        ),
+        rw!("sub--a-0--a"; "(- ?a)" => 
+        "(- 0  ?a)"
+        ),
+        /********* Multiplication ********/
+        rw!("mul-0-0*0"; "0" => "(* 0 0)"),
+        rw!("mul-a-a*1"; "?a" => 
+        "(* ?a 1)"
+        if is_leaf("?a","?a")
+        ),
+        rw!("mul-a+b-1-a+b"; "(+ ?a ?b)" => 
+        "(* 1 (+ ?a ?b))"
+        ),
+        rw!("mul-a-b--1"; "(- ?a ?b)" => 
+        "(* 1 (- ?a ?b))"
+        ),
+        rw!("mul-a--1"; "(- ?a)" => 
+        "(* 1 (- ?a))"
+        ),
+        ********************************/
+
+    ];
+    let mut initial_vector_size : usize = 1 ;
+    while initial_vector_size <= max_vector_size{
+        let mut searcher_add = Vec::new();
+        let mut applier_1 = Vec::new();
+        let mut applier_2 = Vec::new();
+        for i in 0..initial_vector_size {
+            searcher_add.push(format!("( + ?a{} ?b{}) ", i, i));
+            applier_1.push(format!("?a{} ", i));
+            applier_2.push(format!("?b{} ", i));
+        }
+        let lhs_add: Pattern<VecLang> = format!("(Vec {})", searcher_add.concat()).parse().unwrap();
+        // Parse the right-hand side patterns
+        let rhs_add: Pattern<VecLang> = format!(
+            "(VecAdd (Vec {}) (Vec {}))",
+            applier_1.concat(),
+            applier_2.concat()
+        )
+        .parse()
+        .unwrap();
+        // Push the rewrite rules into the rules vector
+        let rule = rw!(
+            format!("add-vectorize-{}", initial_vector_size);
+            { lhs_add.clone() } => { rhs_add.clone() }
+            if cond_check_not_all_values_eq0(initial_vector_size)
+        );
+        let reduction = (initial_vector_size * 10000 + 2000)- 4001 ;
+        costedRules.push(CostedRewrite::new(rule, reduction));
+        /**************************************/
+        initial_vector_size=initial_vector_size*2;
+    }
+    /*************************************************/
+    initial_vector_size = 1 ;
+    max_vector_size = base.pow(expression_depth as u32 - 2) * vector_width ;
+    max_vector_size = min(max_vector_size,4096);
+    while initial_vector_size <= max_vector_size {
+        let mut searcher_add_red = Vec::with_capacity(initial_vector_size);
+        let mut applier_1 = Vec::with_capacity(initial_vector_size*2);
+        applier_1.resize(initial_vector_size*2,String::from(""));
+        for i in 0..initial_vector_size {
+            searcher_add_red.push(format!("( + ?a{} ?b{}) ", i, i));
+            applier_1[i]=format!("?a{} ", i);
+            applier_1[i+initial_vector_size]=format!("?b{} ", i);
+        }
+        let lhs_add: Pattern<VecLang> = format!("(Vec {})", searcher_add_red.concat()).parse().unwrap();
+        // Parse the right-hand side patterns
+        let rhs_add: Pattern<VecLang> = format!(
+            "(VecAddRot (Vec {}) {})",
+            applier_1.concat(),
+            initial_vector_size
+        )
+        .parse()
+        .unwrap();
+        //////////
+        let rule = rw!(format!("rot-add-vectorize-{}",initial_vector_size); { lhs_add.clone() } => { rhs_add.clone() } 
+        if cond_check_all_elems_composed(initial_vector_size)
+        );
+        let reduction = (initial_vector_size * 10000 + 2000)- 3051 ;
+        costedRules.push(CostedRewrite::new(rule, reduction));
+        /*********************************************/
+        initial_vector_size=initial_vector_size*2;
+    }
+    
+    /*************************************************/
+    initial_vector_size = 1 ;
+    while initial_vector_size <= max_vector_size{
+        let mut searcher_neg = Vec::new();
+        let mut applier_1 = Vec::new();
+        for i in 0..initial_vector_size {
+            searcher_neg.push(format!("( - ?b{}) ", i));
+            applier_1.push(format!("?b{} ", i));
+        }
+        let lhs_neg: Pattern<VecLang> = format!("(Vec {})", searcher_neg.concat()).parse().unwrap();
+        let rhs_neg: Pattern<VecLang> = format!("(VecNeg (Vec {}) )", applier_1.concat(),)
+        .parse()
+        .unwrap();
+        // Push the rewrite rules into the rules vector
+        let rule = rw!(format!("neg-vectorize-{}",initial_vector_size); { lhs_neg.clone() } => { rhs_neg.clone() });
+        let reduction = (initial_vector_size * 10000 + 2000)- 2001 ;
+        costedRules.push(CostedRewrite::new(rule, reduction));
+        /*******************************************/
+        initial_vector_size=initial_vector_size*2 ;
+    }
+    /*********************** subtraction rules**************************************/
+    /*******************************************************************************/
+    initial_vector_size = 1 ;
+    max_vector_size = base.pow(expression_depth as u32 - 1) * vector_width; 
+    max_vector_size = min(max_vector_size,4096);
+    while initial_vector_size <= max_vector_size{
+        let mut searcher_sub = Vec::new();
+        let mut applier_1 = Vec::new();
+        let mut applier_2 = Vec::new();
+        for i in 0..initial_vector_size {
+            searcher_sub.push(format!("( - ?a{} ?b{}) ", i, i));
+            applier_1.push(format!("?a{} ", i));
+            applier_2.push(format!("?b{} ", i));
+        }
+        let lhs_sub: Pattern<VecLang> = format!("(Vec {})", searcher_sub.concat()).parse().unwrap();
+        // Parse the right-hand side patterns
+        let rhs_sub: Pattern<VecLang> = format!(
+            "(VecMinus (Vec {}) (Vec {}))",
+            applier_1.concat(),
+            applier_2.concat()
+        )
+        .parse()
+        .unwrap();
+        // Push the rewrite rules into the rules vector
+        let rule = rw!(format!("sub-vectorize-{}",initial_vector_size); { lhs_sub.clone() } => {rhs_sub.clone()} 
+        if cond_check_not_all_values_eq0(initial_vector_size)
+        );
+        let reduction = (initial_vector_size * 10000 + 2000)- 4001 ;
+        costedRules.push(CostedRewrite::new(rule, reduction));
+        /*********************************************/
+        initial_vector_size=initial_vector_size*2
+    }
+    /*****************************************************/
+    max_vector_size = base.pow(expression_depth as u32 - 2) * vector_width ;
+    max_vector_size = min(max_vector_size,4096);
+    initial_vector_size = 1 ;
+    while initial_vector_size <= max_vector_size {
+        let mut searcher_sub_red = Vec::with_capacity(initial_vector_size);
+        let mut applier_1 = Vec::with_capacity(initial_vector_size*2);
+        applier_1.resize(initial_vector_size*2,String::from(""));
+        for i in 0..initial_vector_size {
+            searcher_sub_red.push(format!("( - ?a{} ?b{}) ", i, i));
+            applier_1[i]=format!("?a{} ", i);
+            applier_1[i+initial_vector_size]=format!("?b{} ", i);
+        }
+        let lhs_sub: Pattern<VecLang> = format!("(Vec {})", searcher_sub_red.concat()).parse().unwrap();
+        // Parse the right-hand side patterns
+        let rhs_sub: Pattern<VecLang> = format!(
+            "(VecMinusRot (Vec {}) {})",
+            applier_1.concat(),
+            initial_vector_size
+        )
+        .parse()
+        .unwrap(); 
+        /////////////////////////////
+        let rule = rw!(format!("rot-min-vectorize-{}",initial_vector_size); { lhs_sub.clone() } => { rhs_sub.clone() } 
+        if cond_check_all_elems_composed(initial_vector_size)
+        );
+        let reduction = (initial_vector_size * 10000 + 2000)- 3051 ;
+        costedRules.push(CostedRewrite::new(rule, reduction));
+        /**********************************************/
+        initial_vector_size=initial_vector_size*2;
+    }
+    /*********************** multiplication rules ****************************************/
+    /************************************************************************************/
+    max_vector_size = base.pow(expression_depth as u32 - 1) * vector_width; 
+    max_vector_size = min(max_vector_size,4096);
+    initial_vector_size = 1 ;
+    while initial_vector_size <= max_vector_size{
+        let mut searcher_mul = Vec::new();
+        let mut applier_1 = Vec::new();
+        let mut applier_2 = Vec::new();
+        for i in 0..initial_vector_size {
+            searcher_mul.push(format!("( * ?a{} ?b{}) ", i, i));
+            applier_1.push(format!("?a{} ", i));
+            applier_2.push(format!("?b{} ", i));
+        }
+        let lhs_mul: Pattern<VecLang> = format!("(Vec {})", searcher_mul.concat()).parse().unwrap();
+        // Parse the right-hand side patterns
+        let rhs_mul: Pattern<VecLang> = format!(
+            "(VecMul (Vec {}) (Vec {}))",
+            applier_1.concat(),
+            applier_2.concat()
+        )
+        .parse()
+        .unwrap();
+        // Push the rewrite rules into the rules vector
+        let rule = rw!(format!("mul-vectorize-{}",initial_vector_size); { lhs_mul.clone() } => { rhs_mul.clone() } 
+        if cond_check_not_all_values_eq1(initial_vector_size)
+        );
+        let reduction = (initial_vector_size * 10000 + 2000)- 4100 ;
+        costedRules.push(CostedRewrite::new(rule, reduction));
+        /***********************************************/
+        initial_vector_size=initial_vector_size*2;
+    }
+    /**********************************************/
+    max_vector_size = base.pow(expression_depth as u32 - 2) * vector_width;
+    max_vector_size = min(max_vector_size,4096); 
+    initial_vector_size = 1 ;
+    while initial_vector_size <= max_vector_size {
+        let mut searcher_mul_red = Vec::with_capacity(initial_vector_size);
+        let mut applier_1 = Vec::with_capacity(initial_vector_size*2);
+        applier_1.resize(initial_vector_size*2,String::from(""));
+        for i in 0..initial_vector_size {
+            searcher_mul_red.push(format!("( * ?a{} ?b{}) ", i, i));
+            applier_1[i]=format!("?a{} ", i);
+            applier_1[i+initial_vector_size]=format!("?b{} ", i);
+        }
+        let lhs_add: Pattern<VecLang> = format!("(Vec {})", searcher_mul_red.concat()).parse().unwrap();
+        // Parse the right-hand side patterns
+        let rhs_add: Pattern<VecLang> = format!(
+            "(VecMulRot (Vec {}) {})",
+            applier_1.concat(),
+            initial_vector_size
+        )
+        .parse()
+        .unwrap();
+        /////////////////////////
+        let rule = rw!(format!("rot-mul-vectorize-{}",initial_vector_size); { lhs_add.clone() } => { rhs_add.clone() } 
+        if cond_check_all_elems_composed(initial_vector_size)
+        );
+        let reduction = (initial_vector_size * 10000 + 2000)- 4150 ;
+        costedRules.push(CostedRewrite::new(rule, reduction));
+        /***********************************************/
+        initial_vector_size=initial_vector_size*2;
+    }
+    /**************************************************************************************/
+    costedRules.sort_by(|a, b| b.cost.cmp(&a.cost));
+    for costedRule in costedRules {
+        rules.push(costedRule.rule);
+    }
+    rules
+}
+
+/****************************************************************************************/
+/****************************************************************************************/
 pub fn combined_rules(vector_width: usize, expression_depth: usize) -> Vec<Rewrite<VecLang, ConstantFold>>{
     let base: usize = 2;
     let mut max_vector_size : usize = base.pow(expression_depth as u32 - 1) * vector_width; 
@@ -774,7 +1050,6 @@ pub fn combined_rules(vector_width: usize, expression_depth: usize) -> Vec<Rewri
     /**************************************************************************************/
     rules
 }
-
 /****************************************************************************************/
 /****************************************************************************************/
 pub fn addition_rules(vector_width: usize, expression_depth: usize) -> Vec<Rewrite<VecLang, ConstantFold>>{
