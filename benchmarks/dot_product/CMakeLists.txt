@@ -17,14 +17,14 @@ set(DESTINATION_FILE_4 ${CMAKE_SOURCE_DIR}/build/benchmarks/dot_product/he/CMake
 set(SOURCE_FILE_5 ${CMAKE_SOURCE_DIR}/benchmarks/dot_product/fhe_io_example.txt)
 set(DESTINATION_FILE_5 ${CMAKE_SOURCE_DIR}/build/benchmarks/dot_product/fhe_io_example.txt)
 
-set(SOURCE_FILE_6 ${CMAKE_SOURCE_DIR}/benchmarks/dot_product/generate_dot_product.py)
-set(DESTINATION_FILE_6 ${CMAKE_SOURCE_DIR}/build/benchmarks/dot_product/generate_dot_product.py)
+set(SOURCE_FILE_6 ${CMAKE_SOURCE_DIR}/benchmarks/dot_product/fhe_input_vectors.txt)
+set(DESTINATION_FILE_6 ${CMAKE_SOURCE_DIR}/build/benchmarks/dot_product/fhe_input_vectors.txt)
 
-add_custom_target(copy_my_file_6dot_product ALL 
-    COMMAND ${CMAKE_COMMAND} -E copy ${SOURCE_FILE_6} ${DESTINATION_FILE_6}
-    DEPENDS ${SOURCE_FILE}
-    COMMENT "Copying ${SOURCE_FILE_6} to ${DESTINATION_FILE_6}"
-)
+set(SOURCE_FILE_7 ${CMAKE_SOURCE_DIR}/benchmarks/dot_product/fhe_input_vector_values.txt)
+set(DESTINATION_FILE_7 ${CMAKE_SOURCE_DIR}/build/benchmarks/dot_product/fhe_input_vector_values.txt)
+
+set(SOURCE_FILE_8 ${CMAKE_SOURCE_DIR}/benchmarks/dot_product/generate_dot_product.py)
+set(DESTINATION_FILE_8 ${CMAKE_SOURCE_DIR}/build/benchmarks/dot_product/generate_dot_product.py)
 
 add_custom_target(copy_my_file_2dot_product ALL
     COMMAND ${CMAKE_COMMAND} -E copy ${SOURCE_FILE_2} ${DESTINATION_FILE_2}
@@ -36,15 +36,33 @@ add_custom_target(copy_my_file_3dot_product ALL
     DEPENDS ${SOURCE_FILE}
     COMMENT "Copying ${SOURCE_FILE_3} to ${DESTINATION_FILE_3}"
 )
+
+add_custom_target(copy_my_file_4dot_product ALL
+    COMMAND ${CMAKE_COMMAND} -E copy ${SOURCE_FILE_4} ${DESTINATION_FILE_4}
+    DEPENDS ${SOURCE_FILE}
+    COMMENT "Copying ${SOURCE_FILE_4} to ${DESTINATION_FILE_4}"
+)
+
 add_custom_target(copy_my_file_5dot_product ALL 
     COMMAND ${CMAKE_COMMAND} -E copy ${SOURCE_FILE_5} ${DESTINATION_FILE_5}
     DEPENDS ${SOURCE_FILE}
     COMMENT "Copying ${SOURCE_FILE_5} to ${DESTINATION_FILE_5}"
 )
-set(SOURCE_FILE_4 ${CMAKE_SOURCE_DIR}/benchmarks/dot_product/he/CMakeLists.txt)
-set(DESTINATION_FILE_4 ${CMAKE_SOURCE_DIR}/build/benchmarks/dot_product/he/CMakeLists.txt)
-add_custom_target(copy_my_file_4dot_product ALL
-    COMMAND ${CMAKE_COMMAND} -E copy ${SOURCE_FILE_4} ${DESTINATION_FILE_4}
+
+add_custom_target(copy_my_file_6dot_product ALL 
+    COMMAND ${CMAKE_COMMAND} -E copy ${SOURCE_FILE_6} ${DESTINATION_FILE_6}
     DEPENDS ${SOURCE_FILE}
-    COMMENT "Copying ${SOURCE_FILE_4} to ${DESTINATION_FILE_4}"
+    COMMENT "Copying ${SOURCE_FILE_6} to ${DESTINATION_FILE_6}"
+)
+
+add_custom_target(copy_my_file_7dot_product ALL 
+    COMMAND ${CMAKE_COMMAND} -E copy ${SOURCE_FILE_7} ${DESTINATION_FILE_7}
+    DEPENDS ${SOURCE_FILE}
+    COMMENT "Copying ${SOURCE_FILE_7} to ${DESTINATION_FILE_7}"
+)
+
+add_custom_target(copy_my_file_8dot_product ALL 
+    COMMAND ${CMAKE_COMMAND} -E copy ${SOURCE_FILE_8} ${DESTINATION_FILE_8}
+    DEPENDS ${SOURCE_FILE}
+    COMMENT "Copying ${SOURCE_FILE_8} to ${DESTINATION_FILE_8}"
 )

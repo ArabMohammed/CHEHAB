@@ -59,6 +59,31 @@ if is_vectorization_activated :
                 row = "c_{}_{}".format(i,j)+" "+str(is_cipher)+" "+str(matrix_C.value[i][j])+"\n"
                 rows.append(row)
         file.writelines(rows)
+
+
+    # Generate fhe_input_vectors.txt
+    with open("fhe_input_vectors.txt", "w") as file:
+        num_vectors = 2  # matrix A and matrix B
+        file.write(f"{num_vectors} {function_slot_count ** 2}\n")  # Each matrix is flattened
+
+        a_labels = "c0i " + " ".join([f"a_{i}_{j}" for i in range(matrix_A.nb_rows) for j in range(matrix_A.nb_cols)])
+        b_labels = "c1i " + " ".join([f"b_{i}_{j}" for i in range(matrix_B.nb_rows) for j in range(matrix_B.nb_cols)])
+
+        file.write(a_labels + "\n")
+        file.write(b_labels + "\n")
+
+    # Generate fhe_input_vector_values.txt
+    with open("fhe_input_vectors_values.txt", "w") as file:
+        # A values flattened
+        a_values = [str(matrix_A.value[i][j]) for i in range(matrix_A.nb_rows) for j in range(matrix_A.nb_cols)]
+        a_line = "c0i 1 1 " + " ".join(a_values) + "\n"
+        file.write(a_line)
+
+        # B values flattened
+        b_values = [str(matrix_B.value[i][j]) for i in range(matrix_B.nb_rows) for j in range(matrix_B.nb_cols)]
+        b_line = "c1i 1 1 " + " ".join(b_values) + "\n"
+        file.write(b_line)
+
 else :
     with open("fhe_io_example.txt","w") as file : 
         nb_inputs= matrix_A.nb_rows + matrix_B.nb_cols 

@@ -37,6 +37,31 @@ if is_vectorization_activated :
         row = "output"+" "+str(is_cipher)+" "+str(int(result[0]))+"\n"
         rows.append(row)
         file.writelines(rows)
+
+    # Create and write to the new vectorized input file
+    with open("fhe_input_vectors.txt", "w") as file:
+        # First line: number of input vectors
+        file.write(f"2 {function_slot_count}\n")
+
+        # Second line: names of the components of the first vector
+        c1_names = "c1i " + " ".join([f"v1_{i}" for i in range(function_slot_count)])
+        file.write(c1_names + "\n")
+
+        # Fourth line: names of the components of the second vector
+        c2_names = "c2i " + " ".join([f"v2_{i}" for i in range(function_slot_count)])
+        file.write(c2_names + "\n")
+
+        # Create and write to fhe_input_vector_values.txt
+    with open("fhe_input_vectors_values.txt", "w") as file:
+        # Write c1i line
+        c1_line = "c1i 1 1 " + " ".join(map(str, c1)) + "\n"
+        file.write(c1_line)
+
+        # Write c2i line
+        c2_line = "c2i 1 1 " + " ".join(map(str, c2)) + "\n"
+        file.write(c2_line)
+
+
 #################################################
 #################################################           
 else :

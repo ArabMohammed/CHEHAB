@@ -53,7 +53,7 @@ fn main() {
     /****************************************/
     let timeout = 300 ; // in seconds 
     let node_limit = 100_000 ; 
-    let mut rulesets_appplying_order  = vec![2,3,4];
+    let mut rulesets_appplying_order  = vec![1,2,3,4];
     /****************************************/
     /**************Inputs********************/
     // Get a path string to parse a program.
@@ -87,9 +87,11 @@ fn main() {
     let mut previous_cost = usize::MAX;
     let mut comp = 0;
     let mut iteration = 0;
+    let mut bounded_expr = false;
     let mut current_vector_width = vector_width ; 
     while (comp != rulesets_appplying_order.len()){
-        let (cost, best, stop_reason) = rules::run(&current_expr, timeout, current_vector_width,node_limit,rulesets_appplying_order[iteration%rulesets_appplying_order.len()],0);
+        let (cost, best, stop_reason) = rules::run(&current_expr, timeout, current_vector_width,node_limit,rulesets_appplying_order[iteration%rulesets_appplying_order.len()],0, &mut bounded_expr);
+        // eprintln!("current vec width is : {:?}", current_vector_width);
         current_expr = best ; 
         current_cost = cost ;
         current_vector_width = rules::get_vector_width(&current_expr);

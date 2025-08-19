@@ -23,7 +23,7 @@ if is_vectorization_activated :
         nb_outputs = function_slot_count
         slot_count = 1
         header = str(slot_count)+" "+str(nb_inputs)+" "+str(nb_outputs)+"\n"
-        file.write(header) 
+        file.write(header)
         rows = []
         for i in range(function_slot_count):
             line= "v1_{}".format(i)+" "+str(is_cipher)+" "+str(is_signed)+" "+str(int(v1[i]))+"\n"
@@ -35,6 +35,30 @@ if is_vectorization_activated :
             line= "output_{}".format(i)+" "+str(is_cipher)+" "+str(int(output[i]))+"\n"
             rows.append(line)
         file.writelines(rows)
+
+   # Create and write to the new vectorized input file
+    with open("fhe_input_vectors.txt", "w") as file:
+        # First line: number of input vectors
+        file.write(f"2 {function_slot_count}\n")
+
+        # Second line: names of the components of the first vector
+        c1_names = "c1i " + " ".join([f"v1_{i}" for i in range(function_slot_count)])
+        file.write(c1_names + "\n")
+
+        # Fourth line: names of the components of the second vector
+        c2_names = "c2i " + " ".join([f"v2_{i}" for i in range(function_slot_count)])
+        file.write(c2_names + "\n")
+
+        # Create and write to fhe_input_vector_values.txt
+    with open("fhe_input_vectors_values.txt", "w") as file:
+        # Write c1i line
+        c1_line = "c1i 1 1 " + " ".join(map(str, v1)) + "\n"
+        file.write(c1_line)
+
+        # Write c2i line
+        c2_line = "c2i 1 1 " + " ".join(map(str, v2)) + "\n"
+        file.write(c2_line)
+
     ###############################################################################
     ###############################################################################
 else :

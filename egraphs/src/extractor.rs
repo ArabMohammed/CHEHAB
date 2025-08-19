@@ -37,7 +37,7 @@ where
             let ordered = Self::topological_sort_with_max_order(egraph, root);
             let end = start.elapsed();
 
-            //eprintln!("time to sort is : {:?}", end);
+            // eprintln!("time to sort is : {:?}", end);
             // eprintln!("the order is : {:?}", ordered);
 
             extractor.find_costs(ordered);
@@ -269,7 +269,7 @@ where
 
             // Measure the time for the current iteration
             let duration = start_time.elapsed();
-            //eprintln!("Iteration {} took {:?}", i, duration);
+            // eprintln!("Iteration {} took {:?}", i, duration);
         }
 
         //eprintln!("Total number of iterations: {}", i);

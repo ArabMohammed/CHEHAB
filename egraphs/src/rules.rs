@@ -9,6 +9,7 @@ use crate::{
     runner::StopReason, 
     cost::VecCostFn, 
 }; 
+use std::collections::VecDeque;
 use std::collections::HashMap;   
 use std::collections::HashSet;  
 use egg::rewrite as rw;
@@ -26,15 +27,24 @@ pub fn run(
     node_limit: usize,
     selected_ruleset_order : usize ,
     extraction_technic : usize ,
+    bounded_expr : &mut bool,
 ) -> (usize, RecExpr<VecLang>, usize) {
     // Initialize the rule set based on the vector width
     let mut rules: Vec<Rewrite<VecLang, ConstantFold>> = vec![];
     // Find the depth of the expression 
     let expression_depth : usize = ast_depth(&prog);
     match selected_ruleset_order {
-        //0 => {rules = rules0(vector_width);},
+        1 => {
+            if !(*bounded_expr) {
+                eprintln!("new rules");
+                // rules.extend(generate_associativity_rules(128));
+                // rules.extend(generate_advanced_rules(128));
+                *bounded_expr = true;
+            }
+        },
         //1 => {rules = vector_rules(vector_width);},
-        2 => {rules = addition_rules(vector_width,expression_depth);},
+        2 => {
+            rules = addition_rules(vector_width,expression_depth);},
         3 => {rules = minus_rules(vector_width,expression_depth);},
         4 => {rules = multiplication_rules(vector_width,expression_depth);},
         5 => {rules = neg_rules(vector_width,expression_depth); }, 
@@ -861,20 +871,7 @@ pub fn multiplication_rules(vector_width: usize, expression_depth: usize) -> Vec
         "(* 1 (- ?a))"
         ),
         
-        /*rw!("part-fold-assoc-mul-add1"; "(* (+ ?b ?c) ?a)" => 
-        "(* a? (+ ?b ?c))"
-        if is_leaf("?a","?a")
-        ),
-        rw!("part-fold-assoc-mul-sub-2"; "(* (- ?b ?c) ?a)" => 
-        "(* a? (- ?b ?c))"
-        if is_leaf("?a","?a")
-        ),
-        rw!("reorder-mul"; "(* (* ?b ?c) ?a)" => "(* a? (* ?b ?c))"
-        if is_leaf("?a","?a")
-        ),
-        rw!("permute-mul"; "(* ?a ?b)" => "(* ?b ?a)"
-        if is_not_leaf("?a","?b")
-        ),*/
+      
     ];
     let mut initial_vector_size : usize = 1 ;
     while initial_vector_size <= max_vector_size{
@@ -975,26 +972,7 @@ fn is_not_leaf(var1: &'static str,var2: &'static str) -> impl Fn(&mut EGraph<Vec
 pub fn vector_assoc_mul_rules(vector_width: usize) -> Vec<Rewrite<VecLang, ConstantFold>> {
     let mut rules: Vec<Rewrite<VecLang, ConstantFold>> = vec![
         /*************************************************
-        rw!("assoc-mul-1"; 
-        "(VecMul ?x (VecMul ?y ?z))" => 
-        "(VecMul (VecMul ?x ?y) ?z)"
-        //if is_vec("?x","?y","?z","?t")
-        ),
-        rw!("assoc-mul-2"; 
-        "(VecMul ?x (VecMul ?y ?z))" => 
-        "(VecMul (VecMul ?x ?z) ?y)"
-        //if is_vec("?x","?y","?z","?t")
-        ),
-        rw!("assoc-mul-3"; 
-        "(VecMul (VecMul ?x ?y) ?z)" => 
-        "(VecMul ?y (VecMul ?x ?z))"
-        //if is_vec("?x","?y","?z","?t")
-        ),
-        rw!("assoc-mul-4"; 
-        "(VecMul (VecMul ?x ?y) ?z)" => 
-        "(VecMul ?x (VecMul ?y ?z))"
-        //if is_vec("?x","?y","?z","?t")
-        ),
+        
         *******************************************************/
         rw!("assoc-balan-mul-1"; 
         "(VecMul ?x (VecMul ?y (VecMul ?z ?t)))" => 
@@ -1058,43 +1036,7 @@ pub fn vector_assoc_min_rules(vector_width: usize) -> Vec<Rewrite<VecLang, Const
 /***************************************************/
 pub fn vector_assoc_add_rules(vector_width: usize) -> Vec<Rewrite<VecLang, ConstantFold>> {
     let mut rules: Vec<Rewrite<VecLang, ConstantFold>> = vec![
-        /**************************************************************************
-        rw!("assoc-add-1"; 
-        "(VecAdd (VecAdd (VecAdd ?x ?y) ?z) ?t)" => 
-        "(VecAdd (VecAdd (VecAdd ?x ?y) ?t) ?z)"
-        //if is_vec("?x","?z","?t","?y")
-        ),
-        rw!("assoc-add-2"; 
-        "(VecAdd (VecAdd (VecAdd ?x ?y) ?z) ?t)" => 
-        "(VecAdd (VecAdd (VecAdd ?y ?x) ?z) ?t)"
-        //if is_vec("?x","?z","?t","?y")
-        ),
-        rw!("assoc-add-3"; 
-        "(VecAdd (VecAdd (VecAdd ?x ?y) ?z) ?t)" => 
-        "(VecAdd (VecAdd (VecAdd ?y ?x) ?t) ?z)"
-        //if is_vec("?x","?z","?t","?y")
-        ),
-        rw!("assoc-add-4"; 
-        "(VecAdd ?x (VecAdd ?y ?z))" => 
-        "(VecAdd (VecAdd ?x ?y) ?z)"
-        //if is_vec("?x","?z","?t","?y")
-        ),
-        rw!("assoc-add-5"; 
-        "(VecAdd ?x (VecAdd ?y ?z))" => 
-        "(VecAdd (VecAdd ?x ?z) ?y)"
-        //if is_vec("?x","?z","?t","?y")
-        ),
-        rw!("assoc-add-6"; 
-        "(VecAdd (VecAdd ?x ?y) ?z)" => 
-        "(VecAdd ?y (VecAdd ?x ?z))"
-        //if is_vec("?x","?z","?t","?y")
-        ),
-        rw!("assoc-add-7"; 
-        "(VecAdd (VecAdd ?x ?y) ?z)" => 
-        "(VecAdd ?x (VecAdd ?y ?z))"
-        //if is_vec("?x","?z","?t","?y")
-        ),
-        **************************************************************************/
+      
         rw!("assoc-balan-add-1"; 
         "(VecAdd ?x (VecAdd ?y (VecAdd ?z ?t)))" => 
         "(VecAdd (VecAdd ?x ?y) (VecAdd ?z ?t))"
@@ -1149,10 +1091,7 @@ pub fn vector_assoc_add_mul_rules(vector_width: usize) -> Vec<Rewrite<VecLang, C
         if is_vec("?a","?b","?c","?c")
         ),
 
-        /*rw!("factor-out-mul"; 
-        "(VecAdd (VecMul ?a ?b) (VecMul ?a ?c))" => "(VecMul ?a (VecAdd ?b ?c))"
-        if is_vec("?a","?b","?c","?c")
-        ),*/
+       
     ];
     rules
 }
@@ -1160,26 +1099,7 @@ pub fn vector_assoc_add_mul_rules(vector_width: usize) -> Vec<Rewrite<VecLang, C
 pub fn vector_assoc_add_min_rules(vector_width: usize) -> Vec<Rewrite<VecLang, ConstantFold>> {
     let mut rules: Vec<Rewrite<VecLang, ConstantFold>> = vec![
         /********************************************
-        rw!("assoc-min-add-1"; 
-        "(VecAdd ?x (VecMinus ?y ?z))" => 
-        "(VecMinus (VecAdd ?x ?y) ?z)"
-        //if is_vec("?x","?z","?t","?y")
-        ),
-        rw!("assoc-min-add-2"; 
-        "(VecAdd ?x (VecMinus ?y ?z))" => 
-        "(VecAdd (VecMinus ?x ?z) ?y)"
-        //if is_vec("?x","?z","?t","?y")
-        ),
-        rw!("assoc-min-add-3"; 
-        "(VecAdd (VecMinus ?x ?y) ?z)" => 
-        "(VecMinus (VecAdd ?x ?z) ?y)"
-        //if is_vec("?x","?z","?t","?y")
-        ),
-        rw!("assoc-min-add-4"; 
-        "(VecAdd (VecMinus ?x ?y) ?z)" => 
-        "(VecAdd ?x (VecMinus ?z ?y))"
-        //if is_vec("?x","?z","?t","?y")
-        ),
+       
         *********************************************/
         rw!("assoc-balan-add-min-1"; 
         "(VecAdd (VecAdd (VecAdd (VecMinus ?c1 ?c2) (VecMinus ?d1 ?d2)) (VecMinus ?b1 ?b2)) (VecMinus ?a1 ?a2))" => 
@@ -1290,9 +1210,227 @@ pub fn assoc_neg_rules(vector_width : usize) -> Vec<Rewrite<VecLang,ConstantFold
     rules
 }
 /**********************************************************************************************/
-/**********************************************************************************************/
+// // ===================================================================
 
-/*
-    {"simplify-add-negate-2-1", x + (-y - z), x - (y + z)},
-    {"simplify-add-negate-2-2", (-y - z) + x, x - (y + z)},
-*/
+
+// ===================================================================
+// 2. ALL REQUIRED HELPER FUNCTIONS
+// ===================================================================
+
+/// Creates a single condition that checks if ALL provided variables are scalars.
+fn all_are_scalars(vars: &[String]) -> impl Fn(&mut EGraph<VecLang, ConstantFold>, Id, &Subst) -> bool + Clone {
+    let vars_to_check: Vec<Var> = vars.iter().map(|s| s.parse().unwrap()).collect();
+    move |egraph, _, subst| {
+        for var in &vars_to_check {
+            if let Some(eclass_id) = subst.get(*var) {
+                let eclass = &egraph[*eclass_id];
+                if eclass.nodes.len() != 1 || !matches!(&eclass.nodes[0], VecLang::Symbol(_)) {
+                    return false;
+                }
+            } else { return false; }
+        }
+        true
+    }
+}
+
+/// Helper to build a balanced tree pattern string in prefix format.
+fn build_pattern_from_vars(vars: &mut VecDeque<String>) -> String {
+    if vars.is_empty() { return String::new(); }
+    if vars.len() == 1 { return vars.pop_front().unwrap(); }
+    let mid = vars.len() / 2;
+    let mut left_vars = vars.split_off(mid);
+    let mut right_vars = std::mem::take(vars);
+    let left = build_pattern_from_vars(&mut right_vars);
+    let right = build_pattern_from_vars(&mut left_vars);
+    format!("(+ {} {})", left, right)
+}
+
+/// Helper to build a right-leaning chain pattern.
+fn build_chain_from_vars(vars: &mut VecDeque<String>) -> String {
+    if vars.is_empty() { return String::new(); }
+    if vars.len() == 1 { return vars.pop_front().unwrap(); }
+    let first = vars.pop_front().unwrap();
+    let rest = build_chain_from_vars(vars);
+    format!("(+ {} {})", first, rest)
+}
+
+/// Generates and PRINTS a powerful set of generic and size-specific, guarded rewrite rules.
+pub fn generate_associativity_rules(max_size: u32) -> Vec<Rewrite<VecLang, ConstantFold>> {
+    let mut all_rules: Vec<Rewrite<VecLang, ConstantFold>> = vec![];
+
+    // --- Phase 1: Generic, Unconditional, Structural Rules ---
+    // eprintln!("\n=======================================================");
+    // eprintln!("[Generic Rules] Generating rules that apply at all scales...");
+    // eprintln!("=======================================================");
+
+    // THE DEFINITIVE FIX: Manually create the forward and reverse rules for each transformation.
+    all_rules.push(rw!("rebalance-generic-fwd"; "(+ (+ ?a ?b) ?c)" => "(+ ?a (+ ?b ?c))"));
+    all_rules.push(rw!("rebalance-generic-rev"; "(+ ?a (+ ?b ?c))" => "(+ (+ ?a ?b) ?c)"));
+
+    all_rules.push(rw!("interleave-generic-fwd"; "(+ (+ ?a ?b) (+ ?c ?d))" => "(+ (+ ?a ?c) (+ ?b ?d))"));
+    all_rules.push(rw!("interleave-generic-rev"; "(+ (+ ?a ?c) (+ ?b ?d))" => "(+ (+ ?a ?b) (+ ?c ?d))"));
+    
+    // eprintln!("  (+) Generic Rule: rebalance-generic-fwd");
+    // eprintln!("  (+) Generic Rule: rebalance-generic-rev");
+    // eprintln!("  (+) Generic Rule: interleave-generic-fwd");
+    // eprintln!("  (+) Generic Rule: interleave-generic-rev");
+
+
+    // --- Phase 2: Size-Specific, Guarded Rules for Fine Control at the Leaf Level ---
+    let mut n = 4;
+    while n <= max_size {
+        if n.is_power_of_two() {
+            // eprintln!("\n=======================================================");
+            // eprintln!("[N = {} scalars] Generating explicit, guarded leaf-level rules...", n);
+            // eprintln!("=======================================================");
+
+            let vars: Vec<String> = (0..n).map(|i| format!("?v{}", i)).collect();
+            let guard = all_are_scalars(&vars);
+            let lhs_pattern: Pattern<VecLang> = build_pattern_from_vars(&mut VecDeque::from(vars.clone())).parse().unwrap();
+            
+            let mut create_rule = |name: String, rhs: Pattern<VecLang>| {
+                let rule = Rewrite::new(
+                    name,
+                    lhs_pattern.clone(),
+                    ConditionalApplier { condition: guard.clone(), applier: rhs }
+                ).unwrap();
+                // eprintln!("  (+) Guarded Rule (N={}): {:?}", n, rule);
+                all_rules.push(rule);
+            };
+
+            let mid = n as usize / 2;
+            let (l_vars, r_vars) = vars.split_at(mid);
+            let rhs_swap = build_pattern_from_vars(&mut VecDeque::from([r_vars, l_vars].concat())).parse().unwrap();
+            create_rule(format!("swap-explicit-{}", n), rhs_swap);
+
+            let rhs_chain = build_chain_from_vars(&mut VecDeque::from(vars.clone())).parse().unwrap();
+            create_rule(format!("group-right-chain-{}", n), rhs_chain);
+
+            let quarter = n as usize / 4;
+            let ll_vars = &vars[0..quarter];
+            let lr_vars = &vars[quarter..mid];
+            let rl_vars = &vars[mid..mid + quarter];
+            let rr_vars = &vars[mid + quarter..];
+            let rhs_rev_interleave_str = format!("(+ {} {})",
+                build_pattern_from_vars(&mut VecDeque::from([ll_vars, rr_vars].concat())),
+                build_pattern_from_vars(&mut VecDeque::from([lr_vars, rl_vars].concat()))
+            );
+            create_rule(format!("group-rev-interleave-{}", n), rhs_rev_interleave_str.parse().unwrap());
+            
+            if n >= 8 {
+                 let center_chunk = build_pattern_from_vars(&mut VecDeque::from([lr_vars, rl_vars].concat()));
+                 let left_chunk = build_pattern_from_vars(&mut VecDeque::from(ll_vars.to_vec()));
+                 let right_chunk = build_pattern_from_vars(&mut VecDeque::from(rr_vars.to_vec()));
+                 let rhs_mixed_str = format!("(+ (+ {} {}) {})", left_chunk, center_chunk, right_chunk);
+                 create_rule(format!("group-mixed-assoc-{}", n), rhs_mixed_str.parse().unwrap());
+            }
+
+            if n == 4 {
+                 create_rule(
+                     "catalan-left-chain-4".to_string(),
+                     "(+ (+ (+ ?v0 ?v1) ?v2) ?v3)".parse().unwrap()
+                 );
+                 create_rule(
+                     "catalan-mixed-4".to_string(),
+                     "(+ ?v0 (+ (+ ?v1 ?v2) ?v3))".parse().unwrap()
+                 );
+            }
+        }
+        n *= 2;
+    }
+    all_rules
+}
+
+/// Generates a very rich set of associativity and zero-manipulation rules.
+pub fn generate_advanced_rules(max_size: u32) -> Vec<Rewrite<VecLang, ConstantFold>> {
+    let mut all_rules: Vec<Rewrite<VecLang, ConstantFold>> = vec![];
+
+    // --- Phase 1: Foundational Generic & Zero Cleanup Rules ---
+    // eprintln!("\n=======================================================");
+    // eprintln!("[Generic Rules] Generating foundational rules...");
+    // eprintln!("=======================================================");
+
+    // THE DEFINITIVE FIX: Manually create two unidirectional rules for each bidirectional one.
+    // This resolves the `mismatched types` error permanently.
+    all_rules.push(rw!("add-0-elim-fwd"; "(+ ?a 0)" => "?a"));
+    all_rules.push(rw!("add-0-elim-rev"; "?a" => "(+ ?a 0)"));
+    eprintln!("  (+) Generic Rule: add-0-elim (fwd/rev)");
+
+    all_rules.push(rw!("rebalance-generic-fwd"; "(+ (+ ?a ?b) ?c)" => "(+ ?a (+ ?b ?c))"));
+    all_rules.push(rw!("rebalance-generic-rev"; "(+ ?a (+ ?b ?c))" => "(+ (+ ?a ?b) ?c)"));
+    // eprintln!("  (+) Generic Rule: rebalance-generic (fwd/rev)");
+
+    all_rules.push(rw!("interleave-generic-fwd"; "(+ (+ ?a ?b) (+ ?c ?d))" => "(+ (+ ?a ?c) (+ ?b ?d))"));
+    all_rules.push(rw!("interleave-generic-rev"; "(+ (+ ?a ?c) (+ ?b ?d))" => "(+ (+ ?a ?b) (+ ?c ?d))"));
+    // eprintln!("  (+) Generic Rule: interleave-generic (fwd/rev)");
+    
+    // --- Phase 2: Guarded "Zero Injection" Rules - A Portfolio of Possibilities ---
+    // eprintln!("\n=======================================================");
+    // eprintln!("[Zero Injection Rules] Generating a portfolio of structural modifications...");
+    // eprintln!("=======================================================");
+    
+    // Unconditional rule to expand a zero. This allows "empty" branches to be created.
+    all_rules.push(rw!("zero-expand"; "0" => "(+ 0 0)"));
+    // eprintln!("  (+) Zero Expansion Rule: 0 => (+ 0 0)");
+
+    let mut n_zero_inject = 4;
+    while n_zero_inject <= max_size {
+        if n_zero_inject.is_power_of_two() {
+            let vars: Vec<String> = (0..n_zero_inject).map(|i| format!("?v{}", i)).collect();
+            let guard = all_are_scalars(&vars);
+            let lhs: Pattern<VecLang> = build_pattern_from_vars(&mut VecDeque::from(vars.clone())).parse().unwrap();
+            
+            let mut create_zero_rule = |name: String, rhs_str: String| {
+                let rhs: Pattern<VecLang> = rhs_str.parse().unwrap();
+                let rule = Rewrite::new(name, lhs.clone(), ConditionalApplier { condition: guard.clone(), applier: rhs }).unwrap();
+                // eprintln!("  (+) Zero Injection Rule (N={}): {:?}", n_zero_inject, rule);
+                all_rules.push(rule);
+            };
+
+            let mid = n_zero_inject as usize / 2;
+            let quarter = n_zero_inject as usize / 4;
+            let (l_vars, r_vars) = vars.split_at(mid);
+            let left_chunk = build_pattern_from_vars(&mut VecDeque::from(l_vars.to_vec()));
+            let right_chunk = build_pattern_from_vars(&mut VecDeque::from(r_vars.to_vec()));
+            
+            // Possibility 1: Inject into both children
+            create_zero_rule(
+                format!("zero-inject-children-{}", n_zero_inject),
+                format!("(+ (+ {} (+ 0 0)) (+ {} (+ 0 0)))", left_chunk, right_chunk)
+            );
+
+            // Possibility 2 & 3 (for larger sizes): Inject deep into grandchildren
+            if n_zero_inject >= 8 {
+                let ll_chunk = build_pattern_from_vars(&mut VecDeque::from(vars[0..quarter].to_vec()));
+                let lr_chunk = build_pattern_from_vars(&mut VecDeque::from(vars[quarter..mid].to_vec()));
+                let rl_chunk = build_pattern_from_vars(&mut VecDeque::from(vars[mid..mid+quarter].to_vec()));
+                
+                // Inject into the two "inner" grandchildren (lr and rl)
+                create_zero_rule(
+                    format!("zero-inject-inner-grandchildren-{}", n_zero_inject),
+                    format!("(+ (+ {} (+ {} (+ 0 0))) (+ (+ {} (+ 0 0)) {}))", ll_chunk, lr_chunk, rl_chunk, right_chunk)
+                );
+            }
+        }
+        n_zero_inject *= 2;
+    }
+    
+    // --- Phase 3: Guarded Associativity Rules for Leaf-level Control ---
+    // eprintln!("\n=======================================================");
+    // eprintln!("[Guarded Associativity] Generating fine-grained leaf-level rules...");
+    // eprintln!("=======================================================");
+    let n_guarded = 4;
+    let vars: Vec<String> = (0..n_guarded).map(|i| format!("?v{}", i)).collect();
+    let guard = all_are_scalars(&vars);
+    let lhs: Pattern<VecLang> = build_pattern_from_vars(&mut VecDeque::from(vars.clone())).parse().unwrap();
+    let rev_interleave: Pattern<VecLang> = "(+ (+ ?v0 ?v3) (+ ?v1 ?v2))".parse().unwrap();
+    let rev_interleave_rule = Rewrite::new(
+        "interleave-rev-guarded-4",
+        lhs,
+        ConditionalApplier { condition: guard, applier: rev_interleave }
+    ).unwrap();
+    // eprintln!("  (+) Guarded Rule (N=4): {:?}", rev_interleave_rule);
+    all_rules.push(rev_interleave_rule);
+
+    all_rules
+}

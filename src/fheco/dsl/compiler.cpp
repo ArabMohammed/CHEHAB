@@ -17,6 +17,7 @@
 #include <map> 
 #include <ostream>
 #include <queue>
+#include <set>
 #include <stdexcept>
 #include <unordered_set> 
 #include <utility>
@@ -44,7 +45,7 @@ bool Compiler::const_folding_enabled_ = false;
 
 bool Compiler::scalar_vector_shape_ = true;
 
-bool Compiler::automatic_enc_params_enabled_ = false; // Or set to true if desired
+bool Compiler::automatic_enc_params_enabled_ = true; // Or set to true if desired
 
 
 extern "C"
@@ -601,6 +602,8 @@ void update_io_file(const unordered_map<string,string>& input_entries,const vect
   for(const auto&pair : input_entries){
       string vectorString = pair.second.substr(4);
       string addionalInfo = pair.second.substr(0,4);
+      // std::cout << "additional info is : " << addionalInfo << std::endl;
+      // updated_input=pair.first+" "+"0 1 ";
       updated_input=pair.first+" "+addionalInfo;
       //std::cout<<"==>"<<vectorString<<"||\n";
       vector<std::string> Valuestokens = split_string(vectorString, ' ');
@@ -608,11 +611,11 @@ void update_io_file(const unordered_map<string,string>& input_entries,const vect
         /************************************************/
         for(int i =0; i<Valuestokens.size() ; i++){
           string key = Valuestokens[i];
-          //std::cout<<"==>key :"<<key<<"||\n";
+          std::cout<<"==>key :"<<key<<"||\n";
           if(!is_literal(key)){
               string value =""; 
               if (ciphertexts.find(key) != ciphertexts.end()) {
-                  //std::cout<<"ciphertxt_map :"<<ciphertexts[key]<<"||\n";
+                  std::cout<<"ciphertxt_map :"<<ciphertexts[key]<<"||\n";
                   updated_input+=trim(ciphertexts[key])+" ";  // Access the value corresponding to the key
               } else {
                   if (plaintexts.find(key) != plaintexts.end()){
@@ -626,7 +629,7 @@ void update_io_file(const unordered_map<string,string>& input_entries,const vect
           }
         }
         /**********************************************************/
-        //std::cout<<"updated_input :"<<updated_input<<"||\n";
+        // std::cout<<"updated_input :"<<updated_input<<"||\n";
       }else if(pair.first.substr(0,1)=="p"){
         for(int i =0; i<Valuestokens.size() ; i++){
           string key = Valuestokens[i];
@@ -645,6 +648,7 @@ void update_io_file(const unordered_map<string,string>& input_entries,const vect
         throw invalid_argument("key :"+pair.first+" is incorrect\n");
       }
       updated_input+="\n";
+      std::cout << "updated input before writing in the file : " << updated_input << std::endl;
       updated_input_file << updated_input;
   }
 
@@ -859,7 +863,7 @@ string vector_constant_folding(queue<string> &tokens,unordered_map<string,string
 /**Generate Updated CHihab Term from corresponding Term's String tokens**/
 ir::Term *Compiler::build_expression(const std::shared_ptr<ir::Func> &func, map<string, ir::Term *> map, queue<string> &tokens)
 {
-  //std::cout<<"==========> welcome in build expression \n";
+  // std::cout<<"==========> hello build expression \n";
   while (!tokens.empty())
   {
 
@@ -877,7 +881,7 @@ ir::Term *Compiler::build_expression(const std::shared_ptr<ir::Func> &func, map<
       }else{
           operation = operationFromString(operationString);
       }
-      //std::cout<<"operation :"<<operation<<"||\n";
+      // std::cout<<"operation :"<<operation<<"||\n";
       tokens.pop();
 
       string potential_step = "";
@@ -885,12 +889,12 @@ ir::Term *Compiler::build_expression(const std::shared_ptr<ir::Func> &func, map<
       ir::Term *operand1, *operand2 = nullptr;
       if (tokens.front() == "(")
       {
-        //std::cout<<"build opearnd 1 \n";
+        // std::cout<<"build opearnd 1 \n";
         operand1 = build_expression(func, map, tokens);
       }
       else
       {
-        //std::cout<<"get opearnd 1 from token"<<tokens.front()<<"||\n";
+        // std::cout<<"get opearnd 1 from token"<<tokens.front()<<"||\n";
         operand1 = map.at(tokens.front());
         tokens.pop();
       }
@@ -898,32 +902,32 @@ ir::Term *Compiler::build_expression(const std::shared_ptr<ir::Func> &func, map<
       // Iterate through the copy and print each element
       if (tokens.front() == "(")
       {
-        //std::cout<<"build operand2 \n";
+        // std::cout<<"build operand2 \n";
         potential_step += " ";
         operand2 = build_expression(func, map, tokens);
       }
       else if (tokens.front() != ")")
       {
-        //std::cout<<"get opearnd 2 from token"<<tokens.front()<<"||\n";
+        // std::cout<<"get opearnd 2 from token"<<tokens.front()<<"||\n";
         if (!op_is_rotation && !op_is_SumVec)
         {
           operand2 = map.at(tokens.front());
         }
         potential_step = tokens.front();
-        //std::cout<<"potential_step op2 :"<<potential_step<<" \n";
+        // std::cout<<"potential_step op2 :"<<potential_step<<" \n";
         tokens.pop();
       }
 
       // Check for the closing parenthesis
       if (tokens.front() == ")")
       {
-        //std::cout<<"pop clsoing prenthesis \n";
+        // std::cout<<"pop clsoing prenthesis \n";
         tokens.pop();
       }
-      //std::cout<<"potential_step size :"<<potential_step.size()<<" \n";
+      // std::cout<<"potential_step size :"<<potential_step.size()<<" \n";
       if (potential_step.size() > 0)
       {
-        //std::cout<<"insert binary operation :"<<operationString<<"||\n";
+        // std::cout<<"insert binary operation :"<<operationString<<"||\n";
         if (op_is_rotation)
         {
           operation = ir::OpCode::rotate(stoi(potential_step));
@@ -943,7 +947,7 @@ ir::Term *Compiler::build_expression(const std::shared_ptr<ir::Func> &func, map<
       }
       else
       {
-        //std::cout<<"operation is negation \n";
+        std::cout<<"operation is negation \n";
         vector<ir::Term *> operands = {operand1};
         if (operation == ir::OpCode::sub)
           operation = ir::OpCode::negate;
@@ -952,12 +956,15 @@ ir::Term *Compiler::build_expression(const std::shared_ptr<ir::Func> &func, map<
     }
     else
     {
-      //std::cout<<"return token :"<<tokens.front()<<"||\n";
+      // std::cout<<"return token :"<<tokens.front()<<"||\n";
       return map.at(tokens.front());
     }
   }
   throw logic_error("Invalid expression");
+  // std::cout << "====> goodbye build expression" << std::endl;
 }
+
+
 /************************************************************************/
 string process_composed_vectors(const vector<string>& vector_elements,
     std::unordered_map<std::string, std::string>& dictionary,
@@ -1263,7 +1270,7 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func)
     //std::cout<<"==> simplied expression :"<<simplified_expression<<"\n";
     auto tokens1 = split(simplified_expression.substr(1));
     string updated_expr = convert_new_ops(tokens1);
-    //std::cout<<"==> updated_expr :"<<updated_expr<<"\n";
+    std::cout<<"==> updated_expr :"<<updated_expr<<"\n";
     simplified_expressions.push_back(updated_expr);
     simplified_expression="";
     outputs.push_back(labels_map[id_counter - 1]);
@@ -1272,6 +1279,8 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func)
   vector<string> updated_cons_fd_expressions = simplified_expressions; 
   vector<string> labels = {};
   for (const auto& pair : inputs_entries) {
+    std::cout << "input intries pair.first : " << pair.first << std::endl;
+    std::cout << "input interies pair.second :" << pair.second << std::endl;
     labels.push_back(pair.first);  // Access the key via pair.first
   }
   unordered_map<string,int> inputs_occurences ={};
@@ -1279,6 +1288,7 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func)
     inputs_occurences.insert({label,0});
   }
   for(const auto &expr : updated_cons_fd_expressions){
+      std::cout << "==> expr in updated_cons_fd_expressions : " << expr << std::endl;
       vector<string> tokens = split_string(expr,' ');
       for(int i =0;i<tokens.size();i++){
         for(auto label : labels){
@@ -1288,6 +1298,7 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func)
         }
       }        
   }
+
   for(auto label : labels){
     if(inputs_occurences[label]==0){
       inputs_entries.erase(label);
@@ -1333,39 +1344,78 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func)
     }
   }*/
   update_io_file(inputs_entries,outputs,function_slot_count);
+
+  int final_slot_count = function_slot_count;
+  std::set<string> updated_inputs_entries;
+  std::unordered_map<string, string> ciphertext_mapping;
+
+  vector<string> final_expressions;
+  generate_final_expression(
+                inputs_entries, 
+                final_expressions, 
+                final_slot_count, 
+                updated_inputs_entries,
+                ciphertext_mapping);
+  function_slot_count = final_slot_count;
+
+  for (const auto& kv : ciphertext_mapping) {
+    std::cout << "Key: " << kv.first << " -> Value: " << kv.second << std::endl;
+  }
+
+  // for (const auto& ele : updated_inputs_entries) {
+  //   std::cout << "element of updated_input_entries : " << ele << std::endl;
+  // }
+
   /********************************************************************/
-  /*******Convert simplified_vectorized IR  ***************************/
+  /******* Convert simplified_vectorized IR  ***************************/
   func->reset_data_flow();
   func->set_slot_count(function_slot_count);
   util::ExprPrinter pr(func);
   pr.make_terms_str_expr(util::ExprPrinter::Mode::prefix);
   map<string, ir::Term *> myMap;
-  /************Storing input infos **********************************/
-  for(const auto& new_input_info : inputs_entries){
-    string label = new_input_info.first ;
-    if(label.substr(0,1)=="c"){
-        Ciphertext cipher(label);
-        func->init_input(cipher,move(label));
-    }else{
-        Plaintext plain(label);
-        func->init_input(plain,move(label));
-    }
+  /************ Storing input infos **********************************/
+  
+
+  for (auto lab : updated_inputs_entries) {
+      std::cout << "new_input_label before adding to the init_input : " << lab << std::endl;
+      if(lab.substr(0,1)=="c") {
+          Ciphertext cipher(lab);
+          func->init_input(cipher,move(lab));
+      } else {
+          Plaintext plain(lab);
+          func->init_input(plain,move(lab));
+      }
   }
+
   for(auto new_output_label : outputs){
     Ciphertext cipher(new_output_label);
     func->set_output(cipher,move(new_output_label));
   }
+
+  // now , we update the old expression , and we replace the old terms with the new ones
+
+  for(auto& new_term_str : updated_cons_fd_expressions) {
+    if(!new_term_str.empty()) {
+        new_term_str = replace_variable(new_term_str, ciphertext_mapping);
+        std::cout << "=> new_term_str : " << new_term_str << std::endl;
+    }
+  }
+
   for (auto input_info : func->data_flow().inputs_info())
   {
     ir::Term *temp = const_cast<ir::Term *>(input_info.first);
     myMap[input_info.second.label_] = temp;
   }
+  std::cout << "after loop 1" << std::endl;
+
   vector<const ir::Term *> output_terms;
   
   for (auto output_info : func->data_flow().outputs_info())
   {
     output_terms.push_back(output_info.first);
   } 
+
+  std::cout << "after loop 2" << std::endl;
   /****************************************************************/
   std::reverse(output_terms.begin(), output_terms.end());
   std::string new_term_str ;
@@ -1375,9 +1425,12 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func)
       auto tokens = split(new_term_str);
       auto new_term = build_expression(func, myMap, tokens);
       auto old_term = const_cast<ir::Term *>(output_terms[index]);
+      // std::cout << "==> old term : " << old_term <<std::endl;
+      // std::cout << "==> new term : " << new_term<< std::endl;
       func->replace_term_with(old_term, new_term);
       index+=1;
     }
   }
+  std::cout << "aftre loop 3" << std::endl;
 }
 } // namespace fheco

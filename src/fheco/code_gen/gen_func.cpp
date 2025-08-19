@@ -54,7 +54,7 @@ void gen_func(
     //std::cout<<"Encryption params have been printed succefully\n";
     gen_main_code(params,security_level,automatic_enc_params_enabled);
   }else{ 
-    int poly_modulus_degree = 16384 ;
+    int poly_modulus_degree = 8192 ;
     param_select::EncParams params = param_select::EncParams(poly_modulus_degree,func->plain_modulus()); 
     gen_main_code(params,security_level,automatic_enc_params_enabled);
   }
