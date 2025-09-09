@@ -47,6 +47,8 @@ bool Compiler::scalar_vector_shape_ = true;
 bool Compiler::automatic_enc_params_enabled_ = false; // Or set to true if desired
 
 
+
+
 extern "C"
 { 
   void modify_string(char *str, size_t len);
@@ -352,13 +354,14 @@ void Compiler::gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int wi
   // std::cout<<"Done \n";
   /***************************************************************/
   int vector_full_width = func->data_flow().output_keys().size();
-  
+  std::cout << "width of the output is : " << vector_full_width << std::endl;
+
   int max_vector_size = 4096 ;
   
   if (window > max_vector_size){
      window = max_vector_size ;
   } 
-  if(vector_full_width > max_vector_size && window == 0){
+  if(vector_full_width > max_vector_size && window == 0) {
      window = max_vector_size ;
   }
   /***************************************************************/
@@ -389,8 +392,10 @@ void Compiler::gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int wi
     vector<string> prepared_names ={} ;
     for (const auto &input_info : func->data_flow().inputs_info())
     {
+      // std::cout << "input_info.first = " << input_info.first << std::endl;
       input_terms.push_back(input_info.first);
       string name=input_info.second.label_;
+      // std::cout << "name = " << name << std::endl;
       prepared_names.push_back(name);
     }
     std::reverse(prepared_names.begin(),prepared_names.end());

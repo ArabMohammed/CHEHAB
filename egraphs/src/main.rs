@@ -68,17 +68,17 @@ fn main() {
     let prog_str = fs::read_to_string(path).expect("Failed to read the input file.");
     let mut prog : RecExpr<VecLang>= prog_str.parse().unwrap();
     let mut input_prog : String = prog_str.parse().unwrap();
-    eprintln!("****************************************************");
-    eprintln!("===> Input expression : {}",input_prog);
-    eprintln!("****************************************************");
+    // eprintln!("****************************************************");
+    // eprintln!("===> Input expression : {}",input_prog);
+    // eprintln!("****************************************************");
     /*********************************************************/
     // Record the start time
     let start_time = Instant::now();
     // Run rewriter
-    eprintln!(
-        "Running egg with timeout {:?}s, width: {:?} \n",
-        timeout, vector_width
-    );
+    // eprintln!(
+    //     "Running egg with timeout {:?}s, width: {:?} \n",
+    //     timeout, vector_width
+    // );
     eprintln!("*********************Iterations******************************* \n");
     let mut current_cost = 0 ;
     let mut current_expr = prog.clone();
@@ -100,7 +100,7 @@ fn main() {
             comp=0;
         }
         iteration = iteration + 1 ;
-        eprintln!("Best cost at iteration {}: {} ", iteration, current_cost);
+        // eprintln!("Best cost at iteration {}: {} ", iteration, current_cost);
         //eprintln!("Obtained expression ==> : {}", current_expr.to_string());
     } 
     // 43163
@@ -109,12 +109,12 @@ fn main() {
     let mut best_expr = current_expr.clone(); 
     let duration = start_time.elapsed();
     /************************************************/
-    eprintln!("****************************************************************");
-    eprintln!("****************************************************************");
-    eprintln!("===> Final_Cost: {} \n", best_cost);
-    eprintln!("===> Vectorized Expression : {} \n", best_expr.to_string()); 
-    eprintln!("****************************************************************");
-    eprintln!("****************************************************************\n");
+    // eprintln!("****************************************************************");
+    // eprintln!("****************************************************************");
+    // eprintln!("===> Final_Cost: {} \n", best_cost);
+    // eprintln!("===> Vectorized Expression : {} \n", best_expr.to_string()); 
+    // eprintln!("****************************************************************");
+    // eprintln!("****************************************************************\n");
     /************************************************/
     // Print the results
     println!("{}", best_expr.to_string()); 
