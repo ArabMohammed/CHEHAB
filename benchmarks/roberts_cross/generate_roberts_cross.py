@@ -1,10 +1,12 @@
 import numpy as np
 ################
 import argparse
+
 # Create the parser
 parser = argparse.ArgumentParser(description="Get io_file generation parameters")
 is_vectorization_activated = True
 parser.add_argument("--slot_count", required=True,type=int, help="Slot_count", default=0)
+
 # Parse arguments
 args = parser.parse_args()
 #################################################
@@ -20,16 +22,19 @@ width = n_cols_image
 output = np.zeros((width, width), dtype=int)
 image = np.zeros((width+1, width+1), dtype=int)
 input_image = np.zeros((width, width), dtype=int)
-#print("Welcome to image filtering!")
+
 # Populate the image with random integers
 for i in range(width):
     for j in range(width):
-        input_image[i][j] = np.random.randint(0, 10)  # Simulate initialization with random values
+        input_image[i][j] = np.random.randint(0, 10) 
         image[i][j]=input_image[i][j]
+
 rows, cols = width, width
-# Apply the kernels to the image
+
+# Apply the kernels to the image (Roberts Cross)
 gx_kernel= [[1, 0], [0, -1]]
 gy_kernel= [[0, 1], [-1, 0]]
+
 for i in range(rows):
     for j in range(cols):
         # Apply Kernel 1 (Gx)
@@ -40,8 +45,13 @@ for i in range(rows):
         Gy = (image[i][j] * gy_kernel[0][0] + image[i][j + 1] * gy_kernel[0][1] +
               image[i + 1][j] * gy_kernel[1][0] + image[i + 1][j + 1] * gy_kernel[1][1])
         
-        # Compute the gradient magnitude and store in the output array (clipped to 255)
+        # Compute the gradient magnitude and store in the output array
         output[i][j] = Gx**2 + Gy**2
+
+# Output is magnitude squared, so it is always positive. 
+# However, we define the flag for consistency with the file format.
+is_signed_output = 0 
+
 ##############################################################################################
 ##############################################################################################
 # Output the results
@@ -58,30 +68,47 @@ if is_vectorization_activated :
         output_lines = []
         for i in range(n_rows_image):
             for j in range(n_cols_image):
+                # Added consistent formatting
                 input_line= "in_{}_{}".format(i,j)+" "+str(is_cipher)+" "+str(is_signed)+" "+str(int(input_image[i][j]))+"\n"
                 input_lines.append(input_line)
-                output_line= "out_{}_{}".format(i,j)+" "+str(is_cipher)+" "+str(int(output_image[i][j]))+"\n"
+                # Added is_signed_output to format
+                output_line= "out_{}_{}".format(i,j)+" "+str(is_cipher)+" "+str(is_signed_output)+" "+str(int(output_image[i][j]))+"\n"
                 output_lines.append(output_line)
         f.writelines(input_lines)
         f.writelines(output_lines)
+
+    # Generate fhe_input_vectors.txt
+    with open("fhe_input_vectors.txt", "w") as file:
+        num_vectors = 1  
+        vector_size = n_rows_image * n_cols_image
+        file.write(f"{num_vectors} {vector_size}\n")
+
+        # Create a flattened list of input labels
+        image_labels = "c0i " + " ".join([f"in_{i}_{j}" for i in range(n_rows_image) for j in range(n_cols_image)])
+        file.write(image_labels + "\n")
+
+    # Generate fhe_input_vector_values.txt
+    with open("fhe_input_vectors_values.txt", "w") as file:
+        # Flatten the input image values (handling the 2D array structure)
+        image_values = [str(int(val)) for row in input_image for val in row]
+        image_line = f"c0i {is_cipher} {is_signed} " + " ".join(image_values) + "\n"
+        file.write(image_line)
+
 ####################################################################
 else :
-    input_image = np.reshape(input_image,(n_rows_image*n_cols_image))
-    output_image = np.reshape(output_image,(n_rows_image*n_cols_image))
+    # Flatten arrays for non-vectorized output
+    input_image_flat = np.reshape(input_image,(n_rows_image*n_cols_image))
+    output_image_flat = np.reshape(output_image,(n_rows_image*n_cols_image))
+    
     function_slot_count= N 
     nb_inputs = 1
     nb_outputs = 1
-    #nb_outputs = n_rows_out*n_cols_out
-    #nb_outputs = 1 # 3*3*4 
+
     with open("fhe_io_example.txt", "w") as f:
         header = str(function_slot_count)+" "+str(nb_inputs)+" "+str(nb_outputs)+"\n"
         f.write(header)
-        input_line= "img "+str(is_cipher)+" "+str(is_signed)+" "+" ".join(f"{num}" for num in input_image)+"\n"
+        input_line= "img "+str(is_cipher)+" "+str(is_signed)+" "+" ".join(f"{num}" for num in input_image_flat)+"\n"
         f.write(input_line)
-        output_line= "result "+str(is_cipher)+" "+" ".join(f"{int(num)}" for num in output_image)+"\n"
+        # Added is_signed_output to format
+        output_line= "result "+str(is_cipher)+" "+str(is_signed_output)+" "+" ".join(f"{int(num)}" for num in output_image_flat)+"\n"
         f.write(output_line)
-        #f.write(f"img {is_cipher} {is_signed} "+" ".join(f"{num}" for num in input_image )+"\n")
-        #f.write(f"result {is_cipher} "+" ".join(f"{int(num)}" for num in output_image)+"\n")
-
-
-

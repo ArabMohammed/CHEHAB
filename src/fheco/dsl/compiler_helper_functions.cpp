@@ -501,6 +501,8 @@ void generate_final_expression(
 
         // std::cout << "nb_inputs = " << nb_inputs << std::endl;
         // std::cout << "input_vec_size = " << input_vec_size << std::endl;
+      } else{
+        throw std::runtime_error("File fhe_input_vectors header is mal formatted");
       }
     }
 
@@ -535,7 +537,15 @@ void generate_final_expression(
     // std::cout << "plaintext size is : " << plaintext_size << std::endl;
 
     int token_slot = -1; // this variable to find the slot of the token in the vectors of the extracted expression
-    if (tokens_type == 0) { // the vector contains only encrypted values => ciphertext
+
+    // ===========================================================================================
+    // tokens_type = 0 =>  the vector contains only encrypted values => ciphertext
+    // ===========================================================================================
+    if (tokens_type == 0) { 
+
+      // Key: pair <LabelName, RotationAmount>
+      // Value: The accumalated plaintext mask vector (ints)
+      std::map<std::pair<string, int>, std::vector<int>> grouped_operations; // we need this to do optimizations in nrotations
       
       while (!tokens.empty()) {
       string current = tokens.front();
@@ -546,80 +556,131 @@ void generate_final_expression(
       auto info = find_label_and_index(input_map, current);
 
       if (info) {
-        const string& found_label = info->first;
-        int position = info->second;
-        
-        // std::cout << "→ Found in label: " << found_label << ", at position: " << position << std::endl;
-        string label_to_insert;
-        label_to_insert = found_label;
-      // if (label_map.find(found_label) != label_map.end()) {
-      //   // Label already has a mapping
-      //     label_to_insert = label_map[found_label];
-      // } else {
-      //     // Generate new label
-      //     label_to_insert = "c" + std::to_string(++ciphertext_count) + "i";
-      //     // std::cout << "the created label is : " << label_to_insert << std::endl;
-      //     label_map[found_label] = label_to_insert;
-      // }
-        updated_inputs_entries.insert(label_to_insert);
-
-        string pi = "p0" + std::to_string(plaintext_count);
-        updated_inputs_entries.insert(pi);
-        ostringstream expr ;
-
+        const string& found_label = info->first;  // found label
+        int position = info->second;  // position
         int rotation_amount = (position - token_slot);
 
-        if (rotation_amount == 0) {
-          expr << "( * " << label_to_insert << " " << pi << " )"; 
-        } else {
-          expr << "( * ( << " << label_to_insert << " " << rotation_amount << " ) " << pi << " )";
+        // Create a key for this specific operation type
+        std::pair<string, int> op_key = {found_label , rotation_amount};
+
+        // If this is the first time we see this (Label + Rotation), initialize the vector
+        if (grouped_operations.find(op_key) == grouped_operations.end()) {
+          std::vector<int> mask(plaintext_size + 2 , 0);
+          mask[0] = 0; // is plaintext
+          mask[1] = 1; // is signed
+          grouped_operations[op_key] = mask;
         }
 
-        if (first_term) {
-            expression_to_build = expr.str();
-            plaintext_count++;
-            first_term = false;
-        } else {
-            expression_to_build = "( + " + expression_to_build + " " + expr.str() + " )";
-            plaintext_count++;
+        // Mark the current slot as 1 (Merge/OR operation)
+        // If p01 was 1 0 0 and p02 was 0 1 0, this results in 1 1 0
+        if (token_slot + 2 < grouped_operations[op_key].size()) {
+          grouped_operations[op_key][token_slot + 2] = 1;
         }
 
-        /* now , we construct the pi vector , pi vector starts with 0 1 to signify that this
-          is a plaintext (0) and signed (1)
-          then, we construct its content like : [0, 1, 0 ,0]
-          the size of a plaintext is equal to the size of a the vector from the vectorized expression
-          this variable exists in the 
-        */
+      // // std::cout << "→ Found in label: " << found_label << ", at position: " << position << std::endl;
+      //   string label_to_insert;
+      //   label_to_insert = found_label;
       
-      // std::cout << "==> expression to build : " << expression_to_build << std::endl;
+      //   updated_inputs_entries.insert(label_to_insert);
 
-      std::vector<int> plaintext_vector(plaintext_size + 2, 0);
-      plaintext_vector[0] = 0;  // is plaintext not ciphertext
-      plaintext_vector[1] = 1;  // is signed
+      //   string pi = "p0" + std::to_string(plaintext_count);
+      //   updated_inputs_entries.insert(pi);
+      //   ostringstream expr ;
 
-      if (position < plaintext_vector.size()) plaintext_vector[token_slot + 2] = 1;
 
-      std::ostringstream plain_stream;      
-      plain_stream << pi;
-      for(int val : plaintext_vector) {
-        plain_stream << " " << val;
-      };
+      //   if (rotation_amount == 0) {
+      //     expr << "( * " << label_to_insert << " " << pi << " )"; 
+      //   } else {
+      //     expr << "( * ( << " << label_to_insert << " " << rotation_amount << " ) " << pi << " )";
+      //   }
 
-      plaintext_lines.push_back(plain_stream.str());
+      //   if (first_term) {
+      //       expression_to_build = expr.str();
+      //       plaintext_count++;
+      //       first_term = false;
+      //   } else {
+      //       expression_to_build = "( + " + expression_to_build + " " + expr.str() + " )";
+      //       plaintext_count++;
+      //   }
+
+      //   /* now , we construct the pi vector , pi vector starts with 0 1 to signify that this
+      //     is a plaintext (0) and signed (1)
+      //     then, we construct its content like : [0, 1, 0 ,0]
+      //     the size of a plaintext is equal to the size of a the vector from the vectorized expression
+      //     this variable exists in the 
+      //   */
+      
+      // // std::cout << "==> expression to build : " << expression_to_build << std::endl;
+
+      // std::vector<int> plaintext_vector(plaintext_size + 2, 0);
+      // plaintext_vector[0] = 0;  // is plaintext not ciphertext
+      // plaintext_vector[1] = 1;  // is signed
+
+      // if (position < plaintext_vector.size()) plaintext_vector[token_slot + 2] = 1;
+
+      // std::ostringstream plain_stream;      
+      // plain_stream << pi;
+      // for(int val : plaintext_vector) {
+      //   plain_stream << " " << val;
+      // };
+
+      // plaintext_lines.push_back(plain_stream.str());
 
       } else {
-        std::cout << "→ Token not found in any input_map label!" << std::endl;
+        std::cout << "→ Token not found in any input_map label: " << current << std::endl;
       }
-
-
 
       tokens.pop();
     }
 
+      // 2. Generation Phase : Build the expression from the grouped operations
+      for (auto& entry : grouped_operations) {
+        string label_to_insert = entry.first.first;
+        int rotation_amount = entry.first.second;
+        const std::vector<int>& merged_plaintext_vector = entry.second;
+
+        // Register label usage
+        updated_inputs_entries.insert(label_to_insert);
+
+        // Generate new unique plaintext name
+        string pi = "p0" + std::to_string(plaintext_count++);
+        updated_inputs_entries.insert(pi);
+
+        // Build the plaintext line string
+        std::ostringstream expr;
+        if (rotation_amount == 0) {
+          expr << "( * " << label_to_insert << " " << pi << " )";
+        } else {
+          expr << "( * ( << " << label_to_insert << " " << rotation_amount << " ) " << pi << " )";
+        }
+
+        // Append to the overall expression
+        if (first_term) {
+          expression_to_build = expr.str();
+          plaintext_count++;
+          first_term = false;
+
+        } else {
+          expression_to_build = "( + " + expression_to_build + " " + expr.str() + " )";
+          plaintext_count++;
+        }
+
+        std::ostringstream plain_stream;
+        plain_stream << pi;
+        for(int val : merged_plaintext_vector) {
+          plain_stream << " " << val;
+        };
+
+        plaintext_lines.push_back(plain_stream.str());
+      }
+
+      // std::cout << "Final Optimized Expression : " << expression_to_build << std::endl;
+      ciphertext_mapping.insert({pair.first , expression_to_build});
+
       // std::cout << "pair.first : " << pair.first << std::endl;
       // std::cout << "Final Expression: " << expression_to_build << std::endl;
 
-      ciphertext_mapping.insert({pair.first, expression_to_build});
+      // ciphertext_mapping.insert({pair.first, expression_to_build});
 
     } else if(tokens_type == 2) { // the vector contains only numbers => plaintext
       
@@ -629,6 +690,8 @@ void generate_final_expression(
     } 
     else {  // the vector contains encrypted values and numbers
       // std::cout << " input vec size is " << input_vec_size << std::endl;
+
+      std::map<std::pair<string, int>, std::vector<int>> grouped_operations;
       
       std::vector<int> partial_ciphertext(final_vec_size + 2, 0);
 
@@ -653,54 +716,21 @@ void generate_final_expression(
           if (info) {
             const string& found_label = info->first;
             int position = info->second;
-
-            // std::cout << "→ Found in label: " << found_label << ", at position: " << position << std::endl;
-
-            string label_to_insert;
-
-              // Label already has a mapping
-            label_to_insert = found_label;
-          
-                
-            updated_inputs_entries.insert(label_to_insert);
-
-            string pi = "p0" + std::to_string(plaintext_count);
-            updated_inputs_entries.insert(pi);
-            ostringstream expr;
-
             int rotation_amount = (position - token_slot);
+            std::pair<string, int> op_key = {found_label, rotation_amount};
 
-            if (rotation_amount == 0) {
-              expr << "( * " << label_to_insert << " " << pi << " )";
-            } else {
-              expr << "( * ( << " << label_to_insert << " " << rotation_amount << " ) " << pi << " )";
+            if (grouped_operations.find(op_key) == grouped_operations.end()) {
+              std::vector<int> mask(plaintext_size + 2 , 0);
+              mask[0] = 0;
+              mask[1] = 1;
+              grouped_operations[op_key] = mask;
             }
 
-            if (first_term) {
-              expression_to_build = expr.str();
-              plaintext_count++;
-              first_term = false;
-            } else {
-              expression_to_build = "( + " + expression_to_build + " " + expr.str() + " )";
-              plaintext_count++;
+            if (token_slot + 2 < grouped_operations[op_key].size()) {
+              grouped_operations[op_key][token_slot + 2] = 1;
             }
 
-            // std::cout << "==> expression to build : " << expression_to_build << std::endl;
-
-            std::vector<int> plaintext_vector(plaintext_size + 2, 0);
-            plaintext_vector[0] = 0;  // is plaintext not ciphertext
-            plaintext_vector[1] = 1;  // is signed
-
-            if (position < plaintext_vector.size()) plaintext_vector[token_slot + 2] = 1;
-
-            std::ostringstream plain_stream;      
-            plain_stream << pi;
-            for(int val : plaintext_vector) {
-              plain_stream << " " << val;
-            };
-
-            plaintext_lines.push_back(plain_stream.str());
-
+          
           }
 
         } else {    // number or digit
@@ -711,9 +741,46 @@ void generate_final_expression(
             }
             partial_ciphertext[token_slot + 2] = std::stoull(current);
 
-            // partial_ciphertext[token_slot + 2] = std::stoull(current);
         }
         tokens.pop();
+      }
+
+
+      for (const auto& entry : grouped_operations) {
+        
+        string label_to_insert = entry.first.first;
+        int rotation_amount = entry.first.second;
+        const std::vector<int>& merged_vector = entry.second;
+
+        updated_inputs_entries.insert(label_to_insert);
+
+        string pi = "p0" + std::to_string(plaintext_count);
+        updated_inputs_entries.insert(pi);
+
+        ostringstream expr;
+        if (rotation_amount == 0) {
+          expr << "( * " << label_to_insert << " " << pi << " )";
+        } else {
+          expr << "( * ( << " << label_to_insert << " " << rotation_amount << " ) " << pi << " )";
+        }
+
+        if (first_term) {
+          expression_to_build = expr.str();
+          plaintext_count++;
+          first_term = false;
+        } else {
+          expression_to_build = "( + " + expression_to_build + " " + expr.str() + " )";
+          plaintext_count++;
+        }
+
+        std::ostringstream plain_stream;
+        plain_stream << pi;
+        for(int val : merged_vector) {
+          plain_stream << " " << val;
+        };
+
+        plaintext_lines.push_back(plain_stream.str());
+
       }
 
       // create a new ciphertext for the vector with only digits
@@ -733,23 +800,38 @@ void generate_final_expression(
       input_vec_values << cipher_stream.str();
       input_vec_values << "\n";
 
-      expression_to_build = "( + " + expression_to_build + " " + ci + " )";
+      if (first_term) {
+           expression_to_build = ci; 
+           first_term = false;
+      } else {
+           expression_to_build = "( + " + expression_to_build + " " + ci + " )";
+      }
 
       ciphertext_mapping.insert({pair.first, expression_to_build});
 
     }
-
     
   }
 
 
 
     // after collecting all plaintexts required to conrscturct the vecotors , we put them in the file
-    // std::cout << "Plaintext File Content:\n";
-    // for(const auto&line : plaintext_lines) {
-    //   std::cout << line << std::endl;
-    // }
+    std::cout << "Plaintext File Content:\n";
+    for(const auto&line : plaintext_lines) {
+      // std::cout << line << std::endl;
+    }
 
+    /* after generating the final expression , we omit the redundancy in rotations to enhance efficiency
+        we add supplementary treatment 
+    */
+
+
+    
+    for (const auto& it : ciphertext_mapping) {
+      // std::cout << it.first << " -> " << it.second << std::endl;
+    }
+
+    
 
     // now we update the file with the ciphertexts inputs and the new plaintexts
     // we read the file fhe_io_example_adapted.txt and we modify it
@@ -793,7 +875,7 @@ void prepare_fhe_file(
   auto tokens = split(header);
 
   if (tokens.size() < 3) {
-    std::cerr << "Header line is malformed!" << std::endl;
+    std::cerr << "Header line is wrong!" << std::endl;
     return;
   }
 
@@ -847,17 +929,20 @@ void prepare_fhe_file(
   int counter = 0;
 
   while(std::getline(another_infile, vec_values)) {
+
     auto tokens = split(vec_values);
     
     // skip the first 3 tokens
     vector<string> first_three_tokens;
     for(int i = 0; i < 3 && !tokens.empty(); i++) {
-      // if (i == 0) {
-      //   // Replace first token with c{counter}i
-      //   first_three_tokens.push_back("c" + to_string(counter) + "i");
-      // } else {
-      //   first_three_tokens.push_back(tokens.front());
-      // }
+
+      // Logic to ensure the first token (i=0) starts with 'c'
+      if (i == 0) {
+          if (!tokens.front().empty() && tokens.front()[0] != 'c') {
+              tokens.front()[0] = 'c'; // Replace 'a' or others with 'c'
+          }
+      }
+      
       first_three_tokens.push_back(tokens.front());
       tokens.pop();
     }

@@ -1,0 +1,7 @@
+benchmark,add,sub,multiply_plain,rotate_rows,square,multiply,Depth,Multplicative Depth,compile_time( ms ),execution_time (ms)
+roberts_cross_4,10,3,7,3,0,9,7,2,419,98
+roberts_cross_8,10,3,7,3,0,9,7,2,1243,97
+roberts_cross_16,10,3,7,3,0,9,7,2,11157,98
+matrix_mul_4,29,0,28,29,0,29,10,2,266,230
+matrix_mul_8,114,0,112,126,0,113,17,2,10497,690
+matrix_mul_16,452,0,448,496,0,449,22,2,27464,2639

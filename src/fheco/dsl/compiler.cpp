@@ -611,11 +611,11 @@ void update_io_file(const unordered_map<string,string>& input_entries,const vect
         /************************************************/
         for(int i =0; i<Valuestokens.size() ; i++){
           string key = Valuestokens[i];
-          std::cout<<"==>key :"<<key<<"||\n";
+          // std::cout<<"==>key :"<<key<<"||\n";
           if(!is_literal(key)){
               string value =""; 
               if (ciphertexts.find(key) != ciphertexts.end()) {
-                  std::cout<<"ciphertxt_map :"<<ciphertexts[key]<<"||\n";
+                  // std::cout<<"ciphertxt_map :"<<ciphertexts[key]<<"||\n";
                   updated_input+=trim(ciphertexts[key])+" ";  // Access the value corresponding to the key
               } else {
                   if (plaintexts.find(key) != plaintexts.end()){
@@ -1377,7 +1377,7 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func)
   
 
   for (auto lab : updated_inputs_entries) {
-      std::cout << "new_input_label before adding to the init_input : " << lab << std::endl;
+      // std::cout << "new_input_label before adding to the init_input : " << lab << std::endl;
       if(lab.substr(0,1)=="c") {
           Ciphertext cipher(lab);
           func->init_input(cipher,move(lab));
@@ -1397,7 +1397,7 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func)
   for(auto& new_term_str : updated_cons_fd_expressions) {
     if(!new_term_str.empty()) {
         new_term_str = replace_variable(new_term_str, ciphertext_mapping);
-        std::cout << "=> new_term_str : " << new_term_str << std::endl;
+        // std::cout << "=> new_term_str : " << new_term_str << std::endl;
     }
   }
 
