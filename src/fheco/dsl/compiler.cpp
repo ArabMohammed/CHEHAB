@@ -863,7 +863,7 @@ string vector_constant_folding(queue<string> &tokens,unordered_map<string,string
 /**Generate Updated CHihab Term from corresponding Term's String tokens**/
 ir::Term *Compiler::build_expression(const std::shared_ptr<ir::Func> &func, map<string, ir::Term *> map, queue<string> &tokens)
 {
-  // std::cout<<"==========> hello build expression \n";
+  std::cout<<"==========> hello build expression \n";
   while (!tokens.empty())
   {
 
@@ -1362,9 +1362,9 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func)
     std::cout << "Key: " << kv.first << " -> Value: " << kv.second << std::endl;
   }
 
-  // for (const auto& ele : updated_inputs_entries) {
-  //   std::cout << "element of updated_input_entries : " << ele << std::endl;
-  // }
+  for (const auto& ele : updated_inputs_entries) {
+    std::cout << "element of updated_input_entries : " << ele << std::endl;
+  }
 
   /********************************************************************/
   /******* Convert simplified_vectorized IR  ***************************/
@@ -1420,10 +1420,12 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func)
   std::reverse(output_terms.begin(), output_terms.end());
   std::string new_term_str ;
   int index=0;
-  for(const auto &new_term_str : updated_cons_fd_expressions){
+  for(const auto &new_term_str : updated_cons_fd_expressions) {
     if (!new_term_str.empty()) {  // Ensure that we do not push empty tokens
       auto tokens = split(new_term_str);
+      std::cout << "here4" << std::endl;
       auto new_term = build_expression(func, myMap, tokens);
+      std::cout << "here5" << std::endl;
       auto old_term = const_cast<ir::Term *>(output_terms[index]);
       // std::cout << "==> old term : " << old_term <<std::endl;
       // std::cout << "==> new term : " << new_term<< std::endl;
